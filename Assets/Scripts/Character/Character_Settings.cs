@@ -7,14 +7,18 @@ namespace Character
     public class Character_Settings : ScriptableObject
     {
         [Foldout("Main")]
-        public int speed;
+        public float speed;
+        [Foldout("Main")]
+        public float scrollSpeed;
 
         [Foldout("Movement")]
         public float shiftSpeedMultiplyer;
 
+        [Foldout("Movement")]
+        public Vector2 zoomScale;
+
         [Foldout("Debug")]
         public bool debug;
-        public bool de
 
     }
 

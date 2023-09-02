@@ -10,9 +10,11 @@ namespace Character
     {
 
         public Character_Settings settings;
+        public Camera playerCamera;
 
 
-        private Vector2 movement;
+        private Vector3 movement;
+        private float scroll;
         // Start is called before the first frame update
         void Start()
         {
@@ -22,13 +24,29 @@ namespace Character
         // Update is called once per frame
         void Update()
         {
-            movement.x = Input.GetAxis("Horizontal") * settings.speed * Time.deltaTime;
-            movement.y = Input.GetAxis("Vertical") * settings.speed * Time.deltaTime;
+            float shiftMultiply = 1;
+            if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift))
+            {
+                shiftMultiply = settings.shiftSpeedMultiplyer;
+            }
+
+            scroll = settings.scrollSpeed * Input.GetAxis("Mouse ScrollWheel") * Time.deltaTime;
+
+            movement.x = Input.GetAxis("Horizontal") * settings.speed * shiftMultiply * Time.deltaTime;
+            movement.y = Input.GetAxis("Vertical") * settings.speed * shiftMultiply * Time.deltaTime;
+
+            if (settings.debug)
+            {
+                Debug.Log("Movement: " + movement);
+                Debug.Log("Scroll: " + scroll);
+            }
+
         }
 
         private void LateUpdate()
         {
-
+            this.gameObject.transform.position += movement;
+            playerCamera.orthographicSize = Mathf.Clamp(playerCamera.orthographicSize - scroll, settings.zoomScale.x, settings.zoomScale.y);
         }
     }
 }

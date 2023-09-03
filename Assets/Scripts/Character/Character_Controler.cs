@@ -31,14 +31,17 @@ namespace Character
             }
 
             scroll = settings.scrollSpeed * Input.GetAxis("Mouse ScrollWheel") * Time.deltaTime;
+            float percentageScroll = Mathf.Clamp(playerCamera.orthographicSize / settings.zoomScale.y, settings.zoomSpeedScale.x, settings.zoomSpeedScale.y);
 
-            movement.x = Input.GetAxis("Horizontal") * settings.speed * shiftMultiply * Time.deltaTime;
-            movement.y = Input.GetAxis("Vertical") * settings.speed * shiftMultiply * Time.deltaTime;
+
+            movement.x = Input.GetAxis("Horizontal") * settings.speed * shiftMultiply * percentageScroll * Time.deltaTime;
+            movement.y = Input.GetAxis("Vertical") * settings.speed * shiftMultiply * percentageScroll * Time.deltaTime;
 
             if (settings.debug)
             {
                 Debug.Log("Movement: " + movement);
                 Debug.Log("Scroll: " + scroll);
+                Debug.Log("% Scroll: " + percentageScroll);
             }
 
         }

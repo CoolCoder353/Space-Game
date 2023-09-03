@@ -1,8 +1,9 @@
+using System;
 using UnityEngine;
 namespace WorldGeneration
 {
 
-
+    [Serializable]
     public class Tile
     {
         private TileType type;
@@ -29,6 +30,16 @@ namespace WorldGeneration
             this.type = type;
             this.debugColour = debugColor;
             this.texture = texture;
+        }
+
+        public int WalkSpeed()
+        {
+            return 1;
+        }
+
+        public bool Walkable()
+        {
+            return WalkSpeed() == 0 ? false : true;
         }
     }
 

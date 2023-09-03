@@ -18,8 +18,25 @@ namespace WorldGeneration
         private Tile[,] tileMap;
         private Vector2 offset = Vector2.zero;
 
+
+        public Tile[,] GetMap()
+        {
+            return tileMap;
+        }
+
+        public int GetWorldSize()
+        {
+            if (settings.width != settings.height)
+            {
+                throw new System.Exception("Width and Height not equal");
+            }
+            return settings.width;
+        }
+
+
+
         //TODO: Show colours on screen when in debug mode.
-        private void Start()
+        private void Awake()
         {
             if (seed == 0)
             {
@@ -47,13 +64,35 @@ namespace WorldGeneration
 
         private void OnDrawGizmos()
         {
-            if (Application.isPlaying)
+            if (Application.isPlaying && settings.debug)
             {
                 if (tileMap == null) { Debug.LogWarning("Tilemap not defined"); return; }
                 Debug.Log("Drawing Tiles");
                 DrawDebugTiles();
             }
         }
+
+        // A method that takes a 2D array of tile objects and a tile object x, and returns the row and column indices of x in the array, or (-1, -1) if x is not found
+        public (int, int) FindTile(Tile x)
+        {
+            // Loop through the rows of the array
+            for (int i = 0; i < tileMap.GetLength(0); i++)
+            {
+                // Loop through the columns of the array
+                for (int j = 0; j < tileMap.GetLength(1); j++)
+                {
+                    // If the current tile is equal to x, return its indices
+                    if (tileMap[i, j] == x)
+                    {
+                        return (i, j);
+                    }
+                }
+            }
+
+            // If x is not found, return (-1, -1)
+            return (-1, -1);
+        }
+
 
 
         private void GenerateColourMap()

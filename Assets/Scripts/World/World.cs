@@ -1,17 +1,21 @@
 using UnityEngine;
 using NaughtyAttributes;
+using System.Collections.Generic;
 namespace WorldGeneration
 {
     public class World : MonoBehaviour
     {
         public WorldSettings settings;
         public int seed;
+        public GameObject tileParent;
 
 
 
 
         private Color[] colorMap;
         private Sprite[] textureMap;
+
+        private Dictionary<TileType, int> speedMap = new Dictionary<TileType, int>();
 
         private float[,] noiseMap;
 
@@ -31,6 +35,38 @@ namespace WorldGeneration
                 throw new System.Exception("Width and Height not equal");
             }
             return settings.width;
+        }
+
+        public void hideAll()
+        {
+            foreach (Transform child in tileParent.transform)
+            {
+                child.gameObject.SetActive(false);
+            }
+
+        }
+
+        public void showRange(Vector2 center, Vector2 size)
+        {
+            foreach (Transform child in tileParent.transform)
+            {
+                if (child.position.x >= center.x - size.x / 2 && child.position.x <= center.x + size.x / 2 &&
+                    child.position.y >= center.y - size.y / 2 && child.position.y <= center.y + size.y / 2)
+                {
+                    child.gameObject.SetActive(true);
+                }
+            }
+        }
+        public void showRange(Vector3 center, Vector2 size)
+        {
+            foreach (Transform child in tileParent.transform)
+            {
+                if (child.position.x >= center.x - size.x / 2 && child.position.x <= center.x + size.x / 2 &&
+                    child.position.y >= center.y - size.y / 2 && child.position.y <= center.y + size.y / 2)
+                {
+                    child.gameObject.SetActive(true);
+                }
+            }
         }
 
 
@@ -85,6 +121,8 @@ namespace WorldGeneration
             {
                 TileType tile = weight.type;
 
+                speedMap[tile] = weight.movementSpeed;
+
                 colorMap[(int)tile] = weight.debugColour;
                 textureMap[(int)tile] = weight.texture;
             }
@@ -112,7 +150,7 @@ namespace WorldGeneration
 
                     Sprite texture = textureMap[(int)type];
 
-                    tileMap[x, y] = new Tile(type, colour, texture, x, y);
+                    tileMap[x, y] = new Tile(type, speedMap[type], colour, texture, x, y);
 
                 }
             }
@@ -141,7 +179,7 @@ namespace WorldGeneration
                 for (int x = 0; x < settings.width; x++)
                 {
                     Vector3 offset = new(x * settings.tileWidth, y * settings.tileHeight, 0);
-                    GameObject tile = Instantiate(settings.tileObject, transform.position + offset, settings.tileObject.transform.rotation, gameObject.transform);
+                    GameObject tile = Instantiate(settings.tileObject, transform.position + offset, settings.tileObject.transform.rotation, tileParent.transform);
                     tile.transform.localScale = new Vector3(settings.tileWidth, settings.tileHeight, 1);
                     SetTileImage(tile, x, y);
 

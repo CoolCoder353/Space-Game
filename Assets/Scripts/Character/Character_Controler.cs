@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using WorldGeneration;
 
 namespace Character
 {
@@ -15,7 +16,12 @@ namespace Character
 
         private Vector3 movement;
         private float scroll;
+        private World world;
 
+        private void Start()
+        {
+            world = FindObjectOfType<World>();
+        }
 
 
         // Update is called once per frame
@@ -46,10 +52,23 @@ namespace Character
 
         }
 
+        private float timeLeft;
         private void LateUpdate()
         {
             this.gameObject.transform.position += movement;
             playerCamera.orthographicSize = Mathf.Clamp(playerCamera.orthographicSize - scroll, settings.zoomScale.x, settings.zoomScale.y);
+
+
+            if (timeLeft >= settings.tileRenderTime)
+            {
+                Debug.Log("Re-Rendering");
+                world.hideAll();
+                world.showRange(gameObject.transform.position, settings.tileRenderSize);
+                timeLeft = 0;
+            }
+            timeLeft += Time.deltaTime;
+
+
         }
     }
 }

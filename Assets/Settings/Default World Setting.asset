@@ -12,16 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcf19bd47454d4746b410e310e9419bb, type: 3}
   m_Name: Default World Setting
   m_EditorClassIdentifier: 
-  width: 10
-  height: 10
+  width: 512
+  height: 512
   weights:
   - name: Rock
     weight: 0.541
+    movementSpeed: 2
     debugColour: {r: 0.6300508, g: 1, b: 0, a: 1}
     texture: {fileID: 21300000, guid: 98285b9a94676b54d955ee8d74ec522b, type: 3}
     type: 0
   - name: Space
     weight: 0
+    movementSpeed: 1
     debugColour: {r: 0, g: 0, b: 0, a: 1}
     texture: {fileID: 21300000, guid: b742c581d87706843a7de26ee9d21173, type: 3}
     type: 1

@@ -113,28 +113,28 @@ public class Pathfinding_Test : MonoBehaviour
         {
             if (start == null)
             {
-                Debug.Log("Set start");
+                ////  Debug.Log("Set start");
                 start = tile;
                 (int x, int y) = FindTile(map, tile);
-                Debug.Log($"Start pos = ({x},{y})");
+                ////  Debug.Log($"Start pos = ({x},{y})");
             }
             else if (end == null)
             {
-                Debug.Log("Set end");
+                //// Debug.Log("Set end");
                 end = tile;
                 (int x, int y) = FindTile(map, tile);
-                Debug.Log($"End pos = ({x},{y})");
+                ////   Debug.Log($"End pos = ({x},{y})");
 
-                Debug.Log(start.Walkable() + " and " + end.Walkable());
+                ////   Debug.Log(start.Walkable() + " and " + end.Walkable());
 
                 currentPath = pathfinder.FindPath(start, end);
 
-                Debug.Log(currentPath);
+                ////  Debug.Log(currentPath);
 
             }
             else
             {
-                Debug.Log("Reset");
+                ////Debug.Log("Reset");
                 start = null;
                 end = null;
                 currentPath = new List<Tile>();
@@ -150,7 +150,7 @@ public class Pathfinding_Test : MonoBehaviour
 
             // Get the mouse position in world space
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Debug.Log(mousePos);
+            ////Debug.Log(mousePos);
             // Declare a small tolerance value
             float tolerance = world.settings.tileWidth;
 

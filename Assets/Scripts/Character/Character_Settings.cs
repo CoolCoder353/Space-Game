@@ -20,6 +20,12 @@ namespace Character
         [Foldout("Movement"), Tooltip("The min and max values that the scroll amount should affect the speed of the camera")]
         public Vector2 zoomSpeedScale;
 
+        [Foldout("View")]
+        public Vector2 tileRenderSize;
+
+        [Foldout("View")]
+        public float tileRenderTime;
+
         [Foldout("Debug")]
         public bool debug;
 

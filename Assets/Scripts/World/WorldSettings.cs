@@ -46,6 +46,7 @@ namespace WorldGeneration
         public string name;
         [Range(0, 1)]
         public float weight;
+        public int movementSpeed;
         public Color debugColour;
         public Sprite texture;
         public TileType type;

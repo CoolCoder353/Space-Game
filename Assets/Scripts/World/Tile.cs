@@ -9,7 +9,9 @@ namespace WorldGeneration
         private TileType type;
         private Color debugColour;
         private Sprite texture;
+        private int speed;
         public (int x, int y) Position { get; set; }
+
 
         public TileType GetTileType()
         {
@@ -26,17 +28,18 @@ namespace WorldGeneration
             return texture;
         }
 
-        public Tile(TileType type, Color debugColor, Sprite texture, int x, int y)
+        public Tile(TileType type, int speed, Color debugColor, Sprite texture, int x, int y)
         {
             this.type = type;
             this.debugColour = debugColor;
             this.texture = texture;
             this.Position = (x, y);
+            this.speed = speed;
         }
 
         public int WalkSpeed()
         {
-            return 1;
+            return speed;
         }
 
         public bool Walkable()

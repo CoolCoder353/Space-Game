@@ -30,7 +30,7 @@ public class Pathfinding_Test : MonoBehaviour
         map = world.GetMap();
         pathfinder = new Pathfinder(map);
 
-        TestCases();
+        ////TestCases();
 
         ////Debug.Log("Average time to optimize a path is " + Average(speed_Opt) + " ms.");
 
@@ -77,7 +77,6 @@ public class Pathfinding_Test : MonoBehaviour
             {
                 foreach (Tile tile in currentPath)
                 {
-                    Debug.Log("Drawing Path");
                     Gizmos.color = Color.cyan;
                     (int x, int y) = tile.Position;
 
@@ -129,6 +128,7 @@ public class Pathfinding_Test : MonoBehaviour
                 Debug.Log(start.Walkable() + " and " + end.Walkable());
 
                 currentPath = pathfinder.FindPath(start, end);
+
                 Debug.Log(currentPath);
 
             }

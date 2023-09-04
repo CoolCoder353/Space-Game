@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using WorldGeneration;
+using UnityEngine;
 
 // A struct for the tile node
 public struct TileNode
@@ -77,6 +77,8 @@ public class Pathfinder
 
             // Get the neighbors of the current tile that are within the bounds of the world and walkable
             HashSet<Tile> neighbors = GetNeighbors(currentTile);
+            (int x, int y) = currentTile.Position;
+            ////Debug.Log($"Tile ({x},{y}) has {neighbors.Count} neighbours.");
 
             // Loop through each neighbor
             foreach (Tile next in neighbors)
@@ -102,13 +104,13 @@ public class Pathfinder
             }
         }
 
+
         // Check if a path was found, return null if not
         if (!cameFrom.ContainsKey(end))
         {
             return null;
         }
 
-        // Trace back from the end tile to the start tile using
         // Trace back from the end tile to the start tile using the came from dictionary, adding each tile to the path list
         Tile current = end;
         while (current != null)
@@ -128,61 +130,11 @@ public class Pathfinder
         // Reverse the path list so that it goes from start to end
         path.Reverse();
 
+
         // Return the path list
         return path;
     }
 
-    /*
-        // A method that optimizes the path by removing unnecessary turns and checking for better neighbors
-        public void OptimizePath(List<Tile> path)
-        {
-            // Check if the path is null or empty, return if so
-            if (path == null || path.Count == 0)
-            {
-                return;
-            }
-
-            // Get the start and end tiles from the path
-            Tile start = path[0];
-            Tile end = path[path.Count - 1];
-
-            // Check if the start and end tiles are still valid and walkable, return if not
-            if (!start.Walkable() || !end.Walkable())
-            {
-                return;
-            }
-
-            // Loop through the path from start to end, excluding the last tile
-            for (int i = 0; i < path.Count - 1; i++)
-            {
-                // Get the current and next tiles from the path
-                Tile currentTile = path[i];
-                Tile next = path[i + 1];
-
-                // Check if the next tile is still valid and walkable, return if not
-                if (!next.Walkable())
-                {
-                    return;
-                }
-
-
-                // Check if there is a better neighbor for the current tile than the next tile, using the same logic as in the FindPath method
-                HashSet<Tile> neighbors = GetNeighbors(currentTile);
-                foreach (Tile neighbor in neighbors)
-                {
-                    int newCost = costSoFar[currentTile] + neighbor.WalkSpeed();
-                    int priority = newCost + Heuristic(neighbor, end);
-                    if (priority < next.Priority)
-                    {
-                        // If there is a better neighbor, replace the next tile with it in the path and update its cost and priority
-                        path[i + 1] = new TileNode(neighbor, priority);
-                        costSoFar[neighbor] = newCost;
-                        break;
-                    }
-                }
-            }
-        }
-        */
 
     // A helper method that returns the heuristic distance between two tiles using the Manhattan distance formula
     private int Heuristic(Tile a, Tile b)
@@ -193,8 +145,9 @@ public class Pathfinder
         (int bx, int by) = b.Position;
 
 
-        // Return the absolute difference of their x and y coordinates
-        return Math.Abs(ax - bx) + Math.Abs(ay - by);
+        int dx = Mathf.Abs(ax - bx);
+        int dy = Mathf.Abs(ay - by);
+        return -Mathf.Max(dx, dy);
     }
 
     // A helper method that returns the neighbors of a tile that are within the bounds of the world and walkable
@@ -211,12 +164,13 @@ public class Pathfinder
         {
             for (int dy = -1; dy <= 1; dy++)
             {
+                ////Debug.Log($"Tile ({x},{y}) has a neigbour.");
                 // Skip the tile itself using bitwise operations
-                if ((dx | dy) == 0)
+                if (dx == 0 && dy == 0)
                 {
                     continue;
                 }
-
+                ////Debug.Log($"Tile ({x},{y}) has a neigbour that is not itself.");
                 // Calculate the neighbor's position
                 int nx = x + dx;
                 int ny = y + dy;
@@ -224,15 +178,19 @@ public class Pathfinder
                 // Check if the neighbor's position is within the bounds of the world
                 if (nx >= 0 && nx < world.GetLength(0) && ny >= 0 && ny < world.GetLength(1))
                 {
+                    ////Debug.Log($"Tile ({x},{y}) has a neigbour within the bounds of the world.");
                     // Get the neighbor from the world
                     Tile neighbor = world[nx, ny];
 
+                    ////Debug.Log($"Found neighbour for tile ({x},{y}) at ({nx},{ny})");
                     // Check if the neighbor is walkable, add it to the hash set if so
                     if (neighbor.Walkable())
                     {
+                        ////Debug.Log("Neighbour is walkable");
                         // Check if the neighbor is diagonal
                         if ((dx & dy) != 0)
                         {
+                            ////Debug.Log("Neighbour is a diagonal");
                             // Get the two adjacent tiles that form a corner with the neighbor
                             Tile corner1 = world[x + dx, y];
                             Tile corner2 = world[x, y + dy];
@@ -240,6 +198,7 @@ public class Pathfinder
                             // Check if both corner tiles are blocked, skip the neighbor if so
                             if (!corner1.Walkable() && !corner2.Walkable())
                             {
+                                ////Debug.Log("Neighbour not acceptable for some reason");
                                 continue;
                             }
                         }

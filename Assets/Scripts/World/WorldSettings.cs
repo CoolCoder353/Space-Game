@@ -12,6 +12,11 @@ namespace WorldGeneration
         public int height;
 
         [Foldout("Main")]
+        public int chunkWidth;
+        [Foldout("Main")]
+        public int chunkHeight;
+
+        [Foldout("Main")]
         public TileWeights[] weights;
 
         [Foldout("Main")]

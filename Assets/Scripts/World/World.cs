@@ -23,6 +23,8 @@ namespace WorldGeneration
         private Vector2 offset = Vector2.zero;
 
 
+
+
         public Tile[,] GetMap()
         {
             return tileMap;
@@ -59,6 +61,10 @@ namespace WorldGeneration
         }
         public void showRange(Vector3 center, Vector2 size)
         {
+            showRange(new Vector3(center.x, center.y, 0), size);
+        }
+        public void showRangeInChunks(Vector2 center, Vector2 size)
+        {
             foreach (Transform child in tileParent.transform)
             {
                 if (child.position.x >= center.x - size.x / 2 && child.position.x <= center.x + size.x / 2 &&
@@ -66,8 +72,13 @@ namespace WorldGeneration
                 {
                     child.gameObject.SetActive(true);
                 }
+                else
+                {
+                    child.gameObject.SetActive(false);
+                }
             }
         }
+
 
 
 
@@ -174,12 +185,27 @@ namespace WorldGeneration
 
         private void CreateTiles()
         {
+            GameObject[,] chunks = new GameObject[Mathf.CeilToInt(settings.width / settings.chunkWidth), Mathf.CeilToInt(settings.height / settings.chunkHeight)];
+            for (int i = 0; i < Mathf.CeilToInt(settings.height / settings.chunkHeight); i++)
+            {
+                for (int j = 0; j < Mathf.CeilToInt(settings.width / settings.chunkWidth); j++)
+                {
+
+
+                    GameObject chunk = new GameObject($"Chunk_({j},{i})");
+                    chunk.transform.SetParent(tileParent.transform);
+                    chunk.transform.position = new(settings.tileWidth * j * settings.chunkWidth, settings.tileHeight * i * settings.chunkHeight);
+
+                    chunks[j, i] = chunk;
+                }
+            }
             for (int y = 0; y < settings.height; y++)
             {
                 for (int x = 0; x < settings.width; x++)
                 {
+                    GameObject chunk = chunks[Mathf.FloorToInt(x / settings.chunkWidth), Mathf.FloorToInt(x / settings.chunkHeight)];
                     Vector3 offset = new(x * settings.tileWidth, y * settings.tileHeight, 0);
-                    GameObject tile = Instantiate(settings.tileObject, transform.position + offset, settings.tileObject.transform.rotation, tileParent.transform);
+                    GameObject tile = Instantiate(settings.tileObject, transform.position + offset, settings.tileObject.transform.rotation, chunk.transform);
                     tile.transform.localScale = new Vector3(settings.tileWidth, settings.tileHeight, 1);
                     SetTileImage(tile, x, y);
 

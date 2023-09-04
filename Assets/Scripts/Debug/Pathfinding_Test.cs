@@ -14,13 +14,14 @@ public class Pathfinding_Test : MonoBehaviour
     private World world;
     private Tile[,] map;
 
-    private List<float> speed_Find = new List<float>();
+    public List<long> speed_Find = new List<long>();
 
     private List<float> speed_Opt = new List<float>();
 
     [SerializeField]
     public List<Tile> currentPath = new List<Tile>();
 
+    private long totalTime = 0;
     private Tile start;
     private Tile end;
 
@@ -41,6 +42,7 @@ public class Pathfinding_Test : MonoBehaviour
     [Button("Re-Test")]
     public void TestCases()
     {
+        totalTime = 0;
         List<Tile> result = new List<Tile>();
         for (int i = 0; i > amountOfTestCases; i++)
         {
@@ -48,9 +50,12 @@ public class Pathfinding_Test : MonoBehaviour
             var watch_FindPath = System.Diagnostics.Stopwatch.StartNew();
 
             result = pathfinder.FindPath(GetRandomTile(), GetRandomTile());
+            Debug.Log(result);
+            speed_Find.Add(watch_FindPath.ElapsedMilliseconds);
+            totalTime += watch_FindPath.ElapsedMilliseconds;
 
             watch_FindPath.Stop();
-            speed_Find.Add(watch_FindPath.ElapsedMilliseconds);
+
 
             // Check if the path is null or empty
             if (result == null || result.Count == 0)
@@ -65,7 +70,7 @@ public class Pathfinding_Test : MonoBehaviour
 
         }
         ////Debug.Log("The last result given was " + result);
-        Debug.Log("Average time to find a path is " + Average(speed_Find) + " ms.");
+        Debug.Log($"Completed {amountOfTestCases} in {totalTime} ms, averaging {Average(speed_Find)} ms per testcase");
     }
 
     private void OnDrawGizmos()
@@ -194,19 +199,19 @@ public class Pathfinding_Test : MonoBehaviour
     }
 
     // A method that takes a list of floats and returns the average value of that list
-    float Average(List<float> numbers)
+    long Average(List<long> numbers)
     {
         // If the list is empty, return 0
         if (numbers.Count == 0)
         {
-            return 0f;
+            return 0;
         }
 
         // Declare a variable to store the sum of the numbers
-        float sum = 0f;
+        long sum = 0;
 
         // Loop through the list and add each number to the sum
-        foreach (float number in numbers)
+        foreach (long number in numbers)
         {
             sum += number;
         }

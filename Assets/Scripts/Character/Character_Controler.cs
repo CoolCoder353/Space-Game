@@ -62,8 +62,8 @@ namespace Character
             if (timeLeft >= settings.tileRenderTime)
             {
                 Debug.Log("Re-Rendering");
-                world.hideAll();
-                world.showRange(gameObject.transform.position, settings.tileRenderSize);
+
+                world.showRangeInChunks(gameObject.transform.position, settings.tileRenderSize);
                 timeLeft = 0;
             }
             timeLeft += Time.deltaTime;

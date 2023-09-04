@@ -17,4 +17,4 @@ MonoBehaviour:
   shiftSpeedMultiplyer: 2
   zoomScale: {x: 0.01, y: 0.1}
   zoomSpeedScale: {x: 0, y: 1}
-  debug: 1
+  debug: 0

@@ -114,6 +114,14 @@ public class Pathfinder
         while (current != null)
         {
             path.Add(current);
+
+            // Check if the current tile is in the came from dictionary, break if not
+            if (!cameFrom.ContainsKey(current))
+            {
+                break;
+            }
+
+            // Get the previous tile of the current tile from the came from dictionary
             current = cameFrom[current];
         }
 
@@ -180,9 +188,9 @@ public class Pathfinder
     private int Heuristic(Tile a, Tile b)
     {
         // Get the positions of the tiles in the world
-        (int ax, int ay) = FindTile(world, a);
+        (int ax, int ay) = a.Position;
 
-        (int bx, int by) = FindTile(world, b);
+        (int bx, int by) = b.Position;
 
 
         // Return the absolute difference of their x and y coordinates
@@ -195,17 +203,16 @@ public class Pathfinder
         // Create a hash set to store the neighbors
         HashSet<Tile> neighbors = new HashSet<Tile>();
 
-        // Get the position of the tile in the world
-        (int x, int y) = FindTile(world, tile);
+        // Get the position of the tile directly from its property
+        (int x, int y) = tile.Position;
 
-
-        // Loop through the four directions: up, down, left, right
+        // Loop through the eight directions: up, down, left, right, and diagonals
         for (int dx = -1; dx <= 1; dx++)
         {
             for (int dy = -1; dy <= 1; dy++)
             {
-                // Skip the diagonal directions and the tile itself using bitwise operations
-                if ((dx & dy) != 0)
+                // Skip the tile itself using bitwise operations
+                if ((dx | dy) == 0)
                 {
                     continue;
                 }
@@ -223,6 +230,21 @@ public class Pathfinder
                     // Check if the neighbor is walkable, add it to the hash set if so
                     if (neighbor.Walkable())
                     {
+                        // Check if the neighbor is diagonal
+                        if ((dx & dy) != 0)
+                        {
+                            // Get the two adjacent tiles that form a corner with the neighbor
+                            Tile corner1 = world[x + dx, y];
+                            Tile corner2 = world[x, y + dy];
+
+                            // Check if both corner tiles are blocked, skip the neighbor if so
+                            if (!corner1.Walkable() && !corner2.Walkable())
+                            {
+                                continue;
+                            }
+                        }
+
+                        // Add the neighbor to the hash set
                         neighbors.Add(neighbor);
                     }
                 }
@@ -231,25 +253,5 @@ public class Pathfinder
 
         // Return the hash set of neighbors
         return neighbors;
-    }
-
-    public (int, int) FindTile(Tile[,] tileMap, Tile x)
-    {
-        // Loop through the rows of the array
-        for (int i = 0; i < tileMap.GetLength(0); i++)
-        {
-            // Loop through the columns of the array
-            for (int j = 0; j < tileMap.GetLength(1); j++)
-            {
-                // If the current tile is equal to x, return its indices
-                if (tileMap[i, j] == x)
-                {
-                    return (i, j);
-                }
-            }
-        }
-
-        // If x is not found, return (-1, -1)
-        return (-1, -1);
     }
 }

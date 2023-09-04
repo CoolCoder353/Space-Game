@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcf19bd47454d4746b410e310e9419bb, type: 3}
   m_Name: Default World Setting
   m_EditorClassIdentifier: 
-  width: 512
-  height: 512
+  width: 10
+  height: 10
   weights:
   - name: Rock
     weight: 0.541
@@ -32,6 +32,6 @@ MonoBehaviour:
   lacunarity: 3.5
   tileWidth: 0.01
   tileHeight: 0.01
-  debug: 1
+  debug: 0
   debugType: 0
   createTiles: 1

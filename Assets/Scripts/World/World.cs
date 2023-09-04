@@ -73,25 +73,7 @@ namespace WorldGeneration
         }
 
         // A method that takes a 2D array of tile objects and a tile object x, and returns the row and column indices of x in the array, or (-1, -1) if x is not found
-        public (int, int) FindTile(Tile x)
-        {
-            // Loop through the rows of the array
-            for (int i = 0; i < tileMap.GetLength(0); i++)
-            {
-                // Loop through the columns of the array
-                for (int j = 0; j < tileMap.GetLength(1); j++)
-                {
-                    // If the current tile is equal to x, return its indices
-                    if (tileMap[i, j] == x)
-                    {
-                        return (i, j);
-                    }
-                }
-            }
 
-            // If x is not found, return (-1, -1)
-            return (-1, -1);
-        }
 
 
 
@@ -130,7 +112,7 @@ namespace WorldGeneration
 
                     Sprite texture = textureMap[(int)type];
 
-                    tileMap[x, y] = new Tile(type, colour, texture);
+                    tileMap[x, y] = new Tile(type, colour, texture, x, y);
 
                 }
             }

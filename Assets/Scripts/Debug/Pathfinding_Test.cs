@@ -72,10 +72,24 @@ public class Pathfinding_Test : MonoBehaviour
     {
         if (Application.isPlaying)
         {
+
+            if (currentPath != null)
+            {
+                foreach (Tile tile in currentPath)
+                {
+                    Debug.Log("Drawing Path");
+                    Gizmos.color = Color.cyan;
+                    (int x, int y) = tile.Position;
+
+                    Vector3 offset = new(x * world.settings.tileWidth, y * world.settings.tileHeight, 0);
+                    Vector3 size = new(world.settings.tileWidth, world.settings.tileHeight, 0);
+                    Gizmos.DrawCube(offset, size);
+                }
+            }
             if (start != null)
             {
                 Gizmos.color = Color.green;
-                (int x, int y) = world.FindTile(start);
+                (int x, int y) = start.Position;
                 Vector3 offset = new(x * world.settings.tileWidth, y * world.settings.tileHeight, 0);
                 Vector3 size = new(world.settings.tileWidth, world.settings.tileHeight, 0);
                 Gizmos.DrawCube(offset, size);
@@ -83,23 +97,10 @@ public class Pathfinding_Test : MonoBehaviour
             if (end != null)
             {
                 Gizmos.color = Color.red;
-                (int x, int y) = world.FindTile(end);
+                (int x, int y) = end.Position;
                 Vector3 offset = new(x * world.settings.tileWidth, y * world.settings.tileHeight, 0);
                 Vector3 size = new(world.settings.tileWidth, world.settings.tileHeight, 0);
                 Gizmos.DrawCube(offset, size);
-            }
-            if (currentPath != null)
-            {
-                foreach (Tile tile in currentPath)
-                {
-                    Debug.Log("Drawing Path");
-                    Gizmos.color = Color.cyan;
-                    (int x, int y) = world.FindTile(tile);
-
-                    Vector3 offset = new(x * world.settings.tileWidth, y * world.settings.tileHeight, 0);
-                    Vector3 size = new(world.settings.tileWidth, world.settings.tileHeight, 0);
-                    Gizmos.DrawCube(offset, size);
-                }
             }
         }
 

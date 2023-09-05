@@ -196,8 +196,7 @@ namespace WorldGeneration
                 }
             }
 
-            Debug.Log(chunks.GetLength(0));
-            Debug.Log(chunks.GetLength(1));
+
             for (int y = 0; y < settings.height; y++)
             {
                 for (int x = 0; x < settings.width; x++)

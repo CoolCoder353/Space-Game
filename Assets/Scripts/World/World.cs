@@ -9,9 +9,7 @@ namespace WorldGeneration
         public int seed;
         public GameObject tileParent;
 
-
-
-
+        private GameObject[,] chunks;
         private Color[] colorMap;
         private Sprite[] textureMap;
 
@@ -21,9 +19,6 @@ namespace WorldGeneration
 
         private Tile[,] tileMap;
         private Vector2 offset = Vector2.zero;
-
-
-
 
         public Tile[,] GetMap()
         {
@@ -185,25 +180,36 @@ namespace WorldGeneration
 
         private void CreateTiles()
         {
-            GameObject[,] chunks = new GameObject[Mathf.CeilToInt(settings.width / settings.chunkWidth), Mathf.CeilToInt(settings.height / settings.chunkHeight)];
-            for (int i = 0; i < Mathf.CeilToInt(settings.height / settings.chunkHeight); i++)
+            chunks = new GameObject[Mathf.CeilToInt(settings.width / settings.chunkWidth) + 1, Mathf.CeilToInt(settings.height / settings.chunkHeight) + 1];
+            for (int j = 0; j < Mathf.CeilToInt(settings.height / settings.chunkHeight) + 1; j++)
             {
-                for (int j = 0; j < Mathf.CeilToInt(settings.width / settings.chunkWidth); j++)
+                for (int i = 0; i < Mathf.CeilToInt(settings.width / settings.chunkWidth) + 1; i++)
                 {
 
 
-                    GameObject chunk = new GameObject($"Chunk_({j},{i})");
+                    GameObject chunk = new GameObject($"Chunk_({i},{j})");
                     chunk.transform.SetParent(tileParent.transform);
-                    chunk.transform.position = new(settings.tileWidth * j * settings.chunkWidth, settings.tileHeight * i * settings.chunkHeight);
+                    chunk.transform.position = new(settings.tileWidth * i * settings.chunkWidth, settings.tileHeight * j * settings.chunkHeight);
 
-                    chunks[j, i] = chunk;
+                    chunks[i, j] = chunk;
+                    ////Debug.Log($"Chunk ({i},{j}) is now at point {i}, {j}");
                 }
             }
+
+            Debug.Log(chunks.GetLength(0));
+            Debug.Log(chunks.GetLength(1));
             for (int y = 0; y < settings.height; y++)
             {
                 for (int x = 0; x < settings.width; x++)
                 {
-                    GameObject chunk = chunks[Mathf.FloorToInt(x / settings.chunkWidth), Mathf.FloorToInt(x / settings.chunkHeight)];
+                    ////GameObject chunk = tileParent;
+
+                    int i = Mathf.FloorToInt(x / settings.chunkWidth);
+                    int j = Mathf.FloorToInt(y / settings.chunkHeight);
+
+                    ////Debug.Log($"Tile should be in chunk ({i},{j})");
+
+                    GameObject chunk = chunks[i, j];
                     Vector3 offset = new(x * settings.tileWidth, y * settings.tileHeight, 0);
                     GameObject tile = Instantiate(settings.tileObject, transform.position + offset, settings.tileObject.transform.rotation, chunk.transform);
                     tile.transform.localScale = new Vector3(settings.tileWidth, settings.tileHeight, 1);

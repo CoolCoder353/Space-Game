@@ -17,24 +17,24 @@ MonoBehaviour:
   chunkWidth: 100
   chunkHeight: 100
   weights:
-  - name: Rock
-    weight: 0.541
+  - name: Grass
+    weight: 0.35
     movementSpeed: 2
     debugColour: {r: 0.6300508, g: 1, b: 0, a: 1}
-    texture: {fileID: 21300000, guid: 98285b9a94676b54d955ee8d74ec522b, type: 3}
+    texture: {fileID: 21300000, guid: 155a92b23f6d9934cb99d1f9c82ca1fb, type: 3}
     type: 0
-  - name: Space
-    weight: 0.1
+  - name: dirt
+    weight: 0.7
     movementSpeed: 1
-    debugColour: {r: 0, g: 0, b: 0, a: 1}
-    texture: {fileID: 21300000, guid: b742c581d87706843a7de26ee9d21173, type: 3}
+    debugColour: {r: 1, g: 0, b: 0, a: 1}
+    texture: {fileID: 21300000, guid: 310e06d9c52f8d54ca0df8b5a57d677b, type: 3}
     type: 1
   - name: Water
-    weight: 0
+    weight: 1
     movementSpeed: 0
-    debugColour: {r: 0, g: 0, b: 0, a: 1}
+    debugColour: {r: 0, g: 0.046456337, b: 1, a: 1}
     texture: {fileID: 21300000, guid: f53d89971bbd35249ae89420b5a9bcf0, type: 3}
-    type: 1
+    type: 2
   tileObject: {fileID: 6940109548191356281, guid: eb461f7d14c60d74e9a8a422bae7431d, type: 3}
   scale: 150
   octaves: 8

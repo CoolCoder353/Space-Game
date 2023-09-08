@@ -50,6 +50,7 @@ namespace WorldGeneration
 
     public enum TileType
     {
+        Grass,
         Rock,
         Space
     }

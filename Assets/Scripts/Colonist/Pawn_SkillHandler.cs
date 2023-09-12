@@ -3,7 +3,6 @@ using System;
 // An enum that defines the skill names
 public enum SkillName
 {
-    // Add or remove skills as needed
     Shooting,
     Melee,
     Construction,

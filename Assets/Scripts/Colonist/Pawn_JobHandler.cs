@@ -1,3 +1,4 @@
+using UnityEnmgine;
 public class JobHandler
 {
     protected PriorityQueue<Job> jobs;
@@ -25,7 +26,7 @@ public class JobHandler
     public IEnumerator Run(Job job)
     {
         job.Job_Start();
-        while !job.IsJobComplete()
+        while (!job.IsJobComplete())
         {
             job.Job_Update();
         }

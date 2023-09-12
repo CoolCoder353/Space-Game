@@ -99,6 +99,16 @@ public class SkillHandler
         }
     }
 
+    public SkillHandler()
+    {
+        foreach (SkillName skill in (SkillName[])Enum.GetValues(typeof(SkillName)))
+        {
+            Type type = Type.GetType(skill.ToString() + "Skill"); // Get the type of the corresponding skill class 
+            skills[(int)skill] = (Skill)Activator.CreateInstance(type); // Create an instance of the skill class and store it in the array 
+        }
+    }
+
+
     // A method that returns the skill object of a given skill name
     public Skill GetSkill(SkillName skill)
     {

@@ -7,7 +7,7 @@ namespace WorldGeneration
     {
         public WorldSettings settings;
         public int seed;
-        public GameObject tileParent;
+        public GameObject tileParent { get; private set; }
 
         private GameObject[,] chunks;
         private Color[] colorMap;

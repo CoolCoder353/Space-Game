@@ -10,6 +10,8 @@ public class Pawn : MonoBehaviour
 
     private void Start()
     {
+        skillHandler = new();
+        pathfinder = new();
 
     }
 

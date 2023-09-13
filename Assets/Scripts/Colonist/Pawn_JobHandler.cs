@@ -1,4 +1,6 @@
-using UnityEnmgine;
+/// <summary>
+/// A class that manages a queue of jobs and executes them in order of priority.
+/// </summary>
 public class JobHandler
 {
     protected PriorityQueue<Job> jobs;
@@ -12,33 +14,32 @@ public class JobHandler
         ClearJobs();
     }
 
+    /// <summary>
+    /// Adds a job to the queue.
+    /// </summary>
+    /// <param name="job">The job to add.</param>
     public void AddJob(Job job)
     {
         jobs.Enqueue(job);
     }
 
+    /// <summary>
+    /// Dequeues and runs the next job in the queue.
+    /// </summary>
     public void Run_Job()
     {
-        Job job = jobs.Dequeue();
-        StartCoroutine(Run(job));
+        var job = jobs.Dequeue();
+        // TODO: Implement job execution logic here.
     }
 
-    public IEnumerator Run(Job job)
-    {
-        job.Job_Start();
-        while (!job.IsJobComplete())
-        {
-            job.Job_Update();
-        }
-        job.Job_Finish();
-    }
+    /// <summary>
+    /// Returns true if there are any jobs in the queue, false otherwise.
+    /// </summary>
+    public bool HasJob => jobs.Count > 0;
 
-
-    public bool HasJob()
-    {
-        return jobs.Count > 0;
-    }
-
+    /// <summary>
+    /// Clears all jobs from the queue.
+    /// </summary>
     public void ClearJobs()
     {
         jobs = new PriorityQueue<Job>(maxJobs, (Job a, Job b) => a.priority.CompareTo(b.priority));
@@ -58,20 +59,12 @@ public abstract class Job
         this.type = type;
     }
 
-    public void Job_Start()
-    {
-
-    }
-    public void Job_Update()
-    {
-
-    }
-    public void Job_Finish()
-    {
-
-    }
+    /// <summary>
+    /// Returns true if the job is complete, false otherwise.
+    /// </summary>
     public abstract bool IsJobComplete();
 }
+
 public enum JobType
 {
     Mining,

@@ -6,7 +6,7 @@ using NaughtyAttributes;
 using UnityEngine;
 using WorldGeneration;
 
-public class Pawn : I_Movealble
+public class Pawn : I_Moveable
 {
     public Pathfinder pathfinder;
     private SkillHandler skillHandler;
@@ -21,8 +21,6 @@ public class Pawn : I_Movealble
 
     private void Start()
     {
-
-        ShootingSkill skill = new();
         world = FindObjectOfType<World>();
         map = world.GetMap();
         skillHandler = new();

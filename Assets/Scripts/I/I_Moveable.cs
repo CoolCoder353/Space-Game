@@ -3,9 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using WorldGeneration;
 
-public abstract class I_Movealble : MonoBehaviour
+public abstract class I_Moveable : MonoBehaviour
 {
-
     public Sprite front;
     public Sprite back;
     public Sprite left;
@@ -17,11 +16,6 @@ public abstract class I_Movealble : MonoBehaviour
 
     private float moveSpeed;
     private int maxReccuritionDepth = 1000000;
-
-    private void Start()
-    {
-        cancelMove = false;
-    }
 
     public void StartMove(List<Tile> tiles, float moveSpeed)
     {

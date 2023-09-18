@@ -7,7 +7,7 @@ namespace WorldGeneration
     {
         public WorldSettings settings;
         public int seed;
-        public GameObject tileParent { get; private set; }
+        public GameObject tileParent;
 
         private GameObject[,] chunks;
         private Color[] colorMap;
@@ -32,6 +32,18 @@ namespace WorldGeneration
                 throw new System.Exception("Width and Height not equal");
             }
             return settings.width;
+        }
+
+        public Tile GetTileAtPosition(Vector3 pos)
+        {
+            int x = Mathf.RoundToInt(pos.x / settings.tileWidth);
+            int y = Mathf.RoundToInt(pos.y / settings.tileHeight);
+            if (x < 0 || x >= settings.width || y < 0 || y >= settings.height)
+            {
+                Debug.LogWarning($"Tile out of bounds for position ({pos.x}, {pos.y})");
+                return null;
+            }
+            return tileMap[x, y];
         }
 
         public void hideAll()
@@ -156,7 +168,7 @@ namespace WorldGeneration
 
                     Sprite texture = textureMap[(int)type];
 
-                    tileMap[x, y] = new Tile(type, speedMap[type], colour, texture, x, y);
+                    tileMap[x, y] = new Tile(type, speedMap[type], colour, texture, x, y, x * settings.tileWidth, y * settings.tileHeight);
 
                 }
             }

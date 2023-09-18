@@ -1,6 +1,8 @@
 using System;
+using System.Diagnostics;
 
 // An enum that defines the skill names
+/*
 public enum SkillName
 {
     Shooting,
@@ -16,6 +18,14 @@ public enum SkillName
     Social,
     Intellectual
 }
+*/
+public enum SkillName
+{
+    Shooting,
+    Melee
+}
+
+
 
 // An abstract class that represents a skill
 public abstract class Skill
@@ -91,7 +101,7 @@ public class SkillHandler
     // A constructor that takes an array of skill names and initializes them as skill objects using reflection
     public SkillHandler(SkillName[] skillNames)
     {
-        skills = new Skill[Enum.GetNames(typeof(SkillName)).Length];
+        skills = new Skill[skillNames.Length];
         foreach (SkillName skill in skillNames)
         {
             Type type = Type.GetType(skill.ToString() + "Skill"); // Get the type of the corresponding skill class 
@@ -101,6 +111,7 @@ public class SkillHandler
 
     public SkillHandler()
     {
+        skills = new Skill[Enum.GetNames(typeof(SkillName)).Length];
         foreach (SkillName skill in (SkillName[])Enum.GetValues(typeof(SkillName)))
         {
             Type type = Type.GetType(skill.ToString() + "Skill"); // Get the type of the corresponding skill class 

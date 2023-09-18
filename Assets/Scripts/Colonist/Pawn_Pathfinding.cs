@@ -10,10 +10,10 @@ public struct TileNode
     public Tile tile;
 
     // A field to store the priority of the tile
-    public int priority;
+    public float priority;
 
     // A constructor that takes the tile and the priority as parameters and assigns them to the fields
-    public TileNode(Tile tile, int priority)
+    public TileNode(Tile tile, float priority)
     {
         this.tile = tile;
         this.priority = priority;
@@ -55,7 +55,7 @@ public class Pathfinder
         Dictionary<Tile, Tile> cameFrom = new Dictionary<Tile, Tile>();
 
         // Enqueue the start tile with zero priority
-        frontier.Enqueue(new TileNode(start, 0));
+        frontier.Enqueue(new TileNode(start, 0f));
 
         // Set the cost of reaching the start tile to zero
         costSoFar[start] = 0;
@@ -93,7 +93,7 @@ public class Pathfinder
                     costSoFar[next] = newCost;
 
                     // Calculate the priority of the neighbor by adding its cost and its heuristic distance to the end tile
-                    int priority = newCost + Heuristic(next, end);
+                    float priority = newCost + Heuristic(next, end);
 
                     // Enqueue the neighbor with its priority in the frontier queue
                     frontier.Enqueue(new TileNode(next, priority));
@@ -137,18 +137,29 @@ public class Pathfinder
 
 
     // A helper method that returns the heuristic distance between two tiles using the Manhattan distance formula
-    private int Heuristic(Tile a, Tile b)
+    private float Heuristic(Tile a, Tile b)
     {
         // Get the positions of the tiles in the world
         (int ax, int ay) = a.Position;
-
         (int bx, int by) = b.Position;
 
+        Vector2 point1 = new(ax, ay);
+        Vector2 point2 = new(bx, by);
 
-        int dx = Mathf.Abs(ax - bx);
-        int dy = Mathf.Abs(ay - by);
-        return -Mathf.Max(dx, dy);
+        return -EuclideanDistance(point1, point2);
     }
+
+    public static float EuclideanDistance(Vector2 point1, Vector2 point2)
+    {
+        return Vector2.Distance(point1, point2);
+    }
+    public static float ChebyshevDistance(Vector2 point1, Vector2 point2)
+    {
+        float distance = 0;
+        distance = Math.Max(Math.Abs(point1.x - point2.x), Math.Abs(point1.y - point2.y));
+        return distance;
+    }
+
 
     // A helper method that returns the neighbors of a tile that are within the bounds of the world and walkable
     private HashSet<Tile> GetNeighbors(Tile tile)

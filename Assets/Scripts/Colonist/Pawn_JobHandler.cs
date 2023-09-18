@@ -1,3 +1,6 @@
+using System;
+using System.Collections;
+
 /// <summary>
 /// A class that manages a queue of jobs and executes them in order of priority.
 /// </summary>
@@ -24,12 +27,11 @@ public class JobHandler
     }
 
     /// <summary>
-    /// Dequeues and runs the next job in the queue.
+    /// Dequeues the next job in the queue.
     /// </summary>
-    public void Run_Job()
+    public Job Get_Job()
     {
-        var job = jobs.Dequeue();
-        // TODO: Implement job execution logic here.
+        return jobs.Dequeue();
     }
 
     /// <summary>
@@ -52,17 +54,17 @@ public abstract class Job
     public WorldGeneration.Tile position;
     public JobType type;
 
+
     public Job(int priority, WorldGeneration.Tile position, JobType type)
     {
         this.priority = priority;
         this.position = position;
         this.type = type;
+
     }
 
-    /// <summary>
-    /// Returns true if the job is complete, false otherwise.
-    /// </summary>
-    public abstract bool IsJobComplete();
+    public abstract IEnumerator RunJob(Action<Job> callback);
+
 }
 
 public enum JobType

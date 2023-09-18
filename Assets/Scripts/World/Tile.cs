@@ -11,6 +11,7 @@ namespace WorldGeneration
         private Sprite texture;
         private int speed;
         public (int x, int y) Position { get; set; }
+        public (float x, float y) WorldPosition { get; set; }
 
 
         public TileType GetTileType()
@@ -28,13 +29,14 @@ namespace WorldGeneration
             return texture;
         }
 
-        public Tile(TileType type, int speed, Color debugColor, Sprite texture, int x, int y)
+        public Tile(TileType type, int speed, Color debugColor, Sprite texture, int x, int y, float worldx, float worldy)
         {
             this.type = type;
             this.debugColour = debugColor;
             this.texture = texture;
             this.Position = (x, y);
             this.speed = speed;
+            this.WorldPosition = (worldx, worldy);
         }
 
         public int WalkSpeed()

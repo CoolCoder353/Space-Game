@@ -6,6 +6,10 @@ using WorldGeneration;
 public abstract class I_Movealble : MonoBehaviour
 {
 
+    public Sprite front;
+    public Sprite back;
+    public Sprite left;
+    public Sprite right;
 
     private bool cancelMove = false;
 
@@ -24,11 +28,14 @@ public abstract class I_Movealble : MonoBehaviour
         if (tiles == null)
         {
             Debug.LogWarning("Can't move to null tiles. Exiting");
+            OnMoveCancelled();
+
             return;
         }
         if (tiles.Count <= 0)
         {
             Debug.LogWarning("Can't move to 0 tiles. Exiting");
+            OnMoveCancelled();
             return;
         }
         cancelMove = false;
@@ -63,6 +70,27 @@ public abstract class I_Movealble : MonoBehaviour
             Vector2 targetPos = new(tiles[currentPointIndex].WorldPosition.x, tiles[currentPointIndex].WorldPosition.y);
             if (ourPos != targetPos)
             {
+                //Get direction of travel 
+                Vector2 direction = targetPos - ourPos;
+
+                //Set sprite based on direction
+                if (direction.x > 0)
+                {
+                    GetComponent<SpriteRenderer>().sprite = left;
+                }
+                else if (direction.x < 0)
+                {
+                    GetComponent<SpriteRenderer>().sprite = right;
+                }
+                else if (direction.y > 0)
+                {
+                    GetComponent<SpriteRenderer>().sprite = back;
+                }
+                else if (direction.y < 0)
+                {
+                    GetComponent<SpriteRenderer>().sprite = front;
+                }
+
                 Vector3 pos = new(targetPos.x, targetPos.y, transform.position.z);
                 transform.position = Vector3.MoveTowards(transform.position, pos, moveSpeed * Time.deltaTime);
             }

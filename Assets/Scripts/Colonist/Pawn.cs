@@ -62,7 +62,8 @@ public class Pawn : I_Movealble
     //    MOVEMENT    \\
     protected override void OnMoveCancelled()
     {
-        Debug.Log("Pawn cancelled movement");
+        Debug.Log("Pawn cancelled movement. Skipping to next job");
+        currentJob = null;
     }
 
     protected override void OnMoveFinished()

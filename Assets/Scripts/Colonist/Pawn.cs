@@ -11,6 +11,7 @@ public class Pawn : I_Movealble
     public Pathfinder pathfinder;
     private SkillHandler skillHandler;
     private JobHandler jobHandler;
+    private NeedHandler needHandler;
 
     private World world;
     private Tile[,] map;
@@ -22,12 +23,12 @@ public class Pawn : I_Movealble
     {
 
         ShootingSkill skill = new();
-        Debug.Log("Pawn has started");
         world = FindObjectOfType<World>();
         map = world.GetMap();
         skillHandler = new();
         pathfinder = new(map);
         jobHandler = new();
+        needHandler = new();
 
     }
 
@@ -44,6 +45,7 @@ public class Pawn : I_Movealble
 
     void Update()
     {
+        needHandler.UpdateNeeds();
         if (currentJob == null && jobHandler.HasJob)
         {
 

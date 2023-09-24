@@ -1,6 +1,7 @@
 using UnityEngine;
 using NaughtyAttributes;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 namespace WorldGeneration
 {
     public class World : MonoBehaviour
@@ -20,6 +21,8 @@ namespace WorldGeneration
         private Tile[,] tileMap;
         private Vector2 offset = Vector2.zero;
 
+        private Pawn[] pawnsInWorld;
+
         public Tile[,] GetMap()
         {
             return tileMap;
@@ -36,14 +39,20 @@ namespace WorldGeneration
 
         public Tile GetTileAtPosition(Vector3 pos)
         {
+            Vector2Int coords = GetTileCoordsAtPosition(pos);
+            return tileMap[coords.x, coords.y];
+        }
+
+        public Vector2Int GetTileCoordsAtPosition(Vector3 pos)
+        {
             int x = Mathf.RoundToInt(pos.x / settings.tileWidth);
             int y = Mathf.RoundToInt(pos.y / settings.tileHeight);
             if (x < 0 || x >= settings.width || y < 0 || y >= settings.height)
             {
                 Debug.LogWarning($"Tile out of bounds for position ({pos.x}, {pos.y})");
-                return null;
+                return Vector2Int.zero;
             }
-            return tileMap[x, y];
+            return new Vector2Int(x, y);
         }
 
         public void hideAll()
@@ -86,8 +95,21 @@ namespace WorldGeneration
             }
         }
 
+        public void SetTile(Vector3 pos, TileType type)
+        {
+            Vector2Int coords = GetTileCoordsAtPosition(pos);
+            Tile newTile = new Tile(type, speedMap[type], colorMap[(int)type], textureMap[(int)type], coords.x, coords.y, coords.x * settings.tileWidth, coords.y * settings.tileHeight);
+            Debug.Log($"Setting tile at {coords.x}, {coords.y} from {tileMap[coords.x, coords.y].GetTileType()} to {newTile.GetTileType()}");
+            tileMap.SetValue(newTile, coords.x, coords.y);
+            UpdateTileObject(coords, newTile);
+        }
 
-
+        private void UpdateTileObject(Vector2Int coords, Tile newTile)
+        {
+            GameObject chunk = chunks[coords.x / settings.chunkWidth, coords.y / settings.chunkHeight];
+            GameObject tileObject = chunk.transform.GetChild(coords.x % settings.chunkWidth * settings.chunkHeight + coords.y).gameObject;
+            SetTileImage(tileObject, coords.x, coords.y);
+        }
 
         //TODO: Show colours on screen when in debug mode.
         private void Awake()
@@ -133,9 +155,9 @@ namespace WorldGeneration
 
         private void GenerateColourMap()
         {
-            colorMap = new Color[settings.weights.Length];
-            textureMap = new Sprite[settings.weights.Length];
-            foreach (TileWeights weight in settings.weights)
+            colorMap = new Color[settings.textures.Length];
+            textureMap = new Sprite[settings.textures.Length];
+            foreach (TileTextures weight in settings.textures)
             {
                 TileType tile = weight.type;
 
@@ -168,7 +190,7 @@ namespace WorldGeneration
 
                     Sprite texture = textureMap[(int)type];
 
-                    tileMap[x, y] = new Tile(type, speedMap[type], colour, texture, x, y, x * settings.tileWidth, y * settings.tileHeight);
+                    tileMap.SetValue(new Tile(type, speedMap[type], colour, texture, x, y, x * settings.tileWidth, y * settings.tileHeight), x, y);
 
                 }
             }

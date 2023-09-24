@@ -8,15 +8,21 @@ using WorldGeneration;
 
 public class Pawn : I_Moveable
 {
-    public Pathfinder pathfinder;
-    private SkillHandler skillHandler;
-    private JobHandler jobHandler;
-    private NeedHandler needHandler;
+    public Pathfinder pathfinder { get; protected set; }
+    public SkillHandler skillHandler { get; protected set; }
+    public JobHandler globalJobHandler { get; protected set; }
+    public JobHandler selfJobHandler { get; protected set; }
+    public NeedHandler needHandler { get; protected set; }
+
+    private bool isControllable = true;
 
     private World world;
     private Tile[,] map;
 
     private Job currentJob;
+
+
+
 
 
     private void Start()
@@ -25,7 +31,8 @@ public class Pawn : I_Moveable
         map = world.GetMap();
         skillHandler = new();
         pathfinder = new(map);
-        jobHandler = new();
+        globalJobHandler = new();
+        selfJobHandler = new();
         needHandler = new();
 
     }
@@ -37,19 +44,42 @@ public class Pawn : I_Moveable
     [Button()]
     public void Debug_Add_Job()
     {
-        jobHandler.AddJob(new MiningJob(UnityEngine.Random.Range(1, 11), world.GetTileAtPosition(miningJobPos)));
-        jobHandler.AddJob(new BuildingJob(UnityEngine.Random.Range(1, 11), world.GetTileAtPosition(buildingJobPos)));
+        globalJobHandler.AddJob(new MiningJob(UnityEngine.Random.Range(1, 11), world.GetTileAtPosition(miningJobPos)));
+        globalJobHandler.AddJob(new BuildingJob(UnityEngine.Random.Range(1, 11), world.GetTileAtPosition(buildingJobPos)));
+    }
+
+    public void AddJob(Job job)
+    {
+        Debug.Log($"Pawn has a new job: {job.GetType()}");
+        globalJobHandler.AddJob(job);
+    }
+
+    public bool IsControllable()
+    {
+        return isControllable;
     }
 
     void Update()
     {
         needHandler.UpdateNeeds();
-        if (currentJob == null && jobHandler.HasJob)
-        {
 
-            currentJob = jobHandler.Get_Job();
+        //TODO: Update self jobs based on needs
+
+
+        if (currentJob == null && (globalJobHandler.HasJob || selfJobHandler.HasJob))
+        {
+            if (selfJobHandler.HasJob)
+            {
+                currentJob = selfJobHandler.Get_Job();
+            }
+            else if (globalJobHandler.HasJob)
+            {
+                currentJob = globalJobHandler.Get_Job();
+            }
+
             Debug.Log($"Pawn has a new job: {currentJob.GetType()}");
             StartMove(pathfinder.FindPath(world.GetTileAtPosition(transform.position), currentJob.position), 0.1f);
+
         }
     }
 

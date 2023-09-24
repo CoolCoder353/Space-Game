@@ -22,7 +22,8 @@ public enum SkillName
 public enum SkillName
 {
     Shooting,
-    Melee
+    Melee,
+    Construction
 }
 
 
@@ -50,7 +51,7 @@ public abstract class Skill
     }
 
     // A method that returns the level of the skill based on the xp
-    public int GetLevel()
+    public int Level()
     {
         return SkillMath.XpToLevel(Xp); // Use the math function to convert xp to level
     }
@@ -60,17 +61,17 @@ public abstract class Skill
     {
         Xp = SkillMath.LevelToXp(level); // Use the math function to convert level to xp
         ApplySkillEffect(level); // Apply the skill effect after changing xp
-        PreviousLevel = GetLevel(); // Update the previous level
+        PreviousLevel = Level(); // Update the previous level
     }
 
     // A method that increases the xp of the skill by a given amount
     public void IncreaseXp(int amount)
     {
         Xp += amount;
-        if (GetLevel() > PreviousLevel) // Check if the current level is greater than the previous level
+        if (Level() > PreviousLevel) // Check if the current level is greater than the previous level
         {
-            ApplySkillEffect(GetLevel()); // Apply the skill effect after increasing xp
-            PreviousLevel = GetLevel(); // Update the previous level
+            ApplySkillEffect(Level()); // Apply the skill effect after increasing xp
+            PreviousLevel = Level(); // Update the previous level
         }
     }
 
@@ -79,10 +80,10 @@ public abstract class Skill
     {
         Xp -= amount;
         if (Xp < 0) Xp = 0; // Ensure xp is not negative
-        if (GetLevel() < PreviousLevel) // Check if the current level is lower than the previous level
+        if (Level() < PreviousLevel) // Check if the current level is lower than the previous level
         {
-            ApplySkillEffect(GetLevel()); // Apply the skill effect after decreasing xp
-            PreviousLevel = GetLevel(); // Update the previous level
+            ApplySkillEffect(Level()); // Apply the skill effect after decreasing xp
+            PreviousLevel = Level(); // Update the previous level
         }
     }
 

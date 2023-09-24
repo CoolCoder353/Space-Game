@@ -17,6 +17,9 @@ namespace WorldGeneration
         public int chunkHeight;
 
         [Foldout("Main")]
+        public TileTextures[] textures;
+
+        [Foldout("Main")]
         public TileWeights[] weights;
 
         [Foldout("Main")]
@@ -51,10 +54,17 @@ namespace WorldGeneration
         public string name;
         [Range(0, 1)]
         public float weight;
-        public int movementSpeed;
+        public TileType type;
+
+    }
+    [System.Serializable]
+    public class TileTextures
+    {
+        public TileType type;
         public Color debugColour;
         public Sprite texture;
-        public TileType type;
+
+        public int movementSpeed;
     }
 
     [System.Serializable]

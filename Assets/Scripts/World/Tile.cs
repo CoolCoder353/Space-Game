@@ -54,6 +54,7 @@ namespace WorldGeneration
     {
         Grass,
         Rock,
-        Space
+        Space,
+        Wall_Blueprint
     }
 }

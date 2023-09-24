@@ -10,7 +10,6 @@ public class Pathfinding_Test : MonoBehaviour
     [MinValue(1), MaxValue(100000)]
     public int amountOfTestCases = 100;
 
-    private Pathfinder pathfinder;
     private World world;
     private Tile[,] map;
 
@@ -29,7 +28,6 @@ public class Pathfinding_Test : MonoBehaviour
     {
         world = (World)FindObjectOfType(typeof(World));
         map = world.GetMap();
-        pathfinder = new Pathfinder(map);
 
         ////TestCases();
 
@@ -49,7 +47,7 @@ public class Pathfinding_Test : MonoBehaviour
 
             var watch_FindPath = System.Diagnostics.Stopwatch.StartNew();
 
-            result = pathfinder.FindPath(GetRandomTile(), GetRandomTile());
+            result = Pathfinder.FindPath(GetRandomTile(), GetRandomTile(), map);
             Debug.Log(result);
             speed_Find.Add(watch_FindPath.ElapsedMilliseconds);
             totalTime += watch_FindPath.ElapsedMilliseconds;
@@ -132,7 +130,7 @@ public class Pathfinding_Test : MonoBehaviour
 
                 ////   Debug.Log(start.Walkable() + " and " + end.Walkable());
 
-                currentPath = pathfinder.FindPath(start, end);
+                currentPath = Pathfinder.FindPath(start, end, map);
 
                 ////  Debug.Log(currentPath);
 

@@ -21,24 +21,21 @@ public struct TileNode
 }
 
 // A class for the pathfinder
-public class Pathfinder
+public static class Pathfinder
 {
-    // A private field to store the world as a two-dimensional array of tiles
-    private Tile[,] world;
-
-    // A constructor that takes the world as a parameter and assigns it to the field
-    public Pathfinder(Tile[,] world)
-    {
-        this.world = world;
-    }
 
     // A method that finds the shortest path between two tiles using the A* algorithm
-    public List<Tile> FindPath(Tile start, Tile end)
+    public static List<Tile> FindPath(Tile start, Tile end, Tile[,] world)
     {
         // Check if the start and end tiles are valid and walkable, return null if not
         if (start == null || end == null || !start.Walkable() || !end.Walkable())
         {
 
+            return null;
+        }
+
+        if (World.Contains(start, world) == false || World.Contains(end, world) == false)
+        {
             return null;
         }
 
@@ -63,8 +60,9 @@ public class Pathfinder
         // Set the previous tile of the start tile to null
         cameFrom[start] = null;
 
+        DateTime startTime = System.DateTime.Now;
         // Loop while the frontier is not empty
-        while (frontier.Count > 0)
+        while (frontier.Count > 0 && (System.DateTime.Now - startTime).TotalMinutes < 1)
         {
             // Dequeue the tile with the lowest priority from the frontier
             Tile currentTile = frontier.Dequeue().tile;
@@ -76,7 +74,7 @@ public class Pathfinder
             }
 
             // Get the neighbors of the current tile that are within the bounds of the world and walkable
-            HashSet<Tile> neighbors = GetNeighbors(currentTile);
+            HashSet<Tile> neighbors = GetNeighbors(currentTile, world);
             (int x, int y) = currentTile.Position;
             ////Debug.Log($"Tile ({x},{y}) has {neighbors.Count} neighbours.");
 
@@ -95,6 +93,7 @@ public class Pathfinder
                     // Calculate the priority of the neighbor by adding its cost and its heuristic distance to the end tile
                     float priority = newCost + Heuristic(next, end);
 
+
                     // Enqueue the neighbor with its priority in the frontier queue
                     frontier.Enqueue(new TileNode(next, priority));
 
@@ -104,7 +103,11 @@ public class Pathfinder
             }
         }
 
-
+        if ((System.DateTime.Now - startTime).TotalMinutes >= 1)
+        {
+            Debug.LogWarning("Pathfinding timed out");
+            return null;
+        }
         // Check if a path was found, return null if not
         if (!cameFrom.ContainsKey(end))
         {
@@ -137,7 +140,7 @@ public class Pathfinder
 
 
     // A helper method that returns the heuristic distance between two tiles using the Manhattan distance formula
-    private float Heuristic(Tile a, Tile b)
+    private static float Heuristic(Tile a, Tile b)
     {
         // Get the positions of the tiles in the world
         (int ax, int ay) = a.Position;
@@ -162,7 +165,7 @@ public class Pathfinder
 
 
     // A helper method that returns the neighbors of a tile that are within the bounds of the world and walkable
-    private HashSet<Tile> GetNeighbors(Tile tile)
+    private static HashSet<Tile> GetNeighbors(Tile tile, Tile[,] world)
     {
         // Create a hash set to store the neighbors
         HashSet<Tile> neighbors = new HashSet<Tile>();

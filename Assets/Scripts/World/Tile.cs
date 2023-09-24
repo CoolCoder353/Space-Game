@@ -13,7 +13,10 @@ namespace WorldGeneration
         public (int x, int y) Position { get; set; }
         public (float x, float y) WorldPosition { get; set; }
 
-
+        public Vector2Int GetPosition()
+        {
+            return new Vector2Int(Position.x, Position.y);
+        }
         public TileType GetTileType()
         {
             return type;

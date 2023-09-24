@@ -8,7 +8,6 @@ using WorldGeneration;
 
 public class Pawn : I_Moveable
 {
-    public Pathfinder pathfinder { get; protected set; }
     public SkillHandler skillHandler { get; protected set; }
     public JobHandler globalJobHandler { get; protected set; }
     public JobHandler selfJobHandler { get; protected set; }
@@ -30,12 +29,13 @@ public class Pawn : I_Moveable
         world = FindObjectOfType<World>();
         map = world.GetMap();
         skillHandler = new();
-        pathfinder = new(map);
         globalJobHandler = new();
         selfJobHandler = new();
         needHandler = new();
 
     }
+
+
 
     public Vector3 miningJobPos = new();
     public Vector3 buildingJobPos = new();
@@ -78,7 +78,7 @@ public class Pawn : I_Moveable
             }
 
             Debug.Log($"Pawn has a new job: {currentJob.GetType()}");
-            StartMove(pathfinder.FindPath(world.GetTileAtPosition(transform.position), currentJob.position), 0.1f);
+            StartMove(Pathfinder.FindPath(world.GetTileAtPosition(transform.position), currentJob.position, map), 0.1f);
 
         }
     }

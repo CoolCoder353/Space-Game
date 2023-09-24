@@ -1,6 +1,8 @@
 //A global handler that looks at the users input and sends jobs to the appropriate pawn.
 
 using System.Collections.Generic;
+using System.IO;
+using NaughtyAttributes;
 using UnityEngine;
 using WorldGeneration;
 
@@ -31,17 +33,35 @@ public class Global_job_handler : MonoBehaviour
             On_Input();
         }
     }
+    [Button()]
+    public void Test()
+    {
+        List<Tile> path = Pathfinder.FindPath(world.GetMap()[0, 0], world.GetMap()[10, 10], world.GetMap());
+        Debug.Log(path?.Count);
+
+        world.SetTile(new Vector3(0, 0, 0), TileType.Wall_Blueprint);
+
+        List<Tile> secondPath = Pathfinder.FindPath(world.GetMap()[0, 0], world.GetMap()[10, 10], world.GetMap());
+        Debug.Log(secondPath?.Count);
+    }
 
     private void On_Input()
     {
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Tile mouseTile = world.GetTileAtPosition(mousePos);
+
+        Vector3 mousPosInverted = new Vector3(mousePos.y, mousePos.x, mousePos.z);
+        Tile mouseTile = world.GetTileAtPosition(mousPosInverted);
+
+        Debug.Log($"Mouse position: ({mousPosInverted.x},{mousPosInverted.y}), Mouse tile position: ({mouseTile.GetPosition().x}, {mouseTile.GetPosition().y}), Mouse world position: ({mouseTile.WorldPosition.x}, {mouseTile.WorldPosition.y})");
         //TODO: Add a check to see if the mouse hit a ui element.
         if (mouseTile != null) //if the mouse hit a tile.
         {
-            globalJobs.Add(new BuildingJob(priority, mouseTile));
+
             //TODO: add ghost building block at mouse position.
-            world.SetTile(mousePos, TileType.Wall_Blueprint);
+            world.SetTile(mouseTile, TileType.Wall_Blueprint);
+
+            Tile jobTile = world.GetTileAtPosition(mousePos);
+            globalJobs.Add(new BuildingJob(priority, jobTile));
 
             Send_Job_To_Pawn();
         }

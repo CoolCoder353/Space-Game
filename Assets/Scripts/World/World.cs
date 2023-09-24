@@ -2,6 +2,8 @@ using UnityEngine;
 using NaughtyAttributes;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using System;
+using Unity.Mathematics;
 namespace WorldGeneration
 {
     public class World : MonoBehaviour
@@ -9,6 +11,8 @@ namespace WorldGeneration
         public WorldSettings settings;
         public int seed;
         public GameObject tileParent;
+
+        public Action<Tile[,]> OnMapChanged;
 
         private GameObject[,] chunks;
         private Color[] colorMap;
@@ -21,7 +25,6 @@ namespace WorldGeneration
         private Tile[,] tileMap;
         private Vector2 offset = Vector2.zero;
 
-        private Pawn[] pawnsInWorld;
 
         public Tile[,] GetMap()
         {
@@ -95,13 +98,49 @@ namespace WorldGeneration
             }
         }
 
+        public static bool Contains(Tile value, Tile[,] _data)
+        {
+            HashSet<Tile> _index = new HashSet<Tile>();
+
+            _index = new HashSet<Tile>();
+            for (int i = 0; i < _data.GetLength(0); i++)
+            {
+                for (int j = 0; j < _data.GetLength(1); j++)
+                {
+                    _index.Add(_data[i, j]);
+                }
+            }
+
+            return _index.Contains(value);
+        }
+
+        public bool Contains(Tile value)
+        {
+            return Contains(value, tileMap);
+        }
+
+        public void SetTile(Tile tile, TileType type)
+        {
+            (int x, int y) = tile.Position;
+            Vector2Int coords = new(x, y);
+            SetTile(coords, type);
+        }
+
         public void SetTile(Vector3 pos, TileType type)
         {
             Vector2Int coords = GetTileCoordsAtPosition(pos);
+            SetTile(coords, type);
+
+        }
+
+        public void SetTile(Vector2Int coords, TileType type)
+        {
             Tile newTile = new Tile(type, speedMap[type], colorMap[(int)type], textureMap[(int)type], coords.x, coords.y, coords.x * settings.tileWidth, coords.y * settings.tileHeight);
-            Debug.Log($"Setting tile at {coords.x}, {coords.y} from {tileMap[coords.x, coords.y].GetTileType()} to {newTile.GetTileType()}");
+            ////Debug.Log($"Setting tile at {coords.x}, {coords.y} from {tileMap[coords.x, coords.y].GetTileType()} to {newTile.GetTileType()}");
             tileMap.SetValue(newTile, coords.x, coords.y);
+            OnMapChanged?.Invoke(tileMap);
             UpdateTileObject(coords, newTile);
+
         }
 
         private void UpdateTileObject(Vector2Int coords, Tile newTile)
@@ -116,7 +155,7 @@ namespace WorldGeneration
         {
             if (seed == 0)
             {
-                seed = Random.Range(1, int.MaxValue);
+                seed = UnityEngine.Random.Range(1, int.MaxValue);
             }
             noiseMap = Perlin.Noise.GenerateNoiseMap(settings.width, settings.height, seed, settings.scale, settings.octaves, settings.persistence, settings.lacunarity, offset);
             Debug.Log(noiseMap);
@@ -194,7 +233,6 @@ namespace WorldGeneration
 
                 }
             }
-
         }
         private void DrawDebugTiles()
         {

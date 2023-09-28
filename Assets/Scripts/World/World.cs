@@ -11,6 +11,7 @@ namespace WorldGeneration
         public WorldSettings settings;
         public int seed;
         public GameObject tileParent;
+        public GameObject blueprintParent;
 
         public Action<Tile[,]> OnMapChanged;
 
@@ -23,6 +24,8 @@ namespace WorldGeneration
         private float[,] noiseMap;
 
         private Tile[,] tileMap;
+
+        private Tile[,] blueprintMap;
         private Vector2 offset = Vector2.zero;
 
 
@@ -119,35 +122,71 @@ namespace WorldGeneration
             return Contains(value, tileMap);
         }
 
-        public void SetTile(Tile tile, TileType type)
+        public void SetTile(Tile tile, TileType type, TileLayer layer)
         {
             (int x, int y) = tile.Position;
             Vector2Int coords = new(x, y);
-            SetTile(coords, type);
+            SetTile(coords, type, layer);
         }
 
-        public void SetTile(Vector3 pos, TileType type)
+        public void SetTile(Vector3 pos, TileType type, TileLayer layer)
         {
             Vector2Int coords = GetTileCoordsAtPosition(pos);
-            SetTile(coords, type);
+            SetTile(coords, type, layer);
 
         }
 
-        public void SetTile(Vector2Int coords, TileType type)
+        public void SetTile(Vector2Int coords, TileType type, TileLayer layer)
         {
             Tile newTile = new Tile(type, speedMap[type], colorMap[(int)type], textureMap[(int)type], coords.x, coords.y, coords.x * settings.tileWidth, coords.y * settings.tileHeight);
             ////Debug.Log($"Setting tile at {coords.x}, {coords.y} from {tileMap[coords.x, coords.y].GetTileType()} to {newTile.GetTileType()}");
-            tileMap.SetValue(newTile, coords.x, coords.y);
-            OnMapChanged?.Invoke(tileMap);
-            UpdateTileObject(coords, newTile);
+            if (layer == TileLayer.Blueprint)
+            {
+                blueprintMap.SetValue(newTile, coords.x, coords.y);
+            }
+            else
+            {
+                tileMap.SetValue(newTile, coords.x, coords.y);
+                OnMapChanged?.Invoke(tileMap);
+
+            }
+            UpdateTileObject(coords, newTile, layer);
 
         }
 
-        private void UpdateTileObject(Vector2Int coords, Tile newTile)
+        private void UpdateTileObject(Vector2Int coords, Tile newTile, TileLayer layer)
         {
-            GameObject chunk = chunks[coords.x / settings.chunkWidth, coords.y / settings.chunkHeight];
-            GameObject tileObject = chunk.transform.GetChild(coords.x % settings.chunkWidth * settings.chunkHeight + coords.y).gameObject;
-            SetTileImage(tileObject, coords.x, coords.y);
+            if (layer == TileLayer.Tile)
+            {
+                GameObject chunk = chunks[coords.x / settings.chunkWidth, coords.y / settings.chunkHeight];
+                GameObject tileObject = chunk.transform.GetChild(coords.x % settings.chunkWidth * settings.chunkHeight + coords.y).gameObject;
+                SetTileImage(tileObject, coords.x, coords.y);
+            }
+            else if (layer == TileLayer.Blueprint)
+            {
+                GameObject blueprint = new GameObject($"Blueprint_({coords.x},{coords.y})");
+                blueprint.transform.SetParent(blueprintParent.transform);
+                blueprint.transform.position = new(settings.tileWidth * coords.x, settings.tileHeight * coords.y);
+                blueprint.transform.localScale = new Vector3(settings.tileWidth, settings.tileHeight, 1);
+                blueprint.AddComponent<SpriteRenderer>();
+                SetTileImage(blueprint, coords.x, coords.y, TileLayer.Blueprint);
+            }
+        }
+
+        public void RemoveBlueprint(Vector3 pos)
+        {
+            Vector2Int coords = GetTileCoordsAtPosition(pos);
+            RemoveBlueprint(coords);
+        }
+
+        public void RemoveBlueprint(Vector2Int coords)
+        {
+            Tile tile = blueprintMap[coords.x, coords.y];
+            if (tile == null) { Debug.LogWarning($"Tried to remove a blueprint at ({coords.x}, {coords.y}) but there was no blueprint there"); return; }
+            GameObject tileObject = blueprintParent.transform.Find($"Blueprint_({coords.x},{coords.y})").gameObject;
+            if (tileObject == null) { Debug.LogWarning($"Tried to remove a blueprint at ({coords.x}, {coords.y}) but there was no blueprint object there"); return; }
+            Destroy(tileObject);
+            blueprintMap.SetValue(null, coords.x, coords.y);
         }
 
         //TODO: Show colours on screen when in debug mode.
@@ -163,6 +202,7 @@ namespace WorldGeneration
             Debug.Log(colorMap);
             GenerateMap();
             Debug.Log(tileMap);
+            blueprintMap = new Tile[settings.width, settings.height];
             if (settings.createTiles) { CreateTiles(); }
         }
 
@@ -291,21 +331,31 @@ namespace WorldGeneration
             }
         }
 
-        private void SetTileImage(GameObject tileObject, int x, int y)
+        private void SetTileImage(GameObject tileObject, int x, int y, TileLayer layer = TileLayer.Tile)
         {
             Tile tile = tileMap[x, y];
+            if (layer == TileLayer.Blueprint)
+            {
+                tile = blueprintMap[x, y];
+            }
+            if (tile == null) { Debug.LogError($"Tile at {x}, {y} is null"); return; }
+
             SpriteRenderer renderer = tileObject.GetComponent<SpriteRenderer>();
+            if (renderer == null) { Debug.LogError($"Tile object {tileObject.name} does not have a sprite renderer"); return; }
+
             if (settings.debugType == ColourType.colour)
             {
+                if (tile.GetColor() == null) { Debug.LogWarning($"Tile object {tileObject.name} does not have a colour"); return; }
                 renderer.color = tile.GetColor();
             }
             else if (settings.debugType == ColourType.texture)
             {
+                if (tile.GetTexture() == null) { Debug.LogError($"Tile object {tileObject.name} does not have a texture"); return; }
                 renderer.sprite = tile.GetTexture();
             }
             else
             {
-                Debug.LogWarning("Ahhhhh. I dunno what to do?");
+                Debug.LogWarning("Debug type not set.");
             }
         }
 
@@ -361,4 +411,10 @@ namespace WorldGeneration
 
 
     }
+}
+
+public enum TileLayer
+{
+    Tile,
+    Blueprint
 }

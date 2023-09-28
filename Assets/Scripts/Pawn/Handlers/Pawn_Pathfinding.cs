@@ -146,8 +146,8 @@ public static class Pathfinder
         (int ax, int ay) = a.Position;
         (int bx, int by) = b.Position;
 
-        Vector2 point1 = new(ax, ay);
-        Vector2 point2 = new(bx, by);
+        Vector2 point1 = new(ay, ax);
+        Vector2 point2 = new(by, bx);
 
         return -EuclideanDistance(point1, point2);
     }

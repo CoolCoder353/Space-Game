@@ -29,6 +29,7 @@ public enum SkillName
 
 
 // An abstract class that represents a skill
+//TODO: Implement passions for certain skills / jobs.  This will increase the rate at which the skill increases.
 public abstract class Skill
 {
     // A property that stores the skill name
@@ -39,6 +40,8 @@ public abstract class Skill
 
     // A property that stores the previous level of the skill
     public int PreviousLevel { get; private set; }
+
+
 
 
 

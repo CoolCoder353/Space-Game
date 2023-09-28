@@ -11,9 +11,6 @@ public class Global_job_handler : MonoBehaviour
     public int priority = 1;
     private World world;
     private Tile[,] map;
-
-    private List<Job> globalJobs = new List<Job>();
-
     private Pawn[] pawns;
 
     private void Start()
@@ -33,76 +30,36 @@ public class Global_job_handler : MonoBehaviour
             On_Input();
         }
     }
-    [Button()]
-    public void Test()
-    {
-        List<Tile> path = Pathfinder.FindPath(world.GetMap()[0, 0], world.GetMap()[10, 10], world.GetMap());
-        Debug.Log(path?.Count);
 
-        world.SetTile(new Vector3(0, 0, 0), TileType.Wall_Blueprint);
-
-        List<Tile> secondPath = Pathfinder.FindPath(world.GetMap()[0, 0], world.GetMap()[10, 10], world.GetMap());
-        Debug.Log(secondPath?.Count);
-    }
 
     private void On_Input()
     {
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
         Vector3 mousPosInverted = new Vector3(mousePos.y, mousePos.x, mousePos.z);
-        Tile mouseTile = world.GetTileAtPosition(mousPosInverted);
+        Tile mouseTile = world.GetTileAtPosition(mousePos);
+        Tile mouseTileInverted = world.GetTileAtPosition(mousPosInverted);
 
-        Debug.Log($"Mouse position: ({mousPosInverted.x},{mousPosInverted.y}), Mouse tile position: ({mouseTile.GetPosition().x}, {mouseTile.GetPosition().y}), Mouse world position: ({mouseTile.WorldPosition.x}, {mouseTile.WorldPosition.y})");
+        ////Debug.Log($"Mouse position: ({mousePos.x},{mousePos.y}), Mouse tile position: ({mouseTile.GetPosition().x}, {mouseTile.GetPosition().y}), Mouse world position: ({mouseTile.WorldPosition.x}, {mouseTile.WorldPosition.y})");
         //TODO: Add a check to see if the mouse hit a ui element.
-        if (mouseTile != null) //if the mouse hit a tile.
+        if (mouseTile != null && mouseTileInverted != null) //if the mouse hit a tile.
         {
 
-            //TODO: add ghost building block at mouse position.
-            world.SetTile(mouseTile, TileType.Wall_Blueprint);
 
-            Tile jobTile = world.GetTileAtPosition(mousePos);
-            globalJobs.Add(new BuildingJob(priority, jobTile));
+            world.SetTile(mouseTileInverted, TileType.Wall_Blueprint, TileLayer.Blueprint);
 
-            Send_Job_To_Pawn();
-        }
-    }
+            Tile jobTile = world.GetTileAtPosition(mousPosInverted);
 
-    private int Get_Highest_Construction_Skill()
-    {
-        int highestSkill = 0;
-        foreach (Pawn pawn in pawns)
-        {
-            if (pawn.skillHandler.GetSkill(SkillName.Construction).Level() > highestSkill)
+            //TODO: Send to pawns that are controllable.
+
+            foreach (Pawn pawn in pawns)
             {
-                highestSkill = pawn.skillHandler.GetSkill(SkillName.Construction).Level();
+                pawn.AddJob(new BuildingJob(priority, jobTile));
             }
+
         }
-        return highestSkill;
     }
 
-    private void Send_Job_To_Pawn()
-    {
-        if (pawns.Length == 0)
-        {
-            Debug.LogError("No pawns found!");
-            return;
-        }
-        if (globalJobs.Count == 0)
-        {
-            Debug.LogError("No jobs found!");
-            return;
-        }
-
-        foreach (Pawn pawn in pawns)
-        {
-            //if the pawns skill in construction is the highest out of all the pawns, send the job to them.
-            if (pawn.skillHandler.GetSkill(SkillName.Construction).Level() == Get_Highest_Construction_Skill())
-            {
-                pawn.AddJob(globalJobs[0]);
-                globalJobs.RemoveAt(0);
-            }
-        }
-    }
 
 
 }

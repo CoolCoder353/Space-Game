@@ -292,8 +292,6 @@ MonoBehaviour:
   back: {fileID: 21300000, guid: 4d9e1d01eca7cec4a9b77ba04532413a, type: 3}
   left: {fileID: 21300000, guid: 256106e36e7ae094da25caac5007ae50, type: 3}
   right: {fileID: 21300000, guid: 3e32a00511efaad4da31a3a4c10214ce, type: 3}
-  miningJobPos: {x: 0, y: 0, z: 0}
-  buildingJobPos: {x: 0, y: 0, z: 0}
 --- !u!212 &73411598
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -504,6 +502,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 131672557}
   m_CullTransparentMesh: 1
+--- !u!1 &173922525
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 173922526}
+  m_Layer: 0
+  m_Name: Blueprints
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &173922526
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 173922525}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -0.1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1742206908}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &193560327
 GameObject:
   m_ObjectHideFlags: 0
@@ -4854,6 +4883,7 @@ MonoBehaviour:
   settings: {fileID: 11400000, guid: 3c47ab602cf1789419b48d5f9498e7c9, type: 2}
   seed: 0
   tileParent: {fileID: 1912848866}
+  blueprintParent: {fileID: 173922525}
 --- !u!4 &1742206908
 Transform:
   m_ObjectHideFlags: 0
@@ -4867,6 +4897,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1912848867}
+  - {fileID: 173922526}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

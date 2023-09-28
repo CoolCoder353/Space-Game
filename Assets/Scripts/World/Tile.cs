@@ -58,6 +58,7 @@ namespace WorldGeneration
         Grass,
         Rock,
         Space,
-        Wall_Blueprint
+        Wall_Blueprint,
+        Wall
     }
 }

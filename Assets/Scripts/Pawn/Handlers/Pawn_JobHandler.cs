@@ -1,70 +1,93 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using WorldGeneration;
 
 /// <summary>
 /// A class that manages a queue of jobs and executes them in order of priority.
 /// </summary>
 public class JobHandler
 {
-    protected PriorityQueue<Job> jobs;
+    private Queue<Job> jobQueue = new Queue<Job>();
+    private Job currentJob;
+    private bool isRunning = false;
+    private Pawn pawn;
 
-    public int maxJobs { get; protected set; }
-    public float jobCheckTime { get; protected set; }
-
-    public JobHandler(int maxJobs = 50)
+    public JobHandler(Pawn pawn)
     {
-        this.maxJobs = maxJobs;
-        ClearJobs();
+        this.pawn = pawn;
     }
 
-    /// <summary>
-    /// Adds a job to the queue.
-    /// </summary>
-    /// <param name="job">The job to add.</param>
     public void AddJob(Job job)
     {
-        jobs.Enqueue(job);
+        jobQueue.Enqueue(job);
     }
 
-    /// <summary>
-    /// Dequeues the next job in the queue.
-    /// </summary>
-    public Job Get_Job()
+    public void UpdateJobs(World world)
     {
-        return jobs.Dequeue();
+        if (jobQueue.Count > 0 && !isRunning)
+        {
+            currentJob = jobQueue.Dequeue();
+            isRunning = true;
+            currentJob.isRunning = true;
+            currentJob.isAssigned = true;
+            pawn.StartCoroutine(currentJob.RunJob(world, pawn, OnJobComplete, OnJobCancelled));
+        }
     }
 
-    /// <summary>
-    /// Returns true if there are any jobs in the queue, false otherwise.
-    /// </summary>
-    public bool HasJob => jobs.Count > 0;
-
-    /// <summary>
-    /// Clears all jobs from the queue.
-    /// </summary>
-    public void ClearJobs()
+    private void OnJobComplete(Job job)
     {
-        jobs = new PriorityQueue<Job>(maxJobs, (Job a, Job b) => a.priority.CompareTo(b.priority));
+        Debug.Log($"Job {job.GetType()} is complete.");
+        job.isRunning = false;
+        job.isComplete = true;
+        isRunning = false;
+        currentJob = null;
+    }
+    private void OnJobCancelled(Job job)
+    {
+        //TODO: Send back to global job handler.
+        Debug.Log($"Job {job.GetType()} is cancelled.");
+        job.isAssigned = false;
+        job.isRunning = false;
+        job.isComplete = false;
+        isRunning = false;
+        currentJob = null;
     }
 }
 
 public abstract class Job
 {
     public int priority;
-    public WorldGeneration.Tile position;
-    public JobType type;
+    public List<Tile> flags;
+    public JobType jobType;
+    public bool isRunning;
+    public bool isAssigned;
+    public bool isComplete;
 
-
-    public Job(int priority, WorldGeneration.Tile position, JobType type)
+    public Job(int priority, List<Tile> flags, JobType jobType)
     {
         this.priority = priority;
-        this.position = position;
-        this.type = type;
+        this.flags = flags;
+        this.jobType = jobType;
+    }
+    public Job(int priority, Tile flag, JobType jobType)
+    {
+        this.priority = priority;
+        this.flags = new List<Tile>();
+        this.flags.Add(flag);
+        this.jobType = jobType;
+    }
+    public abstract IEnumerator RunJob(World world, Pawn pawn, Action<Job> callback, Action<Job> cancelCallback);
+
+    public virtual void OnMovementFinished()
+    {
 
     }
+    public virtual void OnMovementCancelled()
+    {
 
-    public abstract IEnumerator RunJob(Action<Job> callback);
-
+    }
 }
 
 public enum JobType

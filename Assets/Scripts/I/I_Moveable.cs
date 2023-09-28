@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using WorldGeneration;
+using System.Net;
+using System;
 
 public abstract class I_Moveable : MonoBehaviour
 {
@@ -12,11 +14,35 @@ public abstract class I_Moveable : MonoBehaviour
 
     private bool cancelMove = false;
 
+    private bool isMoving = false;
+
     private int currentPointIndex = 0;
 
     private float moveSpeed;
     private int maxReccuritionDepth = 1000000;
 
+    public void StartMove(Tile tile, World world, float moveSpeed)
+    {
+        if (tile == null)
+        {
+            Debug.LogWarning("Can't move to null tile. Exiting");
+            OnMoveCancelled();
+            return;
+        }
+        List<Tile> tiles = Pathfinder.FindPath(world.GetTileAtPosition(transform.position), tile, world.GetMap());
+        StartMove(tiles, moveSpeed);
+    }
+    public void StartMove(Tile tile, World world)
+    {
+        if (tile == null)
+        {
+            Debug.LogWarning("Can't move to null tile. Exiting");
+            OnMoveCancelled();
+            return;
+        }
+        List<Tile> tiles = Pathfinder.FindPath(world.GetTileAtPosition(transform.position), tile, world.GetMap());
+        StartMove(tiles, this.moveSpeed);
+    }
     public void StartMove(List<Tile> tiles, float moveSpeed)
     {
         if (tiles == null)
@@ -56,6 +82,7 @@ public abstract class I_Moveable : MonoBehaviour
 
     private IEnumerator MoveToTiles(List<Tile> tiles)
     {
+        isMoving = true;
         currentPointIndex = 0;
         cancelMove = false;
         for (int i = 0; i < maxReccuritionDepth; i++)
@@ -93,6 +120,7 @@ public abstract class I_Moveable : MonoBehaviour
                 currentPointIndex++;
                 if (currentPointIndex >= tiles.Count)
                 {
+                    isMoving = false;
                     OnMoveFinished();
                     currentPointIndex = 0;
                     yield break;
@@ -102,6 +130,7 @@ public abstract class I_Moveable : MonoBehaviour
             // Check if the operation has been cancelled
             if (cancelMove)
             {
+                isMoving = false;
                 OnMoveCancelled();
                 yield break;
             }
@@ -111,6 +140,7 @@ public abstract class I_Moveable : MonoBehaviour
         }
         Debug.LogError("Max reccurition depth reached. Cancelling move");
         OnMoveCancelled();
+        isMoving = false;
     }
 
     protected abstract void OnMoveFinished();

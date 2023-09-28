@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using NaughtyAttributes;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using WorldGeneration;
 
 public class Global_job_handler : MonoBehaviour
@@ -34,6 +35,12 @@ public class Global_job_handler : MonoBehaviour
 
     private void On_Input()
     {
+        // Check if the mouse is over a UI element
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
         Vector3 mousPosInverted = new Vector3(mousePos.y, mousePos.x, mousePos.z);
@@ -41,22 +48,16 @@ public class Global_job_handler : MonoBehaviour
         Tile mouseTileInverted = world.GetTileAtPosition(mousPosInverted);
 
         ////Debug.Log($"Mouse position: ({mousePos.x},{mousePos.y}), Mouse tile position: ({mouseTile.GetPosition().x}, {mouseTile.GetPosition().y}), Mouse world position: ({mouseTile.WorldPosition.x}, {mouseTile.WorldPosition.y})");
-        //TODO: Add a check to see if the mouse hit a ui element.
         if (mouseTile != null && mouseTileInverted != null) //if the mouse hit a tile.
         {
-
-
+            Tile jobTile = world.GetTileAtPosition(mousPosInverted);
             world.SetTile(mouseTileInverted, TileType.Wall_Blueprint, TileLayer.Blueprint);
 
-            Tile jobTile = world.GetTileAtPosition(mousPosInverted);
-
             //TODO: Send to pawns that are controllable.
-
             foreach (Pawn pawn in pawns)
             {
                 pawn.AddJob(new BuildingJob(priority, jobTile));
             }
-
         }
     }
 

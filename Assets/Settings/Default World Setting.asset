@@ -12,48 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcf19bd47454d4746b410e310e9419bb, type: 3}
   m_Name: Default World Setting
   m_EditorClassIdentifier: 
-  width: 512
-  height: 512
-  chunkWidth: 100
-  chunkHeight: 100
-  textures:
-  - type: 0
-    debugColour: {r: 0.39807498, g: 1, b: 0, a: 0}
-    texture: {fileID: 21300000, guid: 155a92b23f6d9934cb99d1f9c82ca1fb, type: 3}
-    movementSpeed: 2
-  - type: 1
-    debugColour: {r: 0.5660378, g: 0.34241736, b: 0.056069776, a: 0}
-    texture: {fileID: 21300000, guid: 310e06d9c52f8d54ca0df8b5a57d677b, type: 3}
-    movementSpeed: 1
-  - type: 2
-    debugColour: {r: 0.27305093, g: 0.9811321, b: 0.93957424, a: 0}
-    texture: {fileID: 21300000, guid: fefee20e9f0aa6e4db4262bb1c993433, type: 3}
-    movementSpeed: 0
-  - type: 3
-    debugColour: {r: 1, g: 0, b: 0.10514355, a: 0}
-    texture: {fileID: 1012158293, guid: 1e1c601af08695e4ba45f42847974ada, type: 3}
-    movementSpeed: 2
-  - type: 4
-    debugColour: {r: 1, g: 0, b: 0.10514355, a: 0}
-    texture: {fileID: -1056740557, guid: 859aa7e04627c1c4b898f5f6c426d73a, type: 3}
-    movementSpeed: 2
-  weights:
-  - name: Grass
-    weight: 0.35
-    type: 0
-  - name: dirt
-    weight: 0.7
-    type: 1
-  - name: Water
-    weight: 1
-    type: 2
-  tileObject: {fileID: 6940109548191356281, guid: eb461f7d14c60d74e9a8a422bae7431d, type: 3}
-  scale: 150
-  octaves: 8
-  persistence: 0.5
-  lacunarity: 3.5
-  tileWidth: 0.01
-  tileHeight: 0.01
-  debug: 0
-  debugType: 0
-  createTiles: 1
+  worldSize: {x: 10, y: 10}
+  tileScale: 1
+  emptyTile: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
+  noiseScale: 1
+  noiseOctaves: 1
+  noisePersistence: 1
+  noiseLacunarity: 1
+  noiseOffset: {x: 0, y: 0}
+  floorTileTypeCutoffs:
+  - tileType: 1
+    cutOff: 0.148
+  - tileType: 2
+    cutOff: 0.799
+  - tileType: 3
+    cutOff: 0.91

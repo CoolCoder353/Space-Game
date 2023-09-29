@@ -2,63 +2,55 @@ using System;
 using UnityEngine;
 namespace WorldGeneration
 {
-
     [Serializable]
     public class Tile
     {
-        private TileType type;
-        private Color debugColour;
-        private Sprite texture;
-        private int speed;
-        public (int x, int y) Position { get; set; }
-        public (float x, float y) WorldPosition { get; set; }
+        public Vector2 position;
+        public Vector2 worldPosition;
+        public TileType tileType;
+        public RockType rockType;
+        public GameObject tileObject;
 
-        public Vector2Int GetPosition()
-        {
-            return new Vector2Int(Position.x, Position.y);
-        }
-        public TileType GetTileType()
-        {
-            return type;
-        }
 
-        public Color GetColor()
+        public Tile(Vector2 position, Vector2 worldPosition, TileType type, RockType rockType, GameObject tileObject = null)
         {
-            return debugColour;
+            this.position = position;
+            this.worldPosition = worldPosition;
+            this.tileType = type;
+            this.rockType = rockType;
+            this.tileObject = tileObject;
         }
-
-        public Sprite GetTexture()
+        public Tile(Vector2 position, Vector2 worldPosition, TileType type, GameObject tileObject = null)
         {
-            return texture;
-        }
-
-        public Tile(TileType type, int speed, Color debugColor, Sprite texture, int x, int y, float worldx, float worldy)
-        {
-            this.type = type;
-            this.debugColour = debugColor;
-            this.texture = texture;
-            this.Position = (x, y);
-            this.speed = speed;
-            this.WorldPosition = (worldx, worldy);
+            if (type == TileType.Rock)
+            {
+                throw new Exception("TileType.Rock needs a rockType");
+            }
+            this.position = position;
+            this.worldPosition = worldPosition;
+            this.tileType = type;
+            this.tileObject = tileObject;
+            this.rockType = RockType.None;
         }
 
-        public int WalkSpeed()
-        {
-            return speed;
-        }
 
-        public bool Walkable()
-        {
-            return WalkSpeed() == 0 ? false : true;
-        }
+
     }
 
     public enum TileType
     {
-        Grass,
+        None,
         Rock,
-        Space,
-        Wall_Blueprint,
-        Wall
+        Grass,
+        Sand,
+        Water
     }
+
+    public enum RockType
+    {
+        None,
+        Granite,
+        Marble
+    }
+
 }

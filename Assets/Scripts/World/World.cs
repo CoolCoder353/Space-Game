@@ -1,420 +1,191 @@
 using UnityEngine;
 using NaughtyAttributes;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using System;
-using Unity.Mathematics;
 namespace WorldGeneration
 {
     public class World : MonoBehaviour
     {
         public WorldSettings settings;
         public int seed;
-        public GameObject tileParent;
-        public GameObject blueprintParent;
 
-        public Action<Tile[,]> OnMapChanged;
-
-        private GameObject[,] chunks;
-        private Color[] colorMap;
-        private Sprite[] textureMap;
-
-        private Dictionary<TileType, int> speedMap = new Dictionary<TileType, int>();
-
-        private float[,] noiseMap;
-
-        private Tile[,] tileMap;
-
-        private Tile[,] blueprintMap;
-        private Vector2 offset = Vector2.zero;
+        private Tile[,] floor;
 
 
-        public Tile[,] GetMap()
+        private void Awake()
         {
-            return tileMap;
+            floor = GenerateFloor(settings, seed);
+            Debug.Log($"Floor size: {floor.GetLength(0)}x{floor.GetLength(1)}");
+            VisualizeFloor(settings, floor);
+
         }
-
-        public int GetWorldSize()
+        [Button("Smooth Floor")]
+        public void SmoothFloor()
         {
-            if (settings.width != settings.height)
+            ClearFloor(floor);
+            floor = SmoothFloor(floor);
+            VisualizeFloor(settings, floor);
+        }
+        Tile[,] GenerateFloor(WorldSettings settings, int seed)
+        {
+            Tile[,] start = new Tile[settings.worldSize.x, settings.worldSize.y];
+            float[,] noiseMap = Perlin.Noise.GenerateNoiseMap(settings.worldSize.x, settings.worldSize.y, seed, settings.noiseScale, settings.noiseOctaves, settings.noisePersistence, settings.noiseLacunarity, settings.noiseOffset);
+
+            for (int y = 0; y < settings.worldSize.y; y++)
             {
-                throw new System.Exception("Width and Height not equal");
-            }
-            return settings.width;
-        }
-
-        public Tile GetTileAtPosition(Vector3 pos)
-        {
-            Vector2Int coords = GetTileCoordsAtPosition(pos);
-            return tileMap[coords.x, coords.y];
-        }
-
-        public Vector2Int GetTileCoordsAtPosition(Vector3 pos)
-        {
-            int x = Mathf.RoundToInt(pos.x / settings.tileWidth);
-            int y = Mathf.RoundToInt(pos.y / settings.tileHeight);
-            if (x < 0 || x >= settings.width || y < 0 || y >= settings.height)
-            {
-                Debug.LogWarning($"Tile out of bounds for position ({pos.x}, {pos.y})");
-                return Vector2Int.zero;
-            }
-            return new Vector2Int(x, y);
-        }
-
-        public void hideAll()
-        {
-            foreach (Transform child in tileParent.transform)
-            {
-                child.gameObject.SetActive(false);
-            }
-
-        }
-
-        public void showRange(Vector2 center, Vector2 size)
-        {
-            foreach (Transform child in tileParent.transform)
-            {
-                if (child.position.x >= center.x - size.x / 2 && child.position.x <= center.x + size.x / 2 &&
-                    child.position.y >= center.y - size.y / 2 && child.position.y <= center.y + size.y / 2)
+                for (int x = 0; x < settings.worldSize.x; x++)
                 {
-                    child.gameObject.SetActive(true);
+                    float currentHeight = noiseMap[x, y];
+                    TileType currentTileType = TileType.None;
+                    foreach (CutOff cutOff in settings.floorTileTypeCutoffs)
+                    {
+                        if (currentHeight >= cutOff.cutOff)
+                        {
+                            currentTileType = cutOff.tileType;
+                        }
+                    }
+                    RockType rockType = RockType.None;
+                    if (currentTileType == TileType.Rock)
+                    {
+                        rockType = GetRockType(x, y, seed);
+                    }
+                    Vector2 worldPosition = new Vector2(x * settings.tileScale, y * settings.tileScale);
+                    start[x, y] = new Tile(new Vector2(x, y), worldPosition, currentTileType, rockType);
+                }
+            }
+            return start;
+        }
+
+        Tile[,] SmoothFloor(Tile[,] tiles)
+        {
+            Tile[,] smooth = new Tile[tiles.GetLength(0), tiles.GetLength(1)];
+
+            for (int x = 0; x < tiles.GetLength(0); x++)
+            {
+                for (int y = 0; y < tiles.GetLength(1); y++)
+                {
+                    Tile currentTile = tiles[x, y];
+                    TileType mostCommon;
+                    List<Tile> neighbours = GetNeighbours(tiles, x, y, out mostCommon);
+                    if (mostCommon == TileType.None) { Debug.LogError($"Most common tile type is None at {x},{y}"); }
+                    RockType rockType = RockType.None;
+                    if (mostCommon == TileType.Rock)
+                    {
+                        rockType = GetRockType(x, y, seed);
+                    }
+                    smooth[x, y] = new Tile(currentTile.position, currentTile.worldPosition, mostCommon, rockType);
+
+                }
+            }
+            return smooth;
+
+        }
+
+        private RockType GetRockType(int x, int y, int seed)
+        {
+            return RockType.Granite;
+        }
+
+        void VisualizeFloor(WorldSettings settings, Tile[,] tiles)
+        {
+            for (int x = 0; x < tiles.GetLength(0); x++)
+            {
+                for (int y = 0; y < tiles.GetLength(1); y++)
+                {
+                    Tile currentTile = tiles[x, y];
+                    GameObject tileObject = Instantiate(settings.emptyTile, currentTile.worldPosition, Quaternion.identity);
+                    tileObject.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
+                    SpriteRenderer spriteRenderer;
+                    if (!tileObject.TryGetComponent<SpriteRenderer>(out spriteRenderer))
+                    {
+                        spriteRenderer = tileObject.AddComponent<SpriteRenderer>();
+
+                    }
+                    spriteRenderer.sprite = Resources.Load<Sprite>($"Tiles/{currentTile.tileType}");
+
+                    if (spriteRenderer.sprite == null)
+                    {
+                        Debug.LogError($"Sprite is null at {x},{y} with a tile type of {currentTile.tileType}");
+                    }
+
+
+
+                    currentTile.tileObject = tileObject;
                 }
             }
         }
-        public void showRange(Vector3 center, Vector2 size)
+
+        void ClearFloor(Tile[,] tiles)
         {
-            showRange(new Vector3(center.x, center.y, 0), size);
-        }
-        public void showRangeInChunks(Vector2 center, Vector2 size)
-        {
-            foreach (Transform child in tileParent.transform)
+            foreach (Tile tile in tiles)
             {
-                if (child.position.x >= center.x - size.x / 2 && child.position.x <= center.x + size.x / 2 &&
-                    child.position.y >= center.y - size.y / 2 && child.position.y <= center.y + size.y / 2)
+                if (tile.tileObject == null)
                 {
-                    child.gameObject.SetActive(true);
+                    Debug.LogWarning($"Tile object is null at {tile.position.x},{tile.position.y}");
                 }
                 else
                 {
-                    child.gameObject.SetActive(false);
-                }
-            }
-        }
-
-        public static bool Contains(Tile value, Tile[,] _data)
-        {
-            HashSet<Tile> _index = new HashSet<Tile>();
-
-            _index = new HashSet<Tile>();
-            for (int i = 0; i < _data.GetLength(0); i++)
-            {
-                for (int j = 0; j < _data.GetLength(1); j++)
-                {
-                    _index.Add(_data[i, j]);
+                    Destroy(tile.tileObject);
                 }
             }
 
-            return _index.Contains(value);
         }
-
-        public bool Contains(Tile value)
+        public static List<Tile> GetNeighbours(Tile[,] tiles, int x, int y, out TileType mostCommon)
         {
-            return Contains(value, tileMap);
-        }
+            List<Tile> neighbours = new List<Tile>();
+            Dictionary<TileType, int> tileCounts = new Dictionary<TileType, int>();
 
-        public void SetTile(Tile tile, TileType type, TileLayer layer)
-        {
-            (int x, int y) = tile.Position;
-            Vector2Int coords = new(x, y);
-            SetTile(coords, type, layer);
-        }
 
-        public void SetTile(Vector3 pos, TileType type, TileLayer layer)
-        {
-            Vector2Int coords = GetTileCoordsAtPosition(pos);
-            SetTile(coords, type, layer);
+            tileCounts[tiles[x, y].tileType] = 1;
 
-        }
 
-        public void SetTile(Vector2Int coords, TileType type, TileLayer layer)
-        {
-            Tile newTile = new Tile(type, speedMap[type], colorMap[(int)type], textureMap[(int)type], coords.x, coords.y, coords.x * settings.tileWidth, coords.y * settings.tileHeight);
-            ////Debug.Log($"Setting tile at {coords.x}, {coords.y} from {tileMap[coords.x, coords.y].GetTileType()} to {newTile.GetTileType()}");
-            if (layer == TileLayer.Blueprint)
+
+            //Find neighbours using bitwise operations.
+            for (int nx = -1; nx <= 1; nx++)
             {
-                blueprintMap.SetValue(newTile, coords.x, coords.y);
-            }
-            else
-            {
-                tileMap.SetValue(newTile, coords.x, coords.y);
-                OnMapChanged?.Invoke(tileMap);
-
-            }
-            UpdateTileObject(coords, newTile, layer);
-
-        }
-
-        private void UpdateTileObject(Vector2Int coords, Tile newTile, TileLayer layer)
-        {
-            if (layer == TileLayer.Tile)
-            {
-                GameObject chunk = chunks[coords.x / settings.chunkWidth, coords.y / settings.chunkHeight];
-                GameObject tileObject = chunk.transform.GetChild(coords.x % settings.chunkWidth * settings.chunkHeight + coords.y).gameObject;
-                SetTileImage(tileObject, coords.x, coords.y);
-            }
-            else if (layer == TileLayer.Blueprint)
-            {
-                GameObject blueprint = new GameObject($"Blueprint_({coords.x},{coords.y})");
-                blueprint.transform.SetParent(blueprintParent.transform);
-                blueprint.transform.position = new(settings.tileWidth * coords.x, settings.tileHeight * coords.y);
-                blueprint.transform.localScale = new Vector3(settings.tileWidth, settings.tileHeight, 1);
-                blueprint.AddComponent<SpriteRenderer>();
-                SetTileImage(blueprint, coords.x, coords.y, TileLayer.Blueprint);
-            }
-        }
-
-        public void RemoveBlueprint(Vector3 pos)
-        {
-            Vector2Int coords = GetTileCoordsAtPosition(pos);
-            RemoveBlueprint(coords);
-        }
-
-        public void RemoveBlueprint(Vector2Int coords)
-        {
-            Tile tile = blueprintMap[coords.x, coords.y];
-            if (tile == null) { Debug.LogWarning($"Tried to remove a blueprint at ({coords.x}, {coords.y}) but there was no blueprint there"); return; }
-            GameObject tileObject = blueprintParent.transform.Find($"Blueprint_({coords.x},{coords.y})").gameObject;
-            if (tileObject == null) { Debug.LogWarning($"Tried to remove a blueprint at ({coords.x}, {coords.y}) but there was no blueprint object there"); return; }
-            Destroy(tileObject);
-            blueprintMap.SetValue(null, coords.x, coords.y);
-        }
-
-        //TODO: Show colours on screen when in debug mode.
-        private void Awake()
-        {
-            if (seed == 0)
-            {
-                seed = UnityEngine.Random.Range(1, int.MaxValue);
-            }
-            noiseMap = Perlin.Noise.GenerateNoiseMap(settings.width, settings.height, seed, settings.scale, settings.octaves, settings.persistence, settings.lacunarity, offset);
-            Debug.Log(noiseMap);
-            GenerateColourMap();
-            Debug.Log(colorMap);
-            GenerateMap();
-            Debug.Log(tileMap);
-            blueprintMap = new Tile[settings.width, settings.height];
-            if (settings.createTiles) { CreateTiles(); }
-        }
-
-        [Button("Regenerate Map")]
-        public void ReGenerateMap()
-        {
-            noiseMap = Perlin.Noise.GenerateNoiseMap(settings.width, settings.height, seed, settings.scale, settings.octaves, settings.persistence, settings.lacunarity, offset);
-            Debug.Log(noiseMap);
-            GenerateColourMap();
-            Debug.Log(colorMap);
-            GenerateMap();
-            Debug.Log(tileMap);
-        }
-
-        private void OnDrawGizmos()
-        {
-            if (Application.isPlaying && settings.debug)
-            {
-                if (tileMap == null) { Debug.LogWarning("Tilemap not defined"); return; }
-                Debug.Log("Drawing Tiles");
-                DrawDebugTiles();
-            }
-        }
-
-        // A method that takes a 2D array of tile objects and a tile object x, and returns the row and column indices of x in the array, or (-1, -1) if x is not found
-
-
-
-
-        private void GenerateColourMap()
-        {
-            colorMap = new Color[settings.textures.Length];
-            textureMap = new Sprite[settings.textures.Length];
-            foreach (TileTextures weight in settings.textures)
-            {
-                TileType tile = weight.type;
-
-                speedMap[tile] = weight.movementSpeed;
-
-                colorMap[(int)tile] = weight.debugColour;
-                textureMap[(int)tile] = weight.texture;
-            }
-        }
-        private void GenerateMap()
-        {
-            tileMap = new Tile[settings.width, settings.height];
-            // Generate points for a heightmap
-            for (int y = 0; y < settings.height; y++)
-            {
-                for (int x = 0; x < settings.width; x++)
+                for (int ny = -1; ny <= 1; ny++)
                 {
-                    //TODO: Determine debug colour for tile
-
-                    TileType type = DetermineTileType(noiseMap[x, y]);
-                    Color colour = Color.magenta;
-                    if (settings.debugType == ColourType.colour)
+                    if (nx == 0 && ny == 0)
                     {
-                        colour = colorMap[(int)type];
-                    }
-                    else if (settings.debugType == ColourType.noise)
-                    {
-                        colour = new Color(noiseMap[x, y], noiseMap[x, y], noiseMap[x, y]);
+                        continue;
                     }
 
-                    Sprite texture = textureMap[(int)type];
+                    int checkX = x + nx;
+                    int checkY = y + ny;
 
-                    tileMap.SetValue(new Tile(type, speedMap[type], colour, texture, x, y, x * settings.tileWidth, y * settings.tileHeight), x, y);
+                    if (checkX >= 0 && checkX < tiles.GetLength(0) && checkY >= 0 && checkY < tiles.GetLength(1))
+                    {
+                        Tile neighbour = tiles[checkX, checkY];
+                        if (tileCounts.ContainsKey(neighbour.tileType))
+                        {
+                            tileCounts[neighbour.tileType]++;
+                        }
+                        else
+                        {
+                            tileCounts[neighbour.tileType] = 1;
+                        }
 
+                        neighbours.Add(neighbour);
+                    }
                 }
             }
-        }
-        private void DrawDebugTiles()
-        {
-            Vector3 size = new Vector3(settings.tileWidth, settings.tileHeight, 1);
-            for (int y = 0; y < settings.height; y++)
+            // Find the TileType with the highest count
+            TileType mostCommonTileType = TileType.None;
+            int highestCount = 0;
+
+            foreach (KeyValuePair<TileType, int> pair in tileCounts)
             {
-                for (int x = 0; x < settings.width; x++)
+                if (pair.Value > highestCount)
                 {
-                    Tile tile = tileMap[x, y];
-                    Gizmos.color = tile.GetColor();
-                    Vector3 offset = new(x * settings.tileWidth, y * settings.tileHeight, 0);
-                    Gizmos.DrawCube(transform.position + offset, size);
-                    ////Debug.Log("Just finished drawing cube at " + (transform.position + offset) + " of a size of " + size + " with the colour " + tile.GetColor());
+                    mostCommonTileType = pair.Key;
+                    highestCount = pair.Value;
                 }
             }
+            mostCommon = mostCommonTileType;
+
+
+            return neighbours;
         }
-
-        private void CreateTiles()
-        {
-            chunks = new GameObject[Mathf.CeilToInt(settings.width / settings.chunkWidth) + 1, Mathf.CeilToInt(settings.height / settings.chunkHeight) + 1];
-            for (int j = 0; j < Mathf.CeilToInt(settings.height / settings.chunkHeight) + 1; j++)
-            {
-                for (int i = 0; i < Mathf.CeilToInt(settings.width / settings.chunkWidth) + 1; i++)
-                {
-
-
-                    GameObject chunk = new GameObject($"Chunk_({i},{j})");
-                    chunk.transform.SetParent(tileParent.transform);
-                    chunk.transform.position = new(settings.tileWidth * i * settings.chunkWidth, settings.tileHeight * j * settings.chunkHeight);
-
-                    chunks[i, j] = chunk;
-                    ////Debug.Log($"Chunk ({i},{j}) is now at point {i}, {j}");
-                }
-            }
-
-
-            for (int y = 0; y < settings.height; y++)
-            {
-                for (int x = 0; x < settings.width; x++)
-                {
-                    ////GameObject chunk = tileParent;
-
-                    int i = Mathf.FloorToInt(x / settings.chunkWidth);
-                    int j = Mathf.FloorToInt(y / settings.chunkHeight);
-
-                    ////Debug.Log($"Tile should be in chunk ({i},{j})");
-
-                    GameObject chunk = chunks[i, j];
-                    Vector3 offset = new(x * settings.tileWidth, y * settings.tileHeight, 0);
-                    GameObject tile = Instantiate(settings.tileObject, transform.position + offset, settings.tileObject.transform.rotation, chunk.transform);
-                    tile.transform.localScale = new Vector3(settings.tileWidth, settings.tileHeight, 1);
-                    SetTileImage(tile, x, y);
-
-
-                }
-            }
-        }
-
-        private void SetTileImage(GameObject tileObject, int x, int y, TileLayer layer = TileLayer.Tile)
-        {
-            Tile tile = tileMap[x, y];
-            if (layer == TileLayer.Blueprint)
-            {
-                tile = blueprintMap[x, y];
-            }
-            if (tile == null) { Debug.LogError($"Tile at {x}, {y} is null"); return; }
-
-            SpriteRenderer renderer = tileObject.GetComponent<SpriteRenderer>();
-            if (renderer == null) { Debug.LogError($"Tile object {tileObject.name} does not have a sprite renderer"); return; }
-
-            if (settings.debugType == ColourType.colour)
-            {
-                if (tile.GetColor() == null) { Debug.LogWarning($"Tile object {tileObject.name} does not have a colour"); return; }
-                renderer.color = tile.GetColor();
-            }
-            else if (settings.debugType == ColourType.texture)
-            {
-                if (tile.GetTexture() == null) { Debug.LogError($"Tile object {tileObject.name} does not have a texture"); return; }
-                renderer.sprite = tile.GetTexture();
-            }
-            else
-            {
-                Debug.LogWarning("Debug type not set.");
-            }
-        }
-
-        public Tile GetLeftTile(int x, int y)
-        {
-            return tileMap[x + 1, y];
-        }
-        public Tile GetRightTile(int x, int y)
-        {
-            return tileMap[x - 1, y];
-        }
-        public Tile GetTopTile(int x, int y)
-        {
-            return tileMap[x, y - 1];
-        }
-        public Tile GetBottomTile(int x, int y)
-        {
-            return tileMap[x, y + 1];
-        }
-
-        public Tile GetTopLeftTile(int x, int y)
-        {
-            return tileMap[x + 1, y - 1];
-        }
-        public Tile GetTopRightTile(int x, int y)
-        {
-            return tileMap[x - 1, y - 1];
-        }
-        public Tile GetBottomLeftTile(int x, int y)
-        {
-            return tileMap[x - 1, y + 1];
-        }
-        public Tile GetBottomRightTile(int x, int y)
-        {
-            return tileMap[x + 1, y + 1];
-        }
-
-        private TileType DetermineTileType(float value)
-        {
-            TileType result = TileType.Space;
-            foreach (TileWeights weight in settings.weights)
-            {
-                if (value < weight.weight)
-                {
-                    result = weight.type;
-                    break;
-                }
-            }
-            return result;
-        }
-
-
-
 
     }
-}
-
-public enum TileLayer
-{
-    Tile,
-    Blueprint
 }

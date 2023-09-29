@@ -12,6 +12,8 @@ namespace WorldGeneration
         [Foldout("Tile Settings")]
         public float tileScale = 1;
 
+
+
         [Foldout("Tile Settings")]
         public GameObject emptyTile;
 
@@ -28,11 +30,23 @@ namespace WorldGeneration
         [Foldout("Noise Settings")]
         public Vector2 noiseOffset;
 
-
         [Foldout("Floor Generation Settings")]
         public List<CutOff> floorTileTypeCutoffs = new List<CutOff>();
 
+        [Foldout("Tile Smooth Settings")]
+        public int smoothIterations = 1;
 
+        [Foldout("Tile Smooth Settings")]
+        public int smoothChange = 1;
+
+        [Foldout("Lake Settings")]
+        public int lakeSize = 5;
+
+        [Foldout("Lake Settings")]
+        public int numOfLakes = 1;
+
+        [Foldout("Lake Settings")]
+        public float lakeRandomness = 0.5f;
 
 
     }

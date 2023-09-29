@@ -9,7 +9,10 @@ namespace WorldGeneration
         public WorldSettings settings;
         public int seed;
 
-        private Tile[,] objects;
+        public GameObject floorParent;
+        public GameObject hillParent;
+
+        private Tile[,] hills;
         private Tile[,] floor;
 
 
@@ -22,21 +25,22 @@ namespace WorldGeneration
             VisualizeFloor(settings, floor);
 
             GenerateHills();
-            VisualizeObjects(settings, objects);
+            VisualizeHills(settings, hills);
+
 
 
         }
 
-        private void VisualizeObjects(WorldSettings settings, Tile[,] objects)
+        private void VisualizeHills(WorldSettings settings, Tile[,] hills)
         {
-            for (int x = 0; x < objects.GetLength(0); x++)
+            for (int x = 0; x < hills.GetLength(0); x++)
             {
-                for (int y = 0; y < objects.GetLength(1); y++)
+                for (int y = 0; y < hills.GetLength(1); y++)
                 {
-                    Tile currentTile = objects[x, y];
+                    Tile currentTile = hills[x, y];
                     if (currentTile != null)
                     {
-                        GameObject tileObject = Instantiate(settings.rockTile, currentTile.worldPosition, Quaternion.identity);
+                        GameObject tileObject = Instantiate(settings.rockTile, currentTile.worldPosition, Quaternion.identity, hillParent.transform);
                         tileObject.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
                         SpriteRenderer spriteRenderer;
                         if (!tileObject.TryGetComponent<SpriteRenderer>(out spriteRenderer))
@@ -60,7 +64,7 @@ namespace WorldGeneration
         void GenerateHills()
         {
             //Find the centers of the hills aka the clusters of rock tiles.
-            objects = new Tile[floor.GetLength(0), floor.GetLength(1)];
+            hills = new Tile[floor.GetLength(0), floor.GetLength(1)];
             for (int x = 0; x < floor.GetLength(0); x++)
             {
                 for (int y = 0; y < floor.GetLength(1); y++)
@@ -75,7 +79,7 @@ namespace WorldGeneration
                             Tile rock = new Tile(currentTile.position, currentTile.worldPosition, currentTile.tileType, currentTile.rockType);
                             rock.objectBelow = currentTile;
                             currentTile.objectAbove = rock;
-                            objects[x, y] = rock;
+                            hills[x, y] = rock;
 
                         }
                     }
@@ -224,7 +228,7 @@ namespace WorldGeneration
                 for (int y = 0; y < tiles.GetLength(1); y++)
                 {
                     Tile currentTile = tiles[x, y];
-                    GameObject tileObject = Instantiate(settings.emptyTile, currentTile.worldPosition, Quaternion.identity);
+                    GameObject tileObject = Instantiate(settings.emptyTile, currentTile.worldPosition, Quaternion.identity, floorParent.transform);
                     tileObject.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
                     SpriteRenderer spriteRenderer;
                     if (!tileObject.TryGetComponent<SpriteRenderer>(out spriteRenderer))

@@ -15,7 +15,7 @@ MonoBehaviour:
   worldSize: {x: 100, y: 100}
   tileScale: 1
   emptyTile: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
-  rockTile: {fileID: 0}
+  rockTile: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
   noiseScale: 1
   noiseOctaves: 8
   noisePersistence: 0.5
@@ -24,9 +24,9 @@ MonoBehaviour:
   floorTileTypeCutoffs:
   - tileType: 1
     cutOff: 0
-  - tileType: 2
-    cutOff: 0.346
   - tileType: 3
+    cutOff: 0.346
+  - tileType: 4
     cutOff: 0.646
   smoothIterations: 20
   smoothChange: 3

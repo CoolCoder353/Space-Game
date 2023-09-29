@@ -3927,9 +3927,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2a29cdcd3c176f4485065dc1338a6d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  priority: 1
-  world: {fileID: 0}
-  pawns: []
 --- !u!4 &1587086046
 Transform:
   m_ObjectHideFlags: 0
@@ -4736,6 +4733,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   settings: {fileID: 11400000, guid: 3c47ab602cf1789419b48d5f9498e7c9, type: 2}
   seed: 0
+  floorParent: {fileID: 1912848866}
+  objectParent: {fileID: 2093942581}
 --- !u!4 &1742206908
 Transform:
   m_ObjectHideFlags: 0
@@ -5606,7 +5605,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1912848867}
   m_Layer: 0
-  m_Name: Tiles
+  m_Name: Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6058,7 +6057,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2093942582}
   m_Layer: 0
-  m_Name: Rocks
+  m_Name: Objects
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -9,6 +9,7 @@ namespace WorldGeneration
         public WorldSettings settings;
         public int seed;
 
+        private Tile[,] objects;
         private Tile[,] floor;
 
 
@@ -20,9 +21,67 @@ namespace WorldGeneration
             StartSmoothFloor();
             VisualizeFloor(settings, floor);
 
+            GenerateHills();
+            VisualizeObjects(settings, objects);
+
 
         }
 
+        private void VisualizeObjects(WorldSettings settings, Tile[,] objects)
+        {
+            for (int x = 0; x < objects.GetLength(0); x++)
+            {
+                for (int y = 0; y < objects.GetLength(1); y++)
+                {
+                    Tile currentTile = objects[x, y];
+                    if (currentTile != null)
+                    {
+                        GameObject tileObject = Instantiate(settings.rockTile, currentTile.worldPosition, Quaternion.identity);
+                        tileObject.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
+                        SpriteRenderer spriteRenderer;
+                        if (!tileObject.TryGetComponent<SpriteRenderer>(out spriteRenderer))
+                        {
+                            spriteRenderer = tileObject.AddComponent<SpriteRenderer>();
+
+                        }
+                        spriteRenderer.sprite = Resources.Load<Sprite>($"Tiles/{currentTile.tileType}");
+                        //TODO: Change the color of the rock based on the rock type.
+                        spriteRenderer.color = currentTile.rockType == RockType.Granite ? Color.gray : Color.white;
+
+                        if (spriteRenderer.sprite == null)
+                        {
+                            Debug.LogError($"Sprite is null at {x},{y} with a tile type of {currentTile.tileType}");
+                        }
+                    }
+                }
+            }
+        }
+
+        void GenerateHills()
+        {
+            //Find the centers of the hills aka the clusters of rock tiles.
+            objects = new Tile[floor.GetLength(0), floor.GetLength(1)];
+            for (int x = 0; x < floor.GetLength(0); x++)
+            {
+                for (int y = 0; y < floor.GetLength(1); y++)
+                {
+                    Tile currentTile = floor[x, y];
+                    if (currentTile.isRockTile)
+                    {
+                        //Check if the tile is surrounded by rock tiles.
+                        List<Tile> neighbours = GetNeighbours(floor, x, y, out TileType mostCommon, out int sameNeighbourCount);
+                        if (sameNeighbourCount >= 8)
+                        {
+                            Tile rock = new Tile(currentTile.position, currentTile.worldPosition, currentTile.tileType, currentTile.rockType);
+                            rock.objectBelow = currentTile;
+                            currentTile.objectAbove = rock;
+                            objects[x, y] = rock;
+
+                        }
+                    }
+                }
+            }
+        }
         void GenerateLakes()
         {
             for (int i = 0; i < settings.numOfLakes; i++)

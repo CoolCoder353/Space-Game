@@ -17,6 +17,9 @@ namespace WorldGeneration
         [Foldout("Tile Settings")]
         public GameObject emptyTile;
 
+        [Foldout("Tile Settings")]
+        public GameObject rockTile;
+
 
         [Foldout("Noise Settings")]
         public float noiseScale = 1;

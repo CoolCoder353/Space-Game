@@ -11,6 +11,9 @@ namespace WorldGeneration
         public RockType rockType;
         public GameObject tileObject;
 
+        public Tile objectAbove;
+        public Tile objectBelow;
+        public bool isRockTile => CheckRockTile();
 
         public Tile(Vector2 position, Vector2 worldPosition, TileType type, RockType rockType, GameObject tileObject = null)
         {
@@ -33,6 +36,14 @@ namespace WorldGeneration
             this.rockType = RockType.None;
         }
 
+        private bool CheckRockTile()
+        {
+            if (tileType == TileType.Rock || tileType == TileType.Rock_Smooth)
+            {
+                return true;
+            }
+            return false;
+        }
 
 
     }
@@ -41,6 +52,7 @@ namespace WorldGeneration
     {
         None,
         Rock,
+        Rock_Smooth,
         Grass,
         Sand,
         Water

@@ -15,6 +15,34 @@ namespace WorldGeneration
         private Tile[,] hills;
         private Tile[,] floor;
 
+        public static bool Contains(Tile tile, Tile[,] tiles)
+        {
+            foreach (Tile t in tiles)
+            {
+                if (t == tile)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public Tile GetFloorTileAtPosition(Vector2 position)
+        {
+            int x = Mathf.RoundToInt(position.x / settings.tileScale);
+            int y = Mathf.RoundToInt(position.y / settings.tileScale);
+            if (x < 0 || x >= floor.GetLength(0) || y < 0 || y >= floor.GetLength(1))
+            {
+                return null;
+            }
+            return floor[x, y];
+        }
+
+        public Tile[,] GetFloor()
+        {
+            return floor;
+        }
+
 
         private void Awake()
         {
@@ -176,7 +204,7 @@ namespace WorldGeneration
                         rockType = GetRockType(x, y, seed);
                     }
                     Vector2 worldPosition = new Vector2(x * settings.tileScale, y * settings.tileScale);
-                    start[x, y] = new Tile(new Vector2(x, y), worldPosition, currentTileType, rockType);
+                    start[x, y] = new Tile(new Vector2Int(x, y), worldPosition, currentTileType, rockType);
                 }
             }
             return start;

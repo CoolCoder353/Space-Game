@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c6ad36400cef304ab85c270acd43ec6, type: 3}
   m_Name: Default Character Settings
   m_EditorClassIdentifier: 
-  speed: 1
-  scrollSpeed: 4
-  shiftSpeedMultiplyer: 2
-  zoomScale: {x: 0.01, y: 1}
+  speed: 5
+  scrollSpeed: 500
+  shiftSpeedMultiplyer: 50
+  zoomScale: {x: 1, y: 10}
   zoomSpeedScale: {x: 0, y: 1}
   tileRenderSize: {x: 3, y: 3}
   tileRenderTime: 0

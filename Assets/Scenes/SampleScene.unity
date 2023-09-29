@@ -401,6 +401,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 131672557}
   m_CullTransparentMesh: 1
+--- !u!1 &149876206
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 149876208}
+  - component: {fileID: 149876207}
+  m_Layer: 0
+  m_Name: Pawn
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &149876207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 149876206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7043e451fd3425140ba5e04499d599e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  front: {fileID: 21300000, guid: a3face4dc2cefc64b842af548c2e194f, type: 3}
+  back: {fileID: 21300000, guid: 4d9e1d01eca7cec4a9b77ba04532413a, type: 3}
+  left: {fileID: 21300000, guid: 256106e36e7ae094da25caac5007ae50, type: 3}
+  right: {fileID: 21300000, guid: 3e32a00511efaad4da31a3a4c10214ce, type: 3}
+--- !u!4 &149876208
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 149876206}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &173922525
 GameObject:
   m_ObjectHideFlags: 0
@@ -4734,7 +4782,7 @@ MonoBehaviour:
   settings: {fileID: 11400000, guid: 3c47ab602cf1789419b48d5f9498e7c9, type: 2}
   seed: 0
   floorParent: {fileID: 1912848866}
-  objectParent: {fileID: 2093942581}
+  hillParent: {fileID: 2093942581}
 --- !u!4 &1742206908
 Transform:
   m_ObjectHideFlags: 0
@@ -6057,7 +6105,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2093942582}
   m_Layer: 0
-  m_Name: Objects
+  m_Name: Hills
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

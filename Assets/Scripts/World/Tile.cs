@@ -5,7 +5,7 @@ namespace WorldGeneration
     [Serializable]
     public class Tile
     {
-        public Vector2 position;
+        public Vector2Int position;
         public Vector2 worldPosition;
         public TileType tileType;
         public RockType rockType;
@@ -15,7 +15,13 @@ namespace WorldGeneration
         public Tile objectBelow;
         public bool isRockTile => CheckRockTile();
 
-        public Tile(Vector2 position, Vector2 worldPosition, TileType type, RockType rockType, GameObject tileObject = null)
+        public bool walkable => isWalkable();
+
+        public int walkSpeed;
+
+
+
+        public Tile(Vector2Int position, Vector2 worldPosition, TileType type, RockType rockType, GameObject tileObject = null)
         {
             this.position = position;
             this.worldPosition = worldPosition;
@@ -23,7 +29,7 @@ namespace WorldGeneration
             this.rockType = rockType;
             this.tileObject = tileObject;
         }
-        public Tile(Vector2 position, Vector2 worldPosition, TileType type, GameObject tileObject = null)
+        public Tile(Vector2Int position, Vector2 worldPosition, TileType type, GameObject tileObject = null)
         {
             if (type == TileType.Rock)
             {
@@ -45,6 +51,19 @@ namespace WorldGeneration
             return false;
         }
 
+        public bool isWalkable()
+        {
+            if (objectAbove != null)
+            {
+                return false;
+            }
+            if (walkSpeed == 0)
+            {
+                return false;
+            }
+            return true;
+
+        }
 
     }
 

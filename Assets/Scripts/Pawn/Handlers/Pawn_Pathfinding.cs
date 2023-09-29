@@ -28,7 +28,7 @@ public static class Pathfinder
     public static List<Tile> FindPath(Tile start, Tile end, Tile[,] world)
     {
         // Check if the start and end tiles are valid and walkable, return null if not
-        if (start == null || end == null || !start.Walkable() || !end.Walkable())
+        if (start == null || end == null || !start.walkable || !end.walkable)
         {
 
             return null;
@@ -75,14 +75,15 @@ public static class Pathfinder
 
             // Get the neighbors of the current tile that are within the bounds of the world and walkable
             HashSet<Tile> neighbors = GetNeighbors(currentTile, world);
-            (int x, int y) = currentTile.Position;
+            int x = currentTile.position.x;
+            int y = currentTile.position.y;
             ////Debug.Log($"Tile ({x},{y}) has {neighbors.Count} neighbours.");
 
             // Loop through each neighbor
             foreach (Tile next in neighbors)
             {
                 // Calculate the new cost of reaching the neighbor by adding the current cost and the walk speed of the neighbor
-                int newCost = costSoFar[currentTile] + next.WalkSpeed();
+                int newCost = costSoFar[currentTile] + next.walkSpeed;
 
                 // Check if the neighbor is not in the cost dictionary or if its new cost is lower than its previous cost
                 if (!costSoFar.ContainsKey(next) || newCost < costSoFar[next])
@@ -143,11 +144,10 @@ public static class Pathfinder
     private static float Heuristic(Tile a, Tile b)
     {
         // Get the positions of the tiles in the world
-        (int ax, int ay) = a.Position;
-        (int bx, int by) = b.Position;
 
-        Vector2 point1 = new(ay, ax);
-        Vector2 point2 = new(by, bx);
+
+        Vector2 point1 = new(a.position.x, a.position.y);
+        Vector2 point2 = new(b.position.x, b.position.y);
 
         return -EuclideanDistance(point1, point2);
     }
@@ -171,7 +171,8 @@ public static class Pathfinder
         HashSet<Tile> neighbors = new HashSet<Tile>();
 
         // Get the position of the tile directly from its property
-        (int x, int y) = tile.Position;
+        int x = tile.position.x;
+        int y = tile.position.y;
 
         // Loop through the eight directions: up, down, left, right, and diagonals
         for (int dx = -1; dx <= 1; dx++)
@@ -198,7 +199,7 @@ public static class Pathfinder
 
                     ////Debug.Log($"Found neighbour for tile ({x},{y}) at ({nx},{ny})");
                     // Check if the neighbor is walkable, add it to the hash set if so
-                    if (neighbor.Walkable())
+                    if (neighbor.walkable)
                     {
                         ////Debug.Log("Neighbour is walkable");
                         // Check if the neighbor is diagonal
@@ -210,7 +211,7 @@ public static class Pathfinder
                             Tile corner2 = world[x, y + dy];
 
                             // Check if both corner tiles are blocked, skip the neighbor if so
-                            if (!corner1.Walkable() && !corner2.Walkable())
+                            if (!corner1.walkable && !corner2.walkable)
                             {
                                 ////Debug.Log("Neighbour not acceptable for some reason");
                                 continue;

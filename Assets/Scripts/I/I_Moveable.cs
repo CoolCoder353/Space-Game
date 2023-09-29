@@ -29,7 +29,7 @@ public abstract class I_Moveable : MonoBehaviour
             OnMoveCancelled();
             return;
         }
-        List<Tile> tiles = Pathfinder.FindPath(world.GetTileAtPosition(transform.position), tile, world.GetMap());
+        List<Tile> tiles = Pathfinder.FindPath(world.GetFloorTileAtPosition(transform.position), tile, world.GetFloor());
         StartMove(tiles, moveSpeed);
     }
     public void StartMove(Tile tile, World world)
@@ -40,7 +40,7 @@ public abstract class I_Moveable : MonoBehaviour
             OnMoveCancelled();
             return;
         }
-        List<Tile> tiles = Pathfinder.FindPath(world.GetTileAtPosition(transform.position), tile, world.GetMap());
+        List<Tile> tiles = Pathfinder.FindPath(world.GetFloorTileAtPosition(transform.position), tile, world.GetFloor());
         StartMove(tiles, this.moveSpeed);
     }
     public void StartMove(List<Tile> tiles, float moveSpeed)
@@ -88,7 +88,7 @@ public abstract class I_Moveable : MonoBehaviour
         for (int i = 0; i < maxReccuritionDepth; i++)
         {
             Vector2 ourPos = new(transform.position.x, transform.position.y);
-            Vector2 targetPos = new(tiles[currentPointIndex].WorldPosition.x, tiles[currentPointIndex].WorldPosition.y);
+            Vector2 targetPos = new(tiles[currentPointIndex].worldPosition.x, tiles[currentPointIndex].worldPosition.y);
             if (ourPos != targetPos)
             {
                 //Get direction of travel 

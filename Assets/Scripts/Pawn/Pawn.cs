@@ -22,7 +22,7 @@ public class Pawn : I_Moveable
     private void Start()
     {
         world = FindObjectOfType<World>();
-        map = world.GetMap();
+        map = world.GetFloor();
         skillHandler = new();
         globalJobHandler = new(this);
         needHandler = new();

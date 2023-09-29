@@ -58,17 +58,17 @@ namespace Character
             this.gameObject.transform.position += movement;
             playerCamera.orthographicSize = Mathf.Clamp(playerCamera.orthographicSize - scroll, settings.zoomScale.x, settings.zoomScale.y);
 
-
-            if (timeLeft >= settings.tileRenderTime)
-            {
-                
-
-                world.showRangeInChunks(gameObject.transform.position, settings.tileRenderSize);
-                timeLeft = 0;
-            }
-            timeLeft += Time.deltaTime;
+            /*
+                        if (timeLeft >= settings.tileRenderTime)
+                        {
 
 
+                            world.showRangeInChunks(gameObject.transform.position, settings.tileRenderSize);
+                            timeLeft = 0;
+                        }
+                        timeLeft += Time.deltaTime;
+
+            */
         }
     }
 }

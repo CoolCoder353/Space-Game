@@ -17,7 +17,7 @@ public class Global_job_handler : MonoBehaviour
     private void Start()
     {
         world = FindObjectOfType<World>();
-        map = world.GetMap();
+        map = world.GetFloor();
         //TODO: Get pawns from world instead of finding them.
         //TODO: Get controllable pawns instead of all.
 
@@ -44,14 +44,14 @@ public class Global_job_handler : MonoBehaviour
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
         Vector3 mousPosInverted = new Vector3(mousePos.y, mousePos.x, mousePos.z);
-        Tile mouseTile = world.GetTileAtPosition(mousePos);
-        Tile mouseTileInverted = world.GetTileAtPosition(mousPosInverted);
+        Tile mouseTile = world.GetFloorTileAtPosition(mousePos);
+        Tile mouseTileInverted = world.GetFloorTileAtPosition(mousPosInverted);
 
         ////Debug.Log($"Mouse position: ({mousePos.x},{mousePos.y}), Mouse tile position: ({mouseTile.GetPosition().x}, {mouseTile.GetPosition().y}), Mouse world position: ({mouseTile.WorldPosition.x}, {mouseTile.WorldPosition.y})");
         if (mouseTile != null && mouseTileInverted != null) //if the mouse hit a tile.
         {
-            Tile jobTile = world.GetTileAtPosition(mousPosInverted);
-            world.SetTile(mouseTileInverted, TileType.Wall_Blueprint, TileLayer.Blueprint);
+            Tile jobTile = world.GetFloorTileAtPosition(mousPosInverted);
+            ////world.SetTile(mouseTileInverted, TileType.Wall_Blueprint, TileLayer.Blueprint);
 
             //TODO: Send to pawns that are controllable.
             foreach (Pawn pawn in pawns)

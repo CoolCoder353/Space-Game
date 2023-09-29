@@ -44,8 +44,7 @@ public class BuildingJob : Job
             cancelCallback(this);
             yield break;
         }
-        world.SetTile(flags[0], TileType.Wall, TileLayer.Tile);
-        world.RemoveBlueprint(flags[0].GetPosition());
+        Debug.Log("Finished job");
         callback(this);
 
     }

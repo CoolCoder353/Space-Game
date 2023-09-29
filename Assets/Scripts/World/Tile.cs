@@ -2,63 +2,86 @@ using System;
 using UnityEngine;
 namespace WorldGeneration
 {
-
     [Serializable]
     public class Tile
     {
-        private TileType type;
-        private Color debugColour;
-        private Sprite texture;
-        private int speed;
-        public (int x, int y) Position { get; set; }
-        public (float x, float y) WorldPosition { get; set; }
+        public Vector2Int position;
+        public Vector2 worldPosition;
+        public TileType tileType;
+        public RockType rockType;
+        public GameObject tileObject;
 
-        public Vector2Int GetPosition()
-        {
-            return new Vector2Int(Position.x, Position.y);
-        }
-        public TileType GetTileType()
-        {
-            return type;
-        }
+        public Tile objectAbove;
+        public Tile objectBelow;
+        public bool isRockTile => CheckRockTile();
 
-        public Color GetColor()
-        {
-            return debugColour;
-        }
+        public bool walkable => isWalkable();
 
-        public Sprite GetTexture()
-        {
-            return texture;
-        }
+        public int walkSpeed;
 
-        public Tile(TileType type, int speed, Color debugColor, Sprite texture, int x, int y, float worldx, float worldy)
-        {
-            this.type = type;
-            this.debugColour = debugColor;
-            this.texture = texture;
-            this.Position = (x, y);
-            this.speed = speed;
-            this.WorldPosition = (worldx, worldy);
-        }
 
-        public int WalkSpeed()
+
+        public Tile(Vector2Int position, Vector2 worldPosition, TileType type, RockType rockType, GameObject tileObject = null)
         {
-            return speed;
+            this.position = position;
+            this.worldPosition = worldPosition;
+            this.tileType = type;
+            this.rockType = rockType;
+            this.tileObject = tileObject;
+        }
+        public Tile(Vector2Int position, Vector2 worldPosition, TileType type, GameObject tileObject = null)
+        {
+            if (type == TileType.Rock)
+            {
+                throw new Exception("TileType.Rock needs a rockType");
+            }
+            this.position = position;
+            this.worldPosition = worldPosition;
+            this.tileType = type;
+            this.tileObject = tileObject;
+            this.rockType = RockType.None;
         }
 
-        public bool Walkable()
+        private bool CheckRockTile()
         {
-            return WalkSpeed() == 0 ? false : true;
+            if (tileType == TileType.Rock || tileType == TileType.Rock_Smooth)
+            {
+                return true;
+            }
+            return false;
         }
+
+        public bool isWalkable()
+        {
+            if (objectAbove != null)
+            {
+                return false;
+            }
+            if (walkSpeed == 0)
+            {
+                return false;
+            }
+            return true;
+
+        }
+
     }
 
     public enum TileType
     {
-        Grass,
+        None,
         Rock,
-        Space,
-        Wall_Blueprint,
-        Wall
+        Rock_Smooth,
+        Grass,
+        Sand,
+        Water
     }
+
+    public enum RockType
+    {
+        None,
+        Granite,
+        Marble
+    }
+
 }

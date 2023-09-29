@@ -1,77 +1,66 @@
 using UnityEngine;
 using NaughtyAttributes;
+using System.Collections.Generic;
 
 namespace WorldGeneration
 {
     [CreateAssetMenu]
     public class WorldSettings : ScriptableObject
     {
-        [Foldout("Main")]
-        public int width;
-        [Foldout("Main")]
-        public int height;
+        public Vector2Int worldSize;
 
-        [Foldout("Main")]
-        public int chunkWidth;
-        [Foldout("Main")]
-        public int chunkHeight;
-
-        [Foldout("Main")]
-        public TileTextures[] textures;
-
-        [Foldout("Main")]
-        public TileWeights[] weights;
-
-        [Foldout("Main")]
-        public GameObject tileObject;
-
-        [Foldout("Noise")]
-        public float scale;
-        [Foldout("Noise")]
-        public int octaves;
-        [Foldout("Noise"), Range(0f, 1f)]
-        public float persistence;
-        [Foldout("Noise"), Range(1.5f, 3.5f)]
-        public float lacunarity;
-
-        [Foldout("Tile")]
-        public float tileWidth;
-        [Foldout("Tile")]
-        public float tileHeight;
-        [Foldout("Debug")]
-        public bool debug;
-        [Foldout("Debug")]
-        public ColourType debugType;
-        [Foldout("Debug")]
-        public bool createTiles = true;
+        [Foldout("Tile Settings")]
+        public float tileScale = 1;
 
 
-    }
 
-    [System.Serializable]
-    public class TileWeights
-    {
-        public string name;
+        [Foldout("Tile Settings")]
+        public GameObject emptyTile;
+
+        [Foldout("Tile Settings")]
+        public GameObject rockTile;
+
+
+        [Foldout("Noise Settings")]
+        public float noiseScale = 1;
+        [Foldout("Noise Settings")]
+        public int noiseOctaves = 1;
+        [Foldout("Noise Settings")]
         [Range(0, 1)]
-        public float weight;
-        public TileType type;
+        public float noisePersistence = 1;
+        [Foldout("Noise Settings")]
+        public float noiseLacunarity = 1;
+        [Foldout("Noise Settings")]
+        public Vector2 noiseOffset;
+
+        [Foldout("Floor Generation Settings")]
+        public List<CutOff> floorTileTypeCutoffs = new List<CutOff>();
+
+        [Foldout("Tile Smooth Settings")]
+        public int smoothIterations = 1;
+
+        [Foldout("Tile Smooth Settings")]
+        public int smoothChange = 1;
+
+        [Foldout("Lake Settings")]
+        public int lakeSize = 5;
+
+        [Foldout("Lake Settings")]
+        public int numOfLakes = 1;
+
+        [Foldout("Lake Settings")]
+        public float lakeRandomness = 0.5f;
+
+
 
     }
+
     [System.Serializable]
-    public class TileTextures
+    public class CutOff
     {
-        public TileType type;
-        public Color debugColour;
-        public Sprite texture;
-
-        public int movementSpeed;
+        public TileType tileType;
+        [Range(0, 1)]
+        public float cutOff;
     }
 
-    [System.Serializable]
-    public enum ColourType
-    {
-        texture,
-        colour,
-        noise
-    }
 }

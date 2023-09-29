@@ -66,17 +66,48 @@ namespace WorldGeneration
                 {
                     Tile currentTile = tiles[x, y];
                     TileType mostCommon;
-                    List<Tile> neighbours = GetNeighbours(tiles, x, y, out mostCommon);
+                    List<Tile> neighbours = GetNeighbours(tiles, x, y, out mostCommon, out int sameNeighbourCount);
                     if (mostCommon == TileType.None) { Debug.LogError($"Most common tile type is None at {x},{y}"); }
                     RockType rockType = RockType.None;
                     if (mostCommon == TileType.Rock)
                     {
                         rockType = GetRockType(x, y, seed);
                     }
+
+
+
+
+                    //If there are more than 5 neighbours of the same type, then the tile is unchanged.
+                    if (sameNeighbourCount >= 5)
+                    {
+                        mostCommon = currentTile.tileType;
+                    }
                     smooth[x, y] = new Tile(currentTile.position, currentTile.worldPosition, mostCommon, rockType);
+
 
                 }
             }
+
+            //Replace all tiles that are alone with the most common tile type of its neighbours.
+            for (int x = 0; x < smooth.GetLength(0); x++)
+            {
+                for (int y = 0; y < smooth.GetLength(1); y++)
+                {
+                    Tile currentTile = smooth[x, y];
+                    TileType mostCommon;
+                    List<Tile> neighbours = GetNeighbours(smooth, x, y, out mostCommon, out int sameNeighbourCount);
+                    RockType rockType = RockType.None;
+                    if (mostCommon == TileType.Rock)
+                    {
+                        rockType = GetRockType(x, y, seed);
+                    }
+                    if (sameNeighbourCount <= 3)
+                    {
+                        smooth[x, y] = new Tile(currentTile.position, currentTile.worldPosition, mostCommon, rockType);
+                    }
+                }
+            }
+
             return smooth;
 
         }
@@ -130,11 +161,13 @@ namespace WorldGeneration
             }
 
         }
-        public static List<Tile> GetNeighbours(Tile[,] tiles, int x, int y, out TileType mostCommon)
+        public static List<Tile> GetNeighbours(Tile[,] tiles, int x, int y, out TileType mostCommon, out int sameNeighbourCount)
         {
             List<Tile> neighbours = new List<Tile>();
             Dictionary<TileType, int> tileCounts = new Dictionary<TileType, int>();
-
+            sameNeighbourCount = 0;
+            Tile currentTile = tiles[x, y];
+            TileType currentTileType = currentTile.tileType;
 
             tileCounts[tiles[x, y].tileType] = 1;
 
@@ -156,6 +189,10 @@ namespace WorldGeneration
                     if (checkX >= 0 && checkX < tiles.GetLength(0) && checkY >= 0 && checkY < tiles.GetLength(1))
                     {
                         Tile neighbour = tiles[checkX, checkY];
+                        if (neighbour.tileType == currentTileType)
+                        {
+                            sameNeighbourCount++;
+                        }
                         if (tileCounts.ContainsKey(neighbour.tileType))
                         {
                             tileCounts[neighbour.tileType]++;

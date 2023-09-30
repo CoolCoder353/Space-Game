@@ -4,67 +4,22 @@ using WorldGeneration;
 
 public class Pawn : I_Moveable
 {
-    public SkillHandler skillHandler { get; protected set; }
-    public JobHandler globalJobHandler { get; protected set; }
-    public NeedHandler needHandler { get; protected set; }
+    NeedHandler needHandler;
+    SkillHandler skillHandler;
+    JobHandler jobHandler;
 
-    private bool isControllable = true;
-
-    private World world;
-    private Tile[,] map;
-
-    private Job currentJob;
-
-
-
-
-
-    private void Start()
-    {
-        world = FindObjectOfType<World>();
-        map = world.GetFloor();
-        skillHandler = new();
-        globalJobHandler = new(this);
-        needHandler = new();
-
-    }
-
-
-    public void AddJob(Job job)
-    {
-        Debug.Log($"Pawn has a new job: {job.GetType()}");
-        globalJobHandler.AddJob(job);
-    }
-
-    public bool IsControllable()
-    {
-        return isControllable;
-    }
-
-    void Update()
+    private void Update()
     {
         needHandler.UpdateNeeds();
 
-        //TODO: Update self jobs based on needs
-
-        globalJobHandler.UpdateJobs(world);
     }
-
-
-    //    MOVEMENT    \\
     protected override void OnMoveCancelled()
     {
-        Debug.Log("Pawn cancelled movement.");
-        currentJob?.OnMovementCancelled();
+        throw new System.NotImplementedException();
     }
 
     protected override void OnMoveFinished()
     {
-        Debug.Log("Pawn finished moving");
-        currentJob?.OnMovementFinished();
-
+        throw new System.NotImplementedException();
     }
-
-
-
 }

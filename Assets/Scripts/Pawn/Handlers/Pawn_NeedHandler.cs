@@ -1,166 +1,145 @@
 using System;
+using System.Collections.Generic;
 
-// An enum that represents the name of a skill
-/*
-public enum NeedName
+// An enum that represents the type of a need
+
+public enum NeedType
 {
     Food,
     Rest,
     Social,
-    Recreation
-}
-*/
-public enum NeedName
-{
-    Food,
-    Rest
+    Recreation,
+    Chemicals
 }
 
 
 // An abstract class that represents a need
-public abstract class Need
+public class Need
 {
-    // A property that stores the needs name
-    public NeedName Name { get; private set; }
+    public NeedType needType;
 
-    // A property that stores the needs amount
-    public float amount { get; private set; }
+    public float maxValue;
+    public float currentValue;
 
-    // A property that stores the needs max amount
-    public float max { get; private set; }
-    // A property that stores the needs remove amount
-    public float removeAmount { get; private set; }
+    public float decayRate;
 
+    public List<float> thresholds = new List<float>();
+    Action<Need> OnNeedAtThreshold;
 
+    public float percentage => currentValue / maxValue;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Need"/> class.
-    /// </summary>
-    /// <param name="name">The name of the need.</param>
-    /// <param name="max">The maximum amount of the need.</param>
-    /// <param name="removeAmount">The amount to remove.</param>
-    public Need(NeedName name, float max, float removeAmount)
+    public Need(NeedType needType, float maxValue, float currentValue, float decayRate, List<float> thresholds, Action<Need> OnNeedAtThreshold)
     {
-        Name = name;
-        amount = max;
-        this.max = max;
-        this.removeAmount = removeAmount;
-    }
-
-    /// <summary>
-    /// Sets the amount to remove.
-    /// </summary>
-    /// <param name="amount">The amount to remove.</param>
-    public void SetRemoveAmount(float amount)
-    {
-        removeAmount = amount;
-    }
-    /// <summary>
-    /// Updates the need by removing the specified amount.
-    /// </summary>
-    public void Update()
-    {
-        Remove(removeAmount);
-    }
-    /// <summary>
-    /// Removes the specified amount from the need.
-    /// </summary>
-    /// <param name="amount">The amount to remove.</param>
-    public void Remove(float remove)
-    {
-        this.amount -= remove;
-        ApplyNeedEffect(amount);
-    }
-    /// <summary>
-    /// Adds the specified amount to the need.
-    /// </summary>
-    /// <param name="amount">The amount to add.</param>
-    public void Add(float remove)
-    {
-        this.amount += remove;
-        ApplyNeedEffect(amount);
-    }
-    // <summary>
-    /// Sets the need to the specified amount.
-    /// </summary>
-    /// <param name="amount">The new value of the need.</param>
-    public void Set(float remove)
-    {
-        this.amount = remove;
-        ApplyNeedEffect(amount);
+        this.needType = needType;
+        this.maxValue = maxValue;
+        this.currentValue = currentValue;
+        this.decayRate = decayRate;
+        this.thresholds = thresholds;
+        this.OnNeedAtThreshold = OnNeedAtThreshold;
     }
 
 
-    public abstract void ApplyNeedEffect(float amount);
+    public void UpdateNeed()
+    {
+        currentValue -= decayRate;
+        //Find the lowest threshold that the percentage is below
 
+        foreach (float threshold in thresholds)
+        {
+            if (percentage <= threshold)
+            {
+                OnNeedAtThreshold?.Invoke(this);
+                return;
+            }
+        }
+    }
+
+    public void AddNeed(float amount)
+    {
+        currentValue += amount;
+        if (currentValue > maxValue)
+        {
+            currentValue = maxValue;
+        }
+    }
 }
-
 public class NeedHandler
 {
-    private Need[] needs;
-    /// <summary>
-    /// Initializes a new instance of the <see cref="NeedHandler"/> class with the specified need names.
-    /// </summary>
-    /// <param name="needNames">The array of need names.</param>
-    public NeedHandler(NeedName[] needNames)
+    List<Need> needs = new List<Need>();
+
+    Action<Need> OnNeedEmpty;
+
+
+    public NeedHandler(List<Need> needs)
     {
-        needs = new Need[needNames.Length];
-        foreach (NeedName need in needNames)
+        this.needs = needs;
+    }
+
+    public bool Contains(NeedType needType)
+    {
+        foreach (Need need in needs)
         {
-            Type type = Type.GetType(need.ToString() + "Need");
-            needs[(int)need] = (Need)Activator.CreateInstance(type);
+            if (need.needType == needType)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void AddAmountToNeed(NeedType need, float amount)
+    {
+        foreach (Need n in needs)
+        {
+            if (n.needType == need)
+            {
+                n.AddNeed(amount);
+                return;
+            }
         }
     }
-    /// <summary>
-    /// Initializes a new instance of the <see cref="NeedHandler"/> class with all available need names.
-    /// </summary>
-    public NeedHandler()
-    {
-        needs = new Need[Enum.GetNames(typeof(NeedName)).Length];
-        foreach (NeedName need in (NeedName[])Enum.GetValues(typeof(NeedName)))
-        {
-            Type type = Type.GetType(need.ToString() + "Need");
-            needs[(int)need] = (Need)Activator.CreateInstance(type);
-        }
-    }
-    /// <summary>
-    /// Returns the need with the specified name.
-    /// </summary>
-    /// <param name="need">The name of the need.</param>
-    public Need GetNeed(NeedName need)
-    {
-        return needs[(int)need];
-    }
-    /// <summary>
-    /// Removes the need with the specified name.
-    /// </summary>
-    /// <param name="need">The name of the need to remove.</param>
-    public void RemoveNeed(NeedName need)
-    {
-        needs[(int)need] = null;
-    }
-    /// <summary>
-    /// Adds a new instance of the specified need.
-    /// </summary>
-    /// <param name="need">The name of the need to add.</param>
-    public void AddNeed(NeedName need)
-    {
-        Type type = Type.GetType(need.ToString() + "Need");
-        needs[(int)need] = (Need)Activator.CreateInstance(type);
-    }
-    /// <summary>
-    /// Updates all needs.
-    /// </summary>
+
     public void UpdateNeeds()
     {
         foreach (Need need in needs)
         {
-            if (need != null)
+            // Update the need
+            need.UpdateNeed();
+        }
+
+    }
+
+    public void RemoveNeed(NeedType needType)
+    {
+        // Remove the need from the list
+        foreach (Need need in needs)
+        {
+            // Check if the need is the one we are looking for
+            if (need.needType == needType)
             {
-                need.Update();
+                // Remove the need
+                needs.Remove(need);
+                return;
             }
         }
     }
+    public void AddNeed(NeedType needType, float maxValue, float currentValue, float decayRate, List<float> thresholds, Action<Need> OnNeedAtThreshold)
+    {
+        // Add the need to the list
+        if (Contains(needType) == false)
+        {
+            needs.Add(new Need(needType, maxValue, currentValue, decayRate, thresholds, OnNeedAtThreshold));
+        }
+    }
+    public void AddNeed(Need need)
+    {
+        // Add the need to the list
+        if (Contains(need.needType) == false)
+        {
+            needs.Add(need);
+        }
+    }
 }
+
 
 

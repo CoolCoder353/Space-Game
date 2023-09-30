@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using WorldGeneration;
-using System.Net;
 using System;
 
 public abstract class I_Moveable : MonoBehaviour
@@ -80,7 +79,7 @@ public abstract class I_Moveable : MonoBehaviour
         cancelMove = true;
     }
 
-    private IEnumerator MoveToTiles(List<Tile> tiles)
+    private IEnumerator MoveToTiles(List<Tile> tiles, Action OnMoveFinishedCallback = null, Action OnMoveCancelledCallback = null)
     {
         isMoving = true;
         currentPointIndex = 0;
@@ -121,6 +120,7 @@ public abstract class I_Moveable : MonoBehaviour
                 if (currentPointIndex >= tiles.Count)
                 {
                     isMoving = false;
+                    OnMoveFinishedCallback?.Invoke();
                     OnMoveFinished();
                     currentPointIndex = 0;
                     yield break;
@@ -131,6 +131,7 @@ public abstract class I_Moveable : MonoBehaviour
             if (cancelMove)
             {
                 isMoving = false;
+                OnMoveCancelledCallback?.Invoke();
                 OnMoveCancelled();
                 yield break;
             }

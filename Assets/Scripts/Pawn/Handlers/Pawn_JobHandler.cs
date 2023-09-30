@@ -9,85 +9,57 @@ using WorldGeneration;
 /// </summary>
 public class JobHandler
 {
-    private Queue<Job> jobQueue = new Queue<Job>();
-    private Job currentJob;
-    private bool isRunning = false;
-    private Pawn pawn;
+    public bool isWorking => currentJob != null;
 
-    public JobHandler(Pawn pawn)
-    {
-        this.pawn = pawn;
-    }
+    public Job currentJob;
+
+    public List<Job> jobs = new List<Job>();
 
     public void AddJob(Job job)
     {
-        jobQueue.Enqueue(job);
+        jobs.Add(job);
+    }
+    public void CancelCurrentJob(bool returnToJobQueue = true)
+    {
+        if (returnToJobQueue)
+        {
+            jobs.Insert(0, currentJob);
+        }
+        currentJob = null;
+    }
+    public void CancelAllJobs()
+    {
+        jobs.Clear();
+        currentJob = null;
     }
 
-    public void UpdateJobs(World world)
+    public void GetNextJob()
     {
-        if (jobQueue.Count > 0 && !isRunning)
+        if (jobs.Count > 0)
         {
-            currentJob = jobQueue.Dequeue();
-            isRunning = true;
-            currentJob.isRunning = true;
-            currentJob.isAssigned = true;
-            pawn.StartCoroutine(currentJob.RunJob(world, pawn, OnJobComplete, OnJobCancelled));
+            currentJob = jobs[0];
+            jobs.RemoveAt(0);
         }
     }
 
-    private void OnJobComplete(Job job)
-    {
-        Debug.Log($"Job {job.GetType()} is complete.");
-        job.isRunning = false;
-        job.isComplete = true;
-        isRunning = false;
-        currentJob = null;
-    }
-    private void OnJobCancelled(Job job)
-    {
-        //TODO: Send back to global job handler.
-        Debug.Log($"Job {job.GetType()} is cancelled.");
-        job.isAssigned = false;
-        job.isRunning = false;
-        job.isComplete = false;
-        isRunning = false;
-        currentJob = null;
-    }
+
 }
 
-public abstract class Job
+public class Job
 {
-    public int priority;
-    public List<Tile> flags;
     public JobType jobType;
-    public bool isRunning;
-    public bool isAssigned;
-    public bool isComplete;
+    public Pawn pawn;
+    public World world;
 
-    public Job(int priority, List<Tile> flags, JobType jobType)
+    public Job(JobType jobType, Pawn pawn, World world)
     {
-        this.priority = priority;
-        this.flags = flags;
         this.jobType = jobType;
+        this.pawn = pawn;
+        this.world = world;
     }
-    public Job(int priority, Tile flag, JobType jobType)
-    {
-        this.priority = priority;
-        this.flags = new List<Tile>();
-        this.flags.Add(flag);
-        this.jobType = jobType;
-    }
-    public abstract IEnumerator RunJob(World world, Pawn pawn, Action<Job> callback, Action<Job> cancelCallback);
 
-    public virtual void OnMovementFinished()
-    {
 
-    }
-    public virtual void OnMovementCancelled()
-    {
 
-    }
 }
 
 public enum JobType

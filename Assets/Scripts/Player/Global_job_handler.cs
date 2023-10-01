@@ -49,9 +49,10 @@ public class Global_job_handler : MonoBehaviour
         Tile tile = world.GetHillTileAtPosition(mousePos);
         if (tile != null)
         {
+
             foreach (Pawn pawn in pawns)
             {
-                if (pawn.skillHandler.GetSkill(SkillType.Mining).level > 0)
+                if (pawn.skillHandler.CanDoSkill(SkillType.Mining))
                 {
                     pawn.jobHandler.AddJob(new MiningJob(JobType.Mining, pawn, world, new List<Tile>() { tile }));
                     return;

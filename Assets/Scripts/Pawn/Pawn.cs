@@ -38,17 +38,16 @@ public class Pawn : I_Moveable
         if (jobHandler.isWorking == false)
         {
             jobHandler.GetNextJob();
-            jobHandler.currentJob.ExecuteJob();
         }
 
     }
     protected override void OnMoveCancelled()
     {
-        throw new System.NotImplementedException();
+        Debug.LogError("Movement cancelled. Pawn is stuck. Exiting.");
     }
 
     protected override void OnMoveFinished()
     {
-        throw new System.NotImplementedException();
+        Debug.Log("Movement finished.");
     }
 }

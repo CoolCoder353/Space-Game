@@ -43,16 +43,18 @@ public abstract class Skill
 
     public int level => Level();
 
+    public bool canDo = true;
 
 
 
 
     // A constructor that takes a skill name and initializes the xp and previous level to 0
-    public Skill(SkillType name)
+    public Skill(SkillType name, bool canDo = true)
     {
         Name = name;
         Xp = 0;
         PreviousLevel = 0;
+        this.canDo = canDo;
     }
 
     // A method that returns the level of the skill based on the xp
@@ -130,6 +132,11 @@ public class SkillHandler
     public Skill GetSkill(SkillType skill)
     {
         return skills[(int)skill]; // Return the skill object from the array using the enum value as index 
+    }
+
+    public bool CanDoSkill(SkillType skill)
+    {
+        return skills[(int)skill].canDo;
     }
 
 }

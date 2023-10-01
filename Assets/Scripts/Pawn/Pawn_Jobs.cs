@@ -14,7 +14,7 @@ public class MiningJob : Job
 
     public override IEnumerator ExecuteJob()
     {
-        while (cancel != true)
+        while (cancel != true && targets.Count > 0)
         {
             if (targets.Count > 0 && target == null)
             {
@@ -32,6 +32,11 @@ public class MiningJob : Job
             else if (finishedMoving == true)
             {
                 world.DamageTile(target, pawn.skillHandler.GetSkill(SkillType.Mining).level + 1);
+
+                if (target.tileObject == null)
+                {
+                    target = null;
+                }
                 yield return new WaitForSeconds(0.5f);
             }
         }

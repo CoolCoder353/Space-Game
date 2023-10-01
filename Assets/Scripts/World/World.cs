@@ -22,6 +22,7 @@ namespace WorldGeneration
                 ourTile.currentHealth -= amount;
                 if (ourTile.currentHealth <= 0)
                 {
+                    tile.tileObject = null;
                     hills[tile.position.x, tile.position.y] = null;
                     Destroy(ourTile.tileObject);
                 }

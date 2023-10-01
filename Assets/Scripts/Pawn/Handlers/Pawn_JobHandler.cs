@@ -51,8 +51,6 @@ public class JobHandler
             currentJob = jobs[0];
             currentJob.cancel = false;
             jobs.RemoveAt(0);
-
-            Debug.Log($"Starting job {currentJob.jobType} for {currentJob.pawn.name}.");
             currentJob.pawn.StartCoroutine(currentJob.ExecuteJob());
         }
     }

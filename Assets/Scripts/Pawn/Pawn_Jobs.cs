@@ -50,13 +50,23 @@ public class MiningJob : Job
             }
             else if (finishedMoving == true)
             {
-                bool destroyed = world.DamageTile(target, pawn.skillHandler.GetSkill(SkillType.Mining).level + 1);
-
-                if (destroyed)
+                if (target.tileObject != null)
                 {
-                    target = null;
-
+                    bool destroyed = world.DamageTile(target, pawn.skillHandler.GetSkill(SkillType.Mining).level + 1);
+                    if (destroyed == true)
+                    {
+                        target = null;
+                    }
                 }
+                else
+                {
+                    Debug.LogWarning("Target tile has no object. Cancelling job.");
+                    pawn.jobHandler.CancelCurrentJob(false);
+                    yield break;
+                }
+
+
+
                 yield return new WaitForSeconds(0.5f);
             }
             yield return new WaitForEndOfFrame();

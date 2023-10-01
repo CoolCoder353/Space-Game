@@ -33,3 +33,4 @@ MonoBehaviour:
   lakeSize: 2
   numOfLakes: 4
   lakeRandomness: 3
+  itemPrefab: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}

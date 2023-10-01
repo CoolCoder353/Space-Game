@@ -51,7 +51,8 @@ namespace WorldGeneration
         [Foldout("Lake Settings")]
         public float lakeRandomness = 0.5f;
 
-
+        [Foldout("Item Settings")]
+        public GameObject itemPrefab;
 
     }
 

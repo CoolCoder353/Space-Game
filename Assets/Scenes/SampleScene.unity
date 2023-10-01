@@ -512,7 +512,7 @@ GameObject:
   m_Component:
   - component: {fileID: 173922526}
   m_Layer: 0
-  m_Name: Blueprints
+  m_Name: Items
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4956,6 +4956,7 @@ MonoBehaviour:
   seed: 0
   floorParent: {fileID: 1912848866}
   hillParent: {fileID: 2093942581}
+  itemsParents: {fileID: 173922525}
 --- !u!4 &1742206908
 Transform:
   m_ObjectHideFlags: 0

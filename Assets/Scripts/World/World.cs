@@ -14,7 +14,7 @@ namespace WorldGeneration
         private Tile[,] hills;
         private Tile[,] floor;
 
-        public void DamageTile(Tile tile, float amount)
+        public bool DamageTile(Tile tile, float amount)
         {
             if (Contains(tile, hills))
             {
@@ -22,15 +22,22 @@ namespace WorldGeneration
                 ourTile.currentHealth -= amount;
                 if (ourTile.currentHealth <= 0)
                 {
+                    Destroy(ourTile.tileObject);
+
                     tile.tileObject = null;
                     hills[tile.position.x, tile.position.y] = null;
-                    Destroy(ourTile.tileObject);
+                    floor[tile.position.x, tile.position.y].objectAbove = null;
+                    Debug.Log($"Tile at {tile.position} has been destroyed.");
+                    return true;
+
                 }
+                return false;
             }
             else
             {
                 Debug.LogError($"Tile at {tile.position} is not a damagable tile.");
             }
+            return false;
         }
         public static bool Contains(Tile tile, Tile[,] tiles)
         {
@@ -108,12 +115,15 @@ namespace WorldGeneration
                     Tile currentTile = hills[x, y];
                     if (currentTile != null)
                     {
-                        GameObject tileObject = Instantiate(settings.rockTile, currentTile.worldPosition, Quaternion.identity, hillParent.transform);
-                        tileObject.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
+                        GameObject hill = Instantiate(settings.rockTile, currentTile.worldPosition, Quaternion.identity, hillParent.transform);
+                        hill.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
+                        hill.name = $"Hill {x},{y}";
+                        currentTile.tileObject = hill;
+
                         SpriteRenderer spriteRenderer;
-                        if (!tileObject.TryGetComponent<SpriteRenderer>(out spriteRenderer))
+                        if (!hill.TryGetComponent<SpriteRenderer>(out spriteRenderer))
                         {
-                            spriteRenderer = tileObject.AddComponent<SpriteRenderer>();
+                            spriteRenderer = hill.AddComponent<SpriteRenderer>();
 
                         }
                         spriteRenderer.sprite = Resources.Load<Sprite>($"Tiles/{currentTile.tileType}");
@@ -148,7 +158,7 @@ namespace WorldGeneration
                             float maxHealth = 100f;
 
                             Tile rock = new Tile(currentTile.position, currentTile.worldPosition, currentTile.tileType, currentTile.rockType, maxHealth, 0);
-                            rock.objectBelow = currentTile;
+                            rock.objectBelow = floor[x, y];
                             currentTile.objectAbove = rock;
                             hills[x, y] = rock;
 
@@ -308,6 +318,8 @@ namespace WorldGeneration
                     Tile currentTile = tiles[x, y];
                     GameObject tileObject = Instantiate(settings.emptyTile, currentTile.worldPosition, Quaternion.identity, floorParent.transform);
                     tileObject.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
+                    tileObject.name = $"Tile {x},{y}";
+                    currentTile.tileObject = tileObject;
                     SpriteRenderer spriteRenderer;
                     if (!tileObject.TryGetComponent<SpriteRenderer>(out spriteRenderer))
                     {

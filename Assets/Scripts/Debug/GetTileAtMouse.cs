@@ -30,7 +30,12 @@ public class GetTileAtMouse : MonoBehaviour
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
         //See if that is on a tile.
-        Tile tile = world.GetFloorTileAtPosition(mousePos);
+        Tile tile = world.GetHillTileAtPosition(mousePos);
+        if (tile == null)
+        {
+            tile = world.GetFloorTileAtPosition(mousePos);
+        }
+
         if (tile != null)
         {
             //Remove all children from the parent object.

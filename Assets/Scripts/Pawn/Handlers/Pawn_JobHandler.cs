@@ -57,7 +57,10 @@ public class JobHandler
         }
     }
 
-
+    public void FinishCurrentJob()
+    {
+        currentJob = null;
+    }
 }
 
 public abstract class Job

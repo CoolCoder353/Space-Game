@@ -22,6 +22,8 @@ public class Pawn : I_Moveable
 
         //TODO: Set move speed based on pawn stats and health.
         SetMoveSpeed(1f);
+
+        skillHandler.AddXpToSkill(SkillType.Mining, SkillMath.LevelToXp(10));
     }
 
     private void OnFoodAtThreshold(Need need)
@@ -36,6 +38,7 @@ public class Pawn : I_Moveable
 
     private void Update()
     {
+
         needHandler.UpdateNeeds();
 
         if (jobHandler.isWorking == false)

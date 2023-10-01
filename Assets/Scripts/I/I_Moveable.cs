@@ -34,7 +34,6 @@ public abstract class I_Moveable : MonoBehaviour
     }
     public void StartMove(Tile tile, World world, Action OnMoveFinishedCallback = null, Action OnMoveCancelledCallback = null)
     {
-        Debug.Log($"Tile: {tile}");
         if (tile == null)
         {
             Debug.LogWarning("Can't move to null tile. Exiting");
@@ -66,7 +65,7 @@ public abstract class I_Moveable : MonoBehaviour
         currentPointIndex = 0;
 
         SetMoveSpeed(moveSpeed);
-        StartCoroutine(MoveToTiles(tiles));
+        StartCoroutine(MoveToTiles(tiles, OnMoveFinishedCallback, OnMoveCancelledCallback));
     }
 
     protected void SetMoveSpeed(float moveSpeed)

@@ -117,7 +117,7 @@ public class SkillHandler
         }
     }
 
-        public SkillHandler()
+    public SkillHandler()
     {
         skills = new Skill[Enum.GetNames(typeof(SkillType)).Length];
         foreach (SkillType skill in Enum.GetValues(typeof(SkillType)))
@@ -137,6 +137,11 @@ public class SkillHandler
     public bool CanDoSkill(SkillType skill)
     {
         return skills[(int)skill].canDo;
+    }
+
+    public void AddXpToSkill(SkillType skill, int amount)
+    {
+        skills[(int)skill].IncreaseXp(amount);
     }
 
 }

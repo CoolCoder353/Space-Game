@@ -41,7 +41,6 @@ public class MiningJob : Job
                 }
                 targets.RemoveAt(0);
                 finishedMoving = false;
-                Debug.Log($"Starting to move to tile {moveTile.position.x}, {moveTile.position.y}.");
                 pawn.StartMove(moveTile, world, OnFinishedMoving, OnCancelledMoving);
             }
             else if (target == null)
@@ -51,12 +50,10 @@ public class MiningJob : Job
             }
             else if (finishedMoving == true)
             {
-                Debug.Log($"Mining tile {target.position.x}, {target.position.y}.");
-                world.DamageTile(target, pawn.skillHandler.GetSkill(SkillType.Mining).level + 1);
+                bool destroyed = world.DamageTile(target, pawn.skillHandler.GetSkill(SkillType.Mining).level + 1);
 
-                if (target.tileObject == null)
+                if (destroyed)
                 {
-                    Debug.Log($"Tile destroyed at {target.position.x}, {target.position.y}.");
                     target = null;
 
                 }
@@ -64,19 +61,18 @@ public class MiningJob : Job
             }
             yield return new WaitForEndOfFrame();
         }
-        yield return null;
+        pawn.jobHandler.FinishCurrentJob();
     }
 
 
-    private void OnCancelledMoving()
+    public void OnCancelledMoving()
     {
-        Debug.LogWarning("Movement cancelled. Mining job cancelled.");
+
         pawn.jobHandler.CancelCurrentJob();
     }
 
-    private void OnFinishedMoving()
+    public void OnFinishedMoving()
     {
-        Debug.Log("Finished moving to tile.");
         finishedMoving = true;
     }
 }

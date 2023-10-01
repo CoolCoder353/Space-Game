@@ -21,9 +21,11 @@ public abstract class I_Moveable : MonoBehaviour
 
     public void StartMove(Tile tile, World world, float moveSpeed, Action OnMoveFinishedCallback = null, Action OnMoveCancelledCallback = null)
     {
+
         if (tile == null)
         {
             Debug.LogWarning("Can't move to null tile. Exiting");
+            OnMoveCancelledCallback?.Invoke();
             OnMoveCancelled();
             return;
         }
@@ -32,9 +34,11 @@ public abstract class I_Moveable : MonoBehaviour
     }
     public void StartMove(Tile tile, World world, Action OnMoveFinishedCallback = null, Action OnMoveCancelledCallback = null)
     {
+        Debug.Log($"Tile: {tile}");
         if (tile == null)
         {
             Debug.LogWarning("Can't move to null tile. Exiting");
+            OnMoveCancelledCallback?.Invoke();
             OnMoveCancelled();
             return;
         }
@@ -46,6 +50,7 @@ public abstract class I_Moveable : MonoBehaviour
         if (tiles == null)
         {
             Debug.LogWarning("Can't move to null tiles. Exiting");
+            OnMoveCancelledCallback?.Invoke();
             OnMoveCancelled();
 
             return;
@@ -53,6 +58,7 @@ public abstract class I_Moveable : MonoBehaviour
         if (tiles.Count <= 0)
         {
             Debug.LogWarning("Can't move to 0 tiles. Exiting");
+            OnMoveCancelledCallback?.Invoke();
             OnMoveCancelled();
             return;
         }
@@ -138,7 +144,9 @@ public abstract class I_Moveable : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         Debug.LogError("Max reccurition depth reached. Cancelling move");
+        OnMoveCancelledCallback?.Invoke();
         OnMoveCancelled();
+
 
     }
 

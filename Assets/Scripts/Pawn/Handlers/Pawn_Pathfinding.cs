@@ -30,12 +30,31 @@ public static class Pathfinder
         // Check if the start and end tiles are valid and walkable, return null if not
         if (start == null || end == null || !start.walkable || !end.walkable)
         {
+            Debug.LogWarning("Start or end tile is null or not walkable");
+
+            //Try to find the closest tile to the end tile that is walkable.
+            //If there is no walkable tile, return null.
+
+            //Get the neighbours of the end tile.
+            HashSet<Tile> neighbours = GetNeighbors(end, world);
+            //Loop through the neighbours.
+            foreach (Tile neighbour in neighbours)
+            {
+                //Check if the neighbour is walkable.
+                if (neighbour.walkable)
+                {
+                    //If it is, return a path from the start tile to the neighbour.
+                    return FindPath(start, neighbour, world);
+                }
+            }
+
 
             return null;
         }
 
         if (World.Contains(start, world) == false || World.Contains(end, world) == false)
         {
+            Debug.LogWarning("Start or end tile is not in the world");
             return null;
         }
 
@@ -112,6 +131,7 @@ public static class Pathfinder
         // Check if a path was found, return null if not
         if (!cameFrom.ContainsKey(end))
         {
+            Debug.LogWarning("No path found");
             return null;
         }
 

@@ -49,7 +49,7 @@ public class Global_job_handler : MonoBehaviour
         Tile tile = world.GetHillTileAtPosition(mousePos);
         if (tile != null)
         {
-
+            Debug.Log($"Found tile at {tile.position.x}, {tile.position.y}.");
             foreach (Pawn pawn in pawns)
             {
                 if (pawn.skillHandler.CanDoSkill(SkillType.Mining))

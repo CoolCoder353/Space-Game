@@ -14,14 +14,14 @@ public class MiningJob : Job
 
     public override IEnumerator ExecuteJob()
     {
-        while (cancel != true && targets.Count > 0)
+        while (cancel != true && (targets.Count > 0 || target != null))
         {
             if (targets.Count > 0 && target == null)
             {
                 target = targets[0];
                 targets.RemoveAt(0);
                 finishedMoving = false;
-
+                Debug.Log($"Starting to move to tile {target.position.x}, {target.position.y}.");
                 pawn.StartMove(target, world, OnFinishedMoving, OnCancelledMoving);
             }
             else if (target == null)
@@ -31,11 +31,14 @@ public class MiningJob : Job
             }
             else if (finishedMoving == true)
             {
+                Debug.Log($"Mining tile {target.position.x}, {target.position.y}.");
                 world.DamageTile(target, pawn.skillHandler.GetSkill(SkillType.Mining).level + 1);
 
                 if (target.tileObject == null)
                 {
+                    Debug.Log($"Tile destroyed at {target.position.x}, {target.position.y}.");
                     target = null;
+
                 }
                 yield return new WaitForSeconds(0.5f);
             }
@@ -52,6 +55,7 @@ public class MiningJob : Job
 
     private void OnFinishedMoving()
     {
+        Debug.Log("Finished moving to tile.");
         finishedMoving = true;
     }
 }

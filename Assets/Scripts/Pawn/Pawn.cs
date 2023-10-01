@@ -19,6 +19,9 @@ public class Pawn : I_Moveable
         needHandler = new NeedHandler(needs);
         skillHandler = new SkillHandler();
         jobHandler = new JobHandler(FindObjectOfType<Global_job_handler>());
+
+        //TODO: Set move speed based on pawn stats and health.
+        SetMoveSpeed(1f);
     }
 
     private void OnFoodAtThreshold(Need need)

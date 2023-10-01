@@ -19,10 +19,30 @@ public class MiningJob : Job
             if (targets.Count > 0 && target == null)
             {
                 target = targets[0];
+
+                PriorityQueue<TileNode> moveableTiles = new PriorityQueue<TileNode>(8, (x, y) => x.priority.CompareTo(y.priority));
+                Tile moveTile = null;
+                foreach (Tile neighbours in Pathfinder.GetNeighbors(target, world.GetFloor()))
+                {
+                    if (neighbours.walkable == true)
+                    {
+                        moveableTiles.Enqueue(new TileNode(neighbours, -Vector3.Distance(neighbours.worldPosition, pawn.transform.position)));
+                    }
+                }
+                if (moveableTiles.Count > 0)
+                {
+                    moveTile = moveableTiles.Dequeue().tile;
+                }
+                else
+                {
+                    Debug.LogWarning("No moveable tiles found. Cancelling job.");
+                    pawn.jobHandler.CancelCurrentJob();
+                    yield break;
+                }
                 targets.RemoveAt(0);
                 finishedMoving = false;
-                Debug.Log($"Starting to move to tile {target.position.x}, {target.position.y}.");
-                pawn.StartMove(target, world, OnFinishedMoving, OnCancelledMoving);
+                Debug.Log($"Starting to move to tile {moveTile.position.x}, {moveTile.position.y}.");
+                pawn.StartMove(moveTile, world, OnFinishedMoving, OnCancelledMoving);
             }
             else if (target == null)
             {
@@ -42,6 +62,7 @@ public class MiningJob : Job
                 }
                 yield return new WaitForSeconds(0.5f);
             }
+            yield return new WaitForEndOfFrame();
         }
         yield return null;
     }

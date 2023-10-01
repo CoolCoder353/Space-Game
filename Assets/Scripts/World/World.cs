@@ -147,7 +147,7 @@ namespace WorldGeneration
                             //TODO: Make the max health of the rock tile based the type of rock.
                             float maxHealth = 100f;
 
-                            Tile rock = new Tile(currentTile.position, currentTile.worldPosition, currentTile.tileType, currentTile.rockType, maxHealth);
+                            Tile rock = new Tile(currentTile.position, currentTile.worldPosition, currentTile.tileType, currentTile.rockType, maxHealth, 0);
                             rock.objectBelow = currentTile;
                             currentTile.objectAbove = rock;
                             hills[x, y] = rock;
@@ -187,6 +187,8 @@ namespace WorldGeneration
                                 currentTile.rockType = RockType.None;
                                 currentTile.maxHealth = -1f;
                                 currentTile.currentHealth = -1f;
+                                currentTile.walkSpeed = 0;
+
                             }
                         }
                     }
@@ -216,7 +218,6 @@ namespace WorldGeneration
             int smoothAmount = 1;
             for (int i = 0; i < settings.smoothIterations; i++)
             {
-                Debug.Log($"Starting smooth iteration {i}");
                 floor = SmoothFloor(floor, seed, smoothAmount);
                 smoothAmount += settings.smoothChange;
             }
@@ -249,7 +250,9 @@ namespace WorldGeneration
                         rockType = GetRockType(x, y, seed);
                     }
                     Vector2 worldPosition = new Vector2(x * settings.tileScale, y * settings.tileScale);
-                    start[x, y] = new Tile(new Vector2Int(x, y), worldPosition, currentTileType, rockType, -1f);
+                    //TODO: Make walkspeed dynamic to floor type.
+                    int walkSpeed = 1;
+                    start[x, y] = new Tile(new Vector2Int(x, y), worldPosition, currentTileType, rockType, -1f, walkSpeed);
                 }
             }
             return start;
@@ -281,7 +284,9 @@ namespace WorldGeneration
                     {
                         mostCommon = currentTile.tileType;
                     }
-                    smooth[x, y] = new Tile(currentTile.position, currentTile.worldPosition, mostCommon, rockType, -1f);
+                    //TODO: Make walkspeed dynamic to floor type.
+                    int walkSpeed = 1;
+                    smooth[x, y] = new Tile(currentTile.position, currentTile.worldPosition, mostCommon, rockType, -1f, walkSpeed);
 
 
                 }

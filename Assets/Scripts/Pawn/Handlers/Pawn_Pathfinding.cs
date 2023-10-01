@@ -31,24 +31,6 @@ public static class Pathfinder
         if (start == null || end == null || !start.walkable || !end.walkable)
         {
             Debug.LogWarning("Start or end tile is null or not walkable");
-
-            //Try to find the closest tile to the end tile that is walkable.
-            //If there is no walkable tile, return null.
-
-            //Get the neighbours of the end tile.
-            HashSet<Tile> neighbours = GetNeighbors(end, world);
-            //Loop through the neighbours.
-            foreach (Tile neighbour in neighbours)
-            {
-                //Check if the neighbour is walkable.
-                if (neighbour.walkable)
-                {
-                    //If it is, return a path from the start tile to the neighbour.
-                    return FindPath(start, neighbour, world);
-                }
-            }
-
-
             return null;
         }
 
@@ -185,7 +167,7 @@ public static class Pathfinder
 
 
     // A helper method that returns the neighbors of a tile that are within the bounds of the world and walkable
-    private static HashSet<Tile> GetNeighbors(Tile tile, Tile[,] world)
+    public static HashSet<Tile> GetNeighbors(Tile tile, Tile[,] world)
     {
         // Create a hash set to store the neighbors
         HashSet<Tile> neighbors = new HashSet<Tile>();

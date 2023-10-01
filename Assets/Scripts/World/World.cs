@@ -1,7 +1,6 @@
 using UnityEngine;
 using NaughtyAttributes;
 using System.Collections.Generic;
-using System.Collections;
 namespace WorldGeneration
 {
     public class World : MonoBehaviour
@@ -15,6 +14,23 @@ namespace WorldGeneration
         private Tile[,] hills;
         private Tile[,] floor;
 
+        public void DamageTile(Tile tile, float amount)
+        {
+            if (Contains(tile, hills))
+            {
+                Tile ourTile = hills[tile.position.x, tile.position.y];
+                ourTile.currentHealth -= amount;
+                if (ourTile.currentHealth <= 0)
+                {
+                    hills[tile.position.x, tile.position.y] = null;
+                    Destroy(ourTile.tileObject);
+                }
+            }
+            else
+            {
+                Debug.LogError($"Tile at {tile.position} is not a damagable tile.");
+            }
+        }
         public static bool Contains(Tile tile, Tile[,] tiles)
         {
             foreach (Tile t in tiles)
@@ -29,6 +45,12 @@ namespace WorldGeneration
 
         public Tile GetFloorTileAtPosition(Vector2 position)
         {
+
+            if (position.x < 0 || position.y < 0 || position.x > settings.worldSize.x * settings.tileScale || position.y > settings.worldSize.y * settings.tileScale)
+            {
+                return null;
+            }
+
             int x = Mathf.RoundToInt(position.x / settings.tileScale);
             int y = Mathf.RoundToInt(position.y / settings.tileScale);
             if (x < 0 || x >= floor.GetLength(0) || y < 0 || y >= floor.GetLength(1))
@@ -36,6 +58,23 @@ namespace WorldGeneration
                 return null;
             }
             return floor[x, y];
+        }
+
+        public Tile GetHillTileAtPosition(Vector2 position)
+        {
+
+            if (position.x < 0 || position.y < 0 || position.x > settings.worldSize.x * settings.tileScale || position.y > settings.worldSize.y * settings.tileScale)
+            {
+                return null;
+            }
+
+            int x = Mathf.RoundToInt(position.x / settings.tileScale);
+            int y = Mathf.RoundToInt(position.y / settings.tileScale);
+            if (x < 0 || x >= hills.GetLength(0) || y < 0 || y >= hills.GetLength(1))
+            {
+                return null;
+            }
+            return hills[x, y];
         }
 
         public Tile[,] GetFloor()
@@ -104,7 +143,10 @@ namespace WorldGeneration
                         List<Tile> neighbours = GetNeighbours(floor, x, y, out TileType mostCommon, out int sameNeighbourCount);
                         if (sameNeighbourCount >= 8)
                         {
-                            Tile rock = new Tile(currentTile.position, currentTile.worldPosition, currentTile.tileType, currentTile.rockType);
+                            //TODO: Make the max health of the rock tile based the type of rock.
+                            float maxHealth = 100f;
+
+                            Tile rock = new Tile(currentTile.position, currentTile.worldPosition, currentTile.tileType, currentTile.rockType, maxHealth);
                             rock.objectBelow = currentTile;
                             currentTile.objectAbove = rock;
                             hills[x, y] = rock;
@@ -142,6 +184,8 @@ namespace WorldGeneration
                                 Tile currentTile = floor[x, y];
                                 currentTile.tileType = TileType.Water;
                                 currentTile.rockType = RockType.None;
+                                currentTile.maxHealth = -1f;
+                                currentTile.currentHealth = -1f;
                             }
                         }
                     }
@@ -204,7 +248,7 @@ namespace WorldGeneration
                         rockType = GetRockType(x, y, seed);
                     }
                     Vector2 worldPosition = new Vector2(x * settings.tileScale, y * settings.tileScale);
-                    start[x, y] = new Tile(new Vector2Int(x, y), worldPosition, currentTileType, rockType);
+                    start[x, y] = new Tile(new Vector2Int(x, y), worldPosition, currentTileType, rockType, -1f);
                 }
             }
             return start;
@@ -236,7 +280,7 @@ namespace WorldGeneration
                     {
                         mostCommon = currentTile.tileType;
                     }
-                    smooth[x, y] = new Tile(currentTile.position, currentTile.worldPosition, mostCommon, rockType);
+                    smooth[x, y] = new Tile(currentTile.position, currentTile.worldPosition, mostCommon, rockType, -1f);
 
 
                 }

@@ -43,15 +43,18 @@ public class Need
     {
         currentValue -= decayRate;
         //Find the lowest threshold that the percentage is below
-
-        foreach (float threshold in thresholds)
+        if (thresholds != null)
         {
-            if (percentage <= threshold)
+            foreach (float threshold in thresholds)
             {
-                OnNeedAtThreshold?.Invoke(this);
-                return;
+                if (percentage <= threshold)
+                {
+                    OnNeedAtThreshold?.Invoke(this);
+                    return;
+                }
             }
         }
+
     }
 
     public void AddNeed(float amount)

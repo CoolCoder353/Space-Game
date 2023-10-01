@@ -11,9 +11,18 @@ public class JobHandler
 {
     public bool isWorking => currentJob != null;
 
-    public Job currentJob;
+    public Job currentJob = null;
 
     public List<Job> jobs = new List<Job>();
+
+    public Global_job_handler global_Job_Handler;
+
+    public JobHandler(Global_job_handler global_Job_Handler)
+    {
+        this.global_Job_Handler = global_Job_Handler;
+    }
+
+
 
     public void AddJob(Job job)
     {
@@ -21,9 +30,10 @@ public class JobHandler
     }
     public void CancelCurrentJob(bool returnToJobQueue = true)
     {
+        currentJob.cancel = true;
         if (returnToJobQueue)
         {
-            jobs.Insert(0, currentJob);
+            global_Job_Handler.AddJob(currentJob);
         }
         currentJob = null;
     }
@@ -38,6 +48,7 @@ public class JobHandler
         if (jobs.Count > 0)
         {
             currentJob = jobs[0];
+            currentJob.cancel = false;
             jobs.RemoveAt(0);
         }
     }
@@ -45,20 +56,25 @@ public class JobHandler
 
 }
 
-public class Job
+public abstract class Job
 {
     public JobType jobType;
     public Pawn pawn;
     public World world;
 
-    public Job(JobType jobType, Pawn pawn, World world)
+    public List<Tile> targets = new List<Tile>();
+
+    public bool cancel = false;
+
+    public Job(JobType jobType, Pawn pawn, World world, List<Tile> targets)
     {
         this.jobType = jobType;
         this.pawn = pawn;
         this.world = world;
+        this.targets = targets;
     }
 
-
+    public abstract IEnumerator ExecuteJob();
 
 }
 

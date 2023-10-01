@@ -3,60 +3,62 @@ using System;
 using System.Collections;
 using WorldGeneration;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 public class MiningJob : Job
 {
-    public MiningJob(int priority, List<Tile> flags) : base(priority, flags, JobType.Mining)
-    {
-    }
-    public MiningJob(int priority, Tile flags) : base(priority, flags, JobType.Mining)
+    bool finishedMoving = true;
+    Tile target = null;
+    public MiningJob(JobType jobType, Pawn pawn, World world, List<Tile> targets) : base(JobType.Mining, pawn, world, targets)
     {
     }
 
-    public override IEnumerator RunJob(World world, Pawn pawn, Action<Job> callback, Action<Job> cancelCallback)
+    public override IEnumerator ExecuteJob()
     {
-        throw new NotImplementedException();
+        while (cancel != true)
+        {
+            if (targets.Count > 0 && target == null)
+            {
+                target = targets[0];
+                targets.RemoveAt(0);
+                finishedMoving = false;
+
+                pawn.StartMove(target, world, OnFinishedMoving, OnCancelledMoving);
+            }
+            else if (target == null)
+            {
+                Debug.Log("No target to mine. Finished job.");
+                //Finish Job
+            }
+            else if (finishedMoving == true)
+            {
+                world.DamageTile(target, pawn.skillHandler.GetSkill(SkillType.Mining).level + 1);
+                yield return new WaitForSeconds(0.5f);
+            }
+        }
+        yield return null;
+    }
+
+
+    private void OnCancelledMoving()
+    {
+        Debug.LogWarning("Movement cancelled. Mining job cancelled.");
+        pawn.jobHandler.CancelCurrentJob();
+    }
+
+    private void OnFinishedMoving()
+    {
+        finishedMoving = true;
     }
 }
 
 public class BuildingJob : Job
 {
-    bool finishedMoving = true;
-    bool cancelled = false;
-
-    public BuildingJob(int priority, List<Tile> flags) : base(priority, flags, JobType.Building)
-    {
-    }
-    public BuildingJob(int priority, Tile flags) : base(priority, flags, JobType.Building)
+    public BuildingJob(JobType jobType, Pawn pawn, World world, List<Tile> targets) : base(JobType.Building, pawn, world, targets)
     {
     }
 
-
-    public override IEnumerator RunJob(World world, Pawn pawn, Action<Job> callback, Action<Job> cancelCallback)
+    public override IEnumerator ExecuteJob()
     {
-        pawn.StartMove(flags[0], world);
-        finishedMoving = false;
-        while (!finishedMoving)
-        {
-            yield return null;
-        }
-        if (cancelled)
-        {
-            cancelCallback(this);
-            yield break;
-        }
-        Debug.Log("Finished job");
-        callback(this);
-
+        throw new NotImplementedException();
     }
-    public override void OnMovementFinished()
-    {
-        finishedMoving = true;
-    }
-    public override void OnMovementCancelled()
-    {
-        finishedMoving = true;
-        cancelled = true;
-    }
-
-
 }

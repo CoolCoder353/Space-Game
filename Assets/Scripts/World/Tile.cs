@@ -19,17 +19,22 @@ namespace WorldGeneration
 
         public int walkSpeed;
 
+        public float maxHealth;
+        public float currentHealth;
 
 
-        public Tile(Vector2Int position, Vector2 worldPosition, TileType type, RockType rockType, GameObject tileObject = null)
+
+        public Tile(Vector2Int position, Vector2 worldPosition, TileType type, RockType rockType, float maxHealth, GameObject tileObject = null)
         {
             this.position = position;
             this.worldPosition = worldPosition;
             this.tileType = type;
             this.rockType = rockType;
             this.tileObject = tileObject;
+            this.maxHealth = maxHealth;
+            currentHealth = maxHealth;
         }
-        public Tile(Vector2Int position, Vector2 worldPosition, TileType type, GameObject tileObject = null)
+        public Tile(Vector2Int position, Vector2 worldPosition, TileType type, float maxHealth, GameObject tileObject = null)
         {
             if (type == TileType.Rock)
             {
@@ -40,7 +45,10 @@ namespace WorldGeneration
             this.tileType = type;
             this.tileObject = tileObject;
             this.rockType = RockType.None;
+            this.maxHealth = maxHealth;
+            currentHealth = maxHealth;
         }
+
 
         private bool CheckRockTile()
         {

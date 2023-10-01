@@ -26,6 +26,7 @@ public class JobHandler
 
     public void AddJob(Job job)
     {
+        Debug.Log($"Adding job {job.jobType} to {job.pawn.name}'s job queue.");
         jobs.Add(job);
     }
     public void CancelCurrentJob(bool returnToJobQueue = true)

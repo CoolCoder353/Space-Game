@@ -35,6 +35,12 @@ public class Pawn : I_Moveable
     {
         needHandler.UpdateNeeds();
 
+        if (jobHandler.isWorking == false)
+        {
+            jobHandler.GetNextJob();
+            jobHandler.currentJob.ExecuteJob();
+        }
+
     }
     protected override void OnMoveCancelled()
     {

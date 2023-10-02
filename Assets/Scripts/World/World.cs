@@ -1,7 +1,6 @@
 using UnityEngine;
 using NaughtyAttributes;
 using System.Collections.Generic;
-using System.Collections;
 namespace WorldGeneration
 {
     public class World : MonoBehaviour
@@ -11,9 +10,64 @@ namespace WorldGeneration
 
         public GameObject floorParent;
         public GameObject hillParent;
+        public GameObject itemsParents;
 
         private Tile[,] hills;
+
+        private Item[,] items;
+
         private Tile[,] floor;
+
+        public bool DamageTile(Tile tile, float amount)
+        {
+            if (Contains(tile, hills))
+            {
+                Tile ourTile = hills[tile.position.x, tile.position.y];
+                ourTile.currentHealth -= amount;
+                if (ourTile.currentHealth <= 0)
+                {
+                    Destroy(ourTile.tileObject);
+
+                    VisualizeItem(ourTile.itemOnDeath, ourTile.itemAmountOnDeath, ourTile);
+
+                    tile.tileObject = null;
+                    hills[tile.position.x, tile.position.y] = null;
+                    floor[tile.position.x, tile.position.y].objectAbove = null;
+                    return true;
+
+                }
+                return false;
+            }
+            else
+            {
+                Debug.LogError($"Tile at {tile.position} is not a damagable tile.");
+            }
+            return false;
+        }
+
+        private void VisualizeItem(Item itemOnDeath, int itemAmountOnDeath, Tile ourTile)
+        {
+            if (itemOnDeath != null)
+            {
+                items[ourTile.position.x, ourTile.position.y] = itemOnDeath;
+                items[ourTile.position.x, ourTile.position.y].currnetAmount = itemAmountOnDeath;
+
+                GameObject itemObject = Instantiate(settings.itemPrefab, ourTile.worldPosition, Quaternion.identity, itemsParents.transform);
+                itemObject.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
+                itemObject.name = $"Item {ourTile.position.x},{ourTile.position.y}";
+                SpriteRenderer spriteRenderer;
+                if (!itemObject.TryGetComponent<SpriteRenderer>(out spriteRenderer))
+                {
+                    spriteRenderer = itemObject.AddComponent<SpriteRenderer>();
+
+                }
+                spriteRenderer.sprite = itemOnDeath.sprite;
+                if (spriteRenderer.sprite == null)
+                {
+                    Debug.LogError($"Sprite is null at {ourTile.position.x},{ourTile.position.y} for item {itemOnDeath.name}");
+                }
+            }
+        }
 
         public static bool Contains(Tile tile, Tile[,] tiles)
         {
@@ -29,6 +83,12 @@ namespace WorldGeneration
 
         public Tile GetFloorTileAtPosition(Vector2 position)
         {
+
+            if (position.x < 0 || position.y < 0 || position.x > settings.worldSize.x * settings.tileScale || position.y > settings.worldSize.y * settings.tileScale)
+            {
+                return null;
+            }
+
             int x = Mathf.RoundToInt(position.x / settings.tileScale);
             int y = Mathf.RoundToInt(position.y / settings.tileScale);
             if (x < 0 || x >= floor.GetLength(0) || y < 0 || y >= floor.GetLength(1))
@@ -36,6 +96,23 @@ namespace WorldGeneration
                 return null;
             }
             return floor[x, y];
+        }
+
+        public Tile GetHillTileAtPosition(Vector2 position)
+        {
+
+            if (position.x < 0 || position.y < 0 || position.x > settings.worldSize.x * settings.tileScale || position.y > settings.worldSize.y * settings.tileScale)
+            {
+                return null;
+            }
+
+            int x = Mathf.RoundToInt(position.x / settings.tileScale);
+            int y = Mathf.RoundToInt(position.y / settings.tileScale);
+            if (x < 0 || x >= hills.GetLength(0) || y < 0 || y >= hills.GetLength(1))
+            {
+                return null;
+            }
+            return hills[x, y];
         }
 
         public Tile[,] GetFloor()
@@ -47,6 +124,8 @@ namespace WorldGeneration
         private void Awake()
         {
             Random.InitState(seed);
+            items = new Item[settings.worldSize.x, settings.worldSize.y];
+
             floor = GenerateFloor(settings, seed);
             GenerateLakes();
             StartSmoothFloor();
@@ -68,12 +147,15 @@ namespace WorldGeneration
                     Tile currentTile = hills[x, y];
                     if (currentTile != null)
                     {
-                        GameObject tileObject = Instantiate(settings.rockTile, currentTile.worldPosition, Quaternion.identity, hillParent.transform);
-                        tileObject.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
+                        GameObject hill = Instantiate(settings.rockTile, currentTile.worldPosition, Quaternion.identity, hillParent.transform);
+                        hill.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
+                        hill.name = $"Hill {x},{y}";
+                        currentTile.tileObject = hill;
+
                         SpriteRenderer spriteRenderer;
-                        if (!tileObject.TryGetComponent<SpriteRenderer>(out spriteRenderer))
+                        if (!hill.TryGetComponent<SpriteRenderer>(out spriteRenderer))
                         {
-                            spriteRenderer = tileObject.AddComponent<SpriteRenderer>();
+                            spriteRenderer = hill.AddComponent<SpriteRenderer>();
 
                         }
                         spriteRenderer.sprite = Resources.Load<Sprite>($"Tiles/{currentTile.tileType}");
@@ -104,8 +186,14 @@ namespace WorldGeneration
                         List<Tile> neighbours = GetNeighbours(floor, x, y, out TileType mostCommon, out int sameNeighbourCount);
                         if (sameNeighbourCount >= 8)
                         {
-                            Tile rock = new Tile(currentTile.position, currentTile.worldPosition, currentTile.tileType, currentTile.rockType);
-                            rock.objectBelow = currentTile;
+                            //TODO: Make the max health of the rock tile based the type of rock.
+                            float maxHealth = 100f;
+
+                            Sprite itemSprite = Resources.Load<Sprite>($"Items/Rock");
+                            Item itemOnDeath = new Item("Rock", 1, itemSprite, true);
+
+                            Tile rock = new Tile(currentTile.position, currentTile.worldPosition, currentTile.tileType, currentTile.rockType, maxHealth, 0, itemOnDeath, 1);
+                            rock.objectBelow = floor[x, y];
                             currentTile.objectAbove = rock;
                             hills[x, y] = rock;
 
@@ -142,6 +230,10 @@ namespace WorldGeneration
                                 Tile currentTile = floor[x, y];
                                 currentTile.tileType = TileType.Water;
                                 currentTile.rockType = RockType.None;
+                                currentTile.maxHealth = -1f;
+                                currentTile.currentHealth = -1f;
+                                currentTile.walkSpeed = 0;
+
                             }
                         }
                     }
@@ -171,7 +263,6 @@ namespace WorldGeneration
             int smoothAmount = 1;
             for (int i = 0; i < settings.smoothIterations; i++)
             {
-                Debug.Log($"Starting smooth iteration {i}");
                 floor = SmoothFloor(floor, seed, smoothAmount);
                 smoothAmount += settings.smoothChange;
             }
@@ -204,7 +295,9 @@ namespace WorldGeneration
                         rockType = GetRockType(x, y, seed);
                     }
                     Vector2 worldPosition = new Vector2(x * settings.tileScale, y * settings.tileScale);
-                    start[x, y] = new Tile(new Vector2Int(x, y), worldPosition, currentTileType, rockType);
+                    //TODO: Make walkspeed dynamic to floor type.
+                    int walkSpeed = 1;
+                    start[x, y] = new Tile(new Vector2Int(x, y), worldPosition, currentTileType, rockType, -1f, walkSpeed, null, 0);
                 }
             }
             return start;
@@ -236,7 +329,9 @@ namespace WorldGeneration
                     {
                         mostCommon = currentTile.tileType;
                     }
-                    smooth[x, y] = new Tile(currentTile.position, currentTile.worldPosition, mostCommon, rockType);
+                    //TODO: Make walkspeed dynamic to floor type.
+                    int walkSpeed = 1;
+                    smooth[x, y] = new Tile(currentTile.position, currentTile.worldPosition, mostCommon, rockType, -1f, walkSpeed, null, 0);
 
 
                 }
@@ -258,6 +353,8 @@ namespace WorldGeneration
                     Tile currentTile = tiles[x, y];
                     GameObject tileObject = Instantiate(settings.emptyTile, currentTile.worldPosition, Quaternion.identity, floorParent.transform);
                     tileObject.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
+                    tileObject.name = $"Tile {x},{y}";
+                    currentTile.tileObject = tileObject;
                     SpriteRenderer spriteRenderer;
                     if (!tileObject.TryGetComponent<SpriteRenderer>(out spriteRenderer))
                     {

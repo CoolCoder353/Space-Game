@@ -2,8 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using WorldGeneration;
-using System.Net;
 using System;
+using Unity.VisualScripting;
 
 public abstract class I_Moveable : MonoBehaviour
 {
@@ -14,40 +14,42 @@ public abstract class I_Moveable : MonoBehaviour
 
     private bool cancelMove = false;
 
-    private bool isMoving = false;
-
     private int currentPointIndex = 0;
 
     private float moveSpeed;
     private int maxReccuritionDepth = 1000000;
 
-    public void StartMove(Tile tile, World world, float moveSpeed)
+    public void StartMove(Tile tile, World world, float moveSpeed, Action OnMoveFinishedCallback = null, Action OnMoveCancelledCallback = null)
     {
+
         if (tile == null)
         {
             Debug.LogWarning("Can't move to null tile. Exiting");
+            OnMoveCancelledCallback?.Invoke();
             OnMoveCancelled();
             return;
         }
         List<Tile> tiles = Pathfinder.FindPath(world.GetFloorTileAtPosition(transform.position), tile, world.GetFloor());
-        StartMove(tiles, moveSpeed);
+        StartMove(tiles, moveSpeed, OnMoveFinishedCallback, OnMoveCancelledCallback);
     }
-    public void StartMove(Tile tile, World world)
+    public void StartMove(Tile tile, World world, Action OnMoveFinishedCallback = null, Action OnMoveCancelledCallback = null)
     {
         if (tile == null)
         {
             Debug.LogWarning("Can't move to null tile. Exiting");
+            OnMoveCancelledCallback?.Invoke();
             OnMoveCancelled();
             return;
         }
         List<Tile> tiles = Pathfinder.FindPath(world.GetFloorTileAtPosition(transform.position), tile, world.GetFloor());
-        StartMove(tiles, this.moveSpeed);
+        StartMove(tiles, this.moveSpeed, OnMoveFinishedCallback, OnMoveCancelledCallback);
     }
-    public void StartMove(List<Tile> tiles, float moveSpeed)
+    public void StartMove(List<Tile> tiles, float moveSpeed, Action OnMoveFinishedCallback = null, Action OnMoveCancelledCallback = null)
     {
         if (tiles == null)
         {
             Debug.LogWarning("Can't move to null tiles. Exiting");
+            OnMoveCancelledCallback?.Invoke();
             OnMoveCancelled();
 
             return;
@@ -55,6 +57,7 @@ public abstract class I_Moveable : MonoBehaviour
         if (tiles.Count <= 0)
         {
             Debug.LogWarning("Can't move to 0 tiles. Exiting");
+            OnMoveCancelledCallback?.Invoke();
             OnMoveCancelled();
             return;
         }
@@ -62,7 +65,7 @@ public abstract class I_Moveable : MonoBehaviour
         currentPointIndex = 0;
 
         SetMoveSpeed(moveSpeed);
-        StartCoroutine(MoveToTiles(tiles));
+        StartCoroutine(MoveToTiles(tiles, OnMoveFinishedCallback, OnMoveCancelledCallback));
     }
 
     protected void SetMoveSpeed(float moveSpeed)
@@ -80,9 +83,9 @@ public abstract class I_Moveable : MonoBehaviour
         cancelMove = true;
     }
 
-    private IEnumerator MoveToTiles(List<Tile> tiles)
+    private IEnumerator MoveToTiles(List<Tile> tiles, Action OnMoveFinishedCallback = null, Action OnMoveCancelledCallback = null)
     {
-        isMoving = true;
+
         currentPointIndex = 0;
         cancelMove = false;
         for (int i = 0; i < maxReccuritionDepth; i++)
@@ -120,7 +123,7 @@ public abstract class I_Moveable : MonoBehaviour
                 currentPointIndex++;
                 if (currentPointIndex >= tiles.Count)
                 {
-                    isMoving = false;
+                    OnMoveFinishedCallback?.Invoke();
                     OnMoveFinished();
                     currentPointIndex = 0;
                     yield break;
@@ -130,7 +133,8 @@ public abstract class I_Moveable : MonoBehaviour
             // Check if the operation has been cancelled
             if (cancelMove)
             {
-                isMoving = false;
+
+                OnMoveCancelledCallback?.Invoke();
                 OnMoveCancelled();
                 yield break;
             }
@@ -139,8 +143,10 @@ public abstract class I_Moveable : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         Debug.LogError("Max reccurition depth reached. Cancelling move");
+        OnMoveCancelledCallback?.Invoke();
         OnMoveCancelled();
-        isMoving = false;
+
+
     }
 
     protected abstract void OnMoveFinished();

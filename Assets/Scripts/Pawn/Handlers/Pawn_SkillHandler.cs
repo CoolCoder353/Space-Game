@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 // An enum that defines the skill names
 /*
-public enum SkillName
+public enum SkillType
 {
     Shooting,
     Melee,
@@ -19,13 +19,13 @@ public enum SkillName
     Intellectual
 }
 */
-public enum SkillName
+public enum SkillType
 {
     Shooting,
     Melee,
-    Construction
+    Construction,
+    Mining
 }
-
 
 
 // An abstract class that represents a skill
@@ -33,7 +33,7 @@ public enum SkillName
 public abstract class Skill
 {
     // A property that stores the skill name
-    public SkillName Name { get; private set; }
+    public SkillType Name { get; private set; }
 
     // A property that stores the skill xp
     public int Xp { get; private set; }
@@ -41,16 +41,20 @@ public abstract class Skill
     // A property that stores the previous level of the skill
     public int PreviousLevel { get; private set; }
 
+    public int level => Level();
+
+    public bool canDo = true;
 
 
 
 
     // A constructor that takes a skill name and initializes the xp and previous level to 0
-    public Skill(SkillName name)
+    public Skill(SkillType name, bool canDo = true)
     {
         Name = name;
         Xp = 0;
         PreviousLevel = 0;
+        this.canDo = canDo;
     }
 
     // A method that returns the level of the skill based on the xp
@@ -103,10 +107,10 @@ public class SkillHandler
     private Skill[] skills;
 
     // A constructor that takes an array of skill names and initializes them as skill objects using reflection
-    public SkillHandler(SkillName[] skillNames)
+    public SkillHandler(SkillType[] skillNames)
     {
         skills = new Skill[skillNames.Length];
-        foreach (SkillName skill in skillNames)
+        foreach (SkillType skill in skillNames)
         {
             Type type = Type.GetType(skill.ToString() + "Skill"); // Get the type of the corresponding skill class 
             skills[(int)skill] = (Skill)Activator.CreateInstance(type); // Create an instance of the skill class and store it in the array 
@@ -115,8 +119,8 @@ public class SkillHandler
 
     public SkillHandler()
     {
-        skills = new Skill[Enum.GetNames(typeof(SkillName)).Length];
-        foreach (SkillName skill in (SkillName[])Enum.GetValues(typeof(SkillName)))
+        skills = new Skill[Enum.GetNames(typeof(SkillType)).Length];
+        foreach (SkillType skill in Enum.GetValues(typeof(SkillType)))
         {
             Type type = Type.GetType(skill.ToString() + "Skill"); // Get the type of the corresponding skill class 
             skills[(int)skill] = (Skill)Activator.CreateInstance(type); // Create an instance of the skill class and store it in the array 
@@ -125,9 +129,19 @@ public class SkillHandler
 
 
     // A method that returns the skill object of a given skill name
-    public Skill GetSkill(SkillName skill)
+    public Skill GetSkill(SkillType skill)
     {
         return skills[(int)skill]; // Return the skill object from the array using the enum value as index 
+    }
+
+    public bool CanDoSkill(SkillType skill)
+    {
+        return skills[(int)skill].canDo;
+    }
+
+    public void AddXpToSkill(SkillType skill, int amount)
+    {
+        skills[(int)skill].IncreaseXp(amount);
     }
 
 }

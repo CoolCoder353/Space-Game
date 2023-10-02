@@ -1,70 +1,59 @@
+using System;
+using System.Collections.Generic;
 using NaughtyAttributes;
 using UnityEngine;
 using WorldGeneration;
 
 public class Pawn : I_Moveable
 {
-    public SkillHandler skillHandler { get; protected set; }
-    public JobHandler globalJobHandler { get; protected set; }
-    public NeedHandler needHandler { get; protected set; }
-
-    private bool isControllable = true;
-
-    private World world;
-    private Tile[,] map;
-
-    private Job currentJob;
-
-
-
-
+    public NeedHandler needHandler;
+    public SkillHandler skillHandler;
+    public JobHandler jobHandler;
 
     private void Start()
     {
-        world = FindObjectOfType<World>();
-        map = world.GetFloor();
-        skillHandler = new();
-        globalJobHandler = new(this);
-        needHandler = new();
+        List<Need> needs = new List<Need>();
+        needs.Add(new Need(NeedType.Food, 100, 50, 1, null, OnFoodAtThreshold));
+        needs.Add(new Need(NeedType.Rest, 100, 50, 1, null, OnRestAtThreshold));
 
+        needHandler = new NeedHandler(needs);
+        skillHandler = new SkillHandler();
+        jobHandler = new JobHandler(FindObjectOfType<Global_job_handler>());
+
+        //TODO: Set move speed based on pawn stats and health.
+        SetMoveSpeed(1f);
+
+        skillHandler.AddXpToSkill(SkillType.Mining, SkillMath.LevelToXp(10));
     }
 
-
-    public void AddJob(Job job)
+    private void OnFoodAtThreshold(Need need)
     {
-        Debug.Log($"Pawn has a new job: {job.GetType()}");
-        globalJobHandler.AddJob(job);
+        throw new NotImplementedException();
     }
 
-    public bool IsControllable()
+    private void OnRestAtThreshold(Need need)
     {
-        return isControllable;
+        throw new NotImplementedException();
     }
 
-    void Update()
+    private void Update()
     {
+
         needHandler.UpdateNeeds();
 
-        //TODO: Update self jobs based on needs
+        if (jobHandler.isWorking == false)
+        {
+            jobHandler.GetNextJob();
+        }
 
-        globalJobHandler.UpdateJobs(world);
     }
-
-
-    //    MOVEMENT    \\
     protected override void OnMoveCancelled()
     {
-        Debug.Log("Pawn cancelled movement.");
-        currentJob?.OnMovementCancelled();
+        Debug.LogError("Movement cancelled. Pawn is stuck. Exiting.");
     }
 
     protected override void OnMoveFinished()
     {
-        Debug.Log("Pawn finished moving");
-        currentJob?.OnMovementFinished();
-
+        Debug.Log("Movement finished.");
     }
-
-
-
 }

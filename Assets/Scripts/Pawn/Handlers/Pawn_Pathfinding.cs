@@ -30,12 +30,13 @@ public static class Pathfinder
         // Check if the start and end tiles are valid and walkable, return null if not
         if (start == null || end == null || !start.walkable || !end.walkable)
         {
-
+            Debug.LogWarning("Start or end tile is null or not walkable");
             return null;
         }
 
         if (World.Contains(start, world) == false || World.Contains(end, world) == false)
         {
+            Debug.LogWarning("Start or end tile is not in the world");
             return null;
         }
 
@@ -112,6 +113,7 @@ public static class Pathfinder
         // Check if a path was found, return null if not
         if (!cameFrom.ContainsKey(end))
         {
+            Debug.LogWarning("No path found");
             return null;
         }
 
@@ -165,7 +167,7 @@ public static class Pathfinder
 
 
     // A helper method that returns the neighbors of a tile that are within the bounds of the world and walkable
-    private static HashSet<Tile> GetNeighbors(Tile tile, Tile[,] world)
+    public static HashSet<Tile> GetNeighbors(Tile tile, Tile[,] world)
     {
         // Create a hash set to store the neighbors
         HashSet<Tile> neighbors = new HashSet<Tile>();

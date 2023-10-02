@@ -43,22 +43,30 @@ public class Global_job_handler : MonoBehaviour
 
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-        Vector3 mousPosInverted = new Vector3(mousePos.y, mousePos.x, mousePos.z);
-        Tile mouseTile = world.GetFloorTileAtPosition(mousePos);
-        Tile mouseTileInverted = world.GetFloorTileAtPosition(mousPosInverted);
+        //When the player clicks on a tile, check if that tile is in the hills layer.
+        //If it is, then send a job to the pawn to mine that tile.
 
-        ////Debug.Log($"Mouse position: ({mousePos.x},{mousePos.y}), Mouse tile position: ({mouseTile.GetPosition().x}, {mouseTile.GetPosition().y}), Mouse world position: ({mouseTile.WorldPosition.x}, {mouseTile.WorldPosition.y})");
-        if (mouseTile != null && mouseTileInverted != null) //if the mouse hit a tile.
+        Tile tile = world.GetHillTileAtPosition(mousePos);
+        if (tile != null)
         {
-            Tile jobTile = world.GetFloorTileAtPosition(mousPosInverted);
-            ////world.SetTile(mouseTileInverted, TileType.Wall_Blueprint, TileLayer.Blueprint);
-
-            //TODO: Send to pawns that are controllable.
+            Debug.Log($"Found tile at {tile.position.x}, {tile.position.y}.");
             foreach (Pawn pawn in pawns)
             {
-                pawn.AddJob(new BuildingJob(priority, jobTile));
+                if (pawn.skillHandler.CanDoSkill(SkillType.Mining))
+                {
+                    pawn.jobHandler.AddJob(new MiningJob(JobType.Mining, pawn, world, new List<Tile>() { tile }));
+                    return;
+                }
             }
         }
+
+
+
+    }
+
+    public void AddJob(Job job)
+    {
+        Debug.LogError($"Need to add job {job.jobType} but this hasn't been implemented yet.");
     }
 
 

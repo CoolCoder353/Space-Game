@@ -6,6 +6,8 @@ public class Item
     public int stackSize;
     public Sprite sprite;
 
+    public bool hasColour = false;
+    public Color32 itemColour;
     public int currnetAmount;
 
     public bool allowed = false;
@@ -22,8 +24,15 @@ public class Item
         this.stackSize = item.stackSize;
         this.sprite = item.sprite;
         this.allowed = item.allowed;
+        this.itemColour = item.itemColour;
+        this.hasColour = item.hasColour;
     }
 
+    public void SetColour(Color32 color)
+    {
+        hasColour = true;
+        itemColour = color;
+    }
     public void AddAmount(int amount)
     {
         currnetAmount += amount;

@@ -62,6 +62,10 @@ namespace WorldGeneration
 
                 }
                 spriteRenderer.sprite = itemOnDeath.sprite;
+                if (itemOnDeath.hasColour)
+                {
+                    spriteRenderer.color = itemOnDeath.itemColour;
+                }
                 if (spriteRenderer.sprite == null)
                 {
                     Debug.LogError($"Sprite is null at {ourTile.position.x},{ourTile.position.y} for item {itemOnDeath.name}");
@@ -160,7 +164,9 @@ namespace WorldGeneration
                         }
                         spriteRenderer.sprite = Resources.Load<Sprite>($"Tiles/{currentTile.tileType}");
                         //TODO: Change the color of the rock based on the rock type.
-                        spriteRenderer.color = currentTile.rockType == RockType.Granite ? Color.gray : Color.white;
+                        spriteRenderer.color = currentTile.rockType == RockType.Granite ? Color.red : Color.green;
+
+                        currentTile.itemOnDeath.SetColour(spriteRenderer.color);
 
                         if (spriteRenderer.sprite == null)
                         {

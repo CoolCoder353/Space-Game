@@ -3,6 +3,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using WorldGeneration;
+using System.Collections.Generic;
 
 
 public class GetTileAtMouse : MonoBehaviour
@@ -14,6 +15,8 @@ public class GetTileAtMouse : MonoBehaviour
 
     private World world;
 
+
+    private List<GameObject> uiElements = new List<GameObject>();
     private BindingFlags bindingFlags = BindingFlags.Public |
                                 BindingFlags.NonPublic |
                                 BindingFlags.Instance |
@@ -38,19 +41,31 @@ public class GetTileAtMouse : MonoBehaviour
 
         if (tile != null)
         {
-            //Remove all children from the parent object.
-            foreach (Transform child in parent.transform)
-            {
-                Destroy(child.gameObject);
-            }
-
-
+            int i = 0;
             foreach (FieldInfo field in typeof(Tile).GetFields(bindingFlags))
             {
-                //foreach field in tile, create a text object and set the text to the field name and value.
-                GameObject text = Instantiate(Text, parent.transform);
-                text.GetComponent<TextMeshProUGUI>().text = $"{field.Name.FirstCharacterToUpper()}: {field.GetValue(tile)}";
 
+                if (uiElements.Count <= i)
+                {
+
+                    //foreach field in tile, create a text object and set the text to the field name and value.
+                    GameObject text = Instantiate(Text, parent.transform);
+                    uiElements.Add(text);
+                    text.GetComponent<TextMeshProUGUI>().text = $"{field.Name.FirstCharacterToUpper()}: {field.GetValue(tile)}";
+                }
+                else
+                {
+                    GameObject text = uiElements[i];
+                    text.GetComponent<TextMeshProUGUI>().text = $"{field.Name.FirstCharacterToUpper()}: {field.GetValue(tile)}";
+                }
+
+                i++;
+            }
+
+            for (int x = i; x < uiElements.Count; x++)
+            {
+                GameObject element = uiElements[x];
+                Destroy(element);
             }
 
 

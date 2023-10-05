@@ -53,7 +53,7 @@ namespace WorldGeneration
                 items[ourTile.position.x, ourTile.position.y].currnetAmount = itemAmountOnDeath;
 
                 GameObject itemObject = Instantiate(settings.itemPrefab, ourTile.worldPosition, Quaternion.identity, itemsParents.transform);
-                itemObject.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
+                itemObject.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 0);
                 itemObject.name = $"Item {ourTile.position.x},{ourTile.position.y}";
                 SpriteRenderer spriteRenderer;
                 if (!itemObject.TryGetComponent<SpriteRenderer>(out spriteRenderer))

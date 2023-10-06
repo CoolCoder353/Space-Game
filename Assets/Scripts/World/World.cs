@@ -12,6 +12,7 @@ namespace WorldGeneration
         public GameObject hillParent;
         public GameObject itemsParents;
 
+        private Plant[,] plants;
         private Tile[,] hills;
 
         private Item[,] items;
@@ -118,6 +119,22 @@ namespace WorldGeneration
             }
             return hills[x, y];
         }
+        public Plant GetPlantAtPosition(Vector2 position)
+        {
+
+            if (position.x < 0 || position.y < 0 || position.x > settings.worldSize.x * settings.tileScale || position.y > settings.worldSize.y * settings.tileScale)
+            {
+                return null;
+            }
+
+            int x = Mathf.RoundToInt(position.x / settings.tileScale);
+            int y = Mathf.RoundToInt(position.y / settings.tileScale);
+            if (x < 0 || x >= plants.GetLength(0) || y < 0 || y >= plants.GetLength(1))
+            {
+                return null;
+            }
+            return plants[x, y];
+        }
 
         public Tile[,] GetFloor()
         {
@@ -177,6 +194,23 @@ namespace WorldGeneration
             }
         }
 
+        void GeneratePlants()
+        {
+            plants = new Plant[floor.GetLength(0), floor.GetLength(1)];
+
+            for (int x = 0; x < floor.GetLength(0); x++)
+            {
+                for (int y = 0; y < floor.GetLength(1); y++)
+                {
+                    Tile currentTile = floor[x, y];
+                    if (currentTile.fertility > 0)
+                    {
+                        //Plant a random plant here based on weights from settings
+
+                    }
+                }
+            }
+        }
         void GenerateHills()
         {
             //Find the centers of the hills aka the clusters of rock tiles.
@@ -198,7 +232,9 @@ namespace WorldGeneration
                             Sprite itemSprite = Resources.Load<Sprite>($"Items/Rock");
                             Item itemOnDeath = new Item("Rock", 1, itemSprite, true);
 
-                            Tile rock = new Tile(currentTile.position, currentTile.worldPosition, currentTile.tileType, currentTile.rockType, maxHealth, 0, itemOnDeath, 1);
+                            float fertility = 0;
+
+                            Tile rock = new Tile(currentTile.position, currentTile.worldPosition, currentTile.tileType, currentTile.rockType, maxHealth, 0, itemOnDeath, 1, fertility);
                             rock.objectBelow = floor[x, y];
                             currentTile.objectAbove = rock;
                             hills[x, y] = rock;
@@ -239,6 +275,7 @@ namespace WorldGeneration
                                 currentTile.maxHealth = -1f;
                                 currentTile.currentHealth = -1f;
                                 currentTile.walkSpeed = 0;
+                                currentTile.fertility = 0f;
 
                             }
                         }
@@ -303,7 +340,11 @@ namespace WorldGeneration
                     Vector2 worldPosition = new Vector2(x * settings.tileScale, y * settings.tileScale);
                     //TODO: Make walkspeed dynamic to floor type.
                     int walkSpeed = 1;
-                    start[x, y] = new Tile(new Vector2Int(x, y), worldPosition, currentTileType, rockType, -1f, walkSpeed, null, 0);
+
+                    //TODO: Make the ferility dynamic to floor type.
+                    float fertility = 1f;
+
+                    start[x, y] = new Tile(new Vector2Int(x, y), worldPosition, currentTileType, rockType, -1f, walkSpeed, null, 0, fertility);
                 }
             }
             return start;
@@ -337,7 +378,11 @@ namespace WorldGeneration
                     }
                     //TODO: Make walkspeed dynamic to floor type.
                     int walkSpeed = 1;
-                    smooth[x, y] = new Tile(currentTile.position, currentTile.worldPosition, mostCommon, rockType, -1f, walkSpeed, null, 0);
+
+                    //TODO: Make fertility dynamic to floor type.
+                    float fertility = 1;
+
+                    smooth[x, y] = new Tile(currentTile.position, currentTile.worldPosition, mostCommon, rockType, -1f, walkSpeed, null, 0, fertility);
 
 
                 }

@@ -26,9 +26,11 @@ namespace WorldGeneration
         public Item itemOnDeath;
         public int itemAmountOnDeath;
 
+        public float fertility;
 
 
-        public Tile(Vector2Int position, Vector2 worldPosition, TileType type, RockType rockType, float maxHealth, int walkSpeed, Item itemOnDeath, int itemAmountOnDeath, GameObject tileObject = null)
+
+        public Tile(Vector2Int position, Vector2 worldPosition, TileType type, RockType rockType, float maxHealth, int walkSpeed, Item itemOnDeath, int itemAmountOnDeath, float fertility, GameObject tileObject = null)
         {
             this.position = position;
             this.worldPosition = worldPosition;
@@ -40,8 +42,9 @@ namespace WorldGeneration
             this.walkSpeed = walkSpeed;
             this.itemOnDeath = itemOnDeath;
             this.itemAmountOnDeath = itemAmountOnDeath;
+            this.fertility = fertility;
         }
-        public Tile(Vector2Int position, Vector2 worldPosition, TileType type, float maxHealth, int walkSpeed, Item itemOnDeath, int itemAmountOnDeath, GameObject tileObject = null)
+        public Tile(Vector2Int position, Vector2 worldPosition, TileType type, float maxHealth, int walkSpeed, Item itemOnDeath, int itemAmountOnDeath, float fertility, GameObject tileObject = null)
         {
             if (type == TileType.Rock)
             {
@@ -57,6 +60,7 @@ namespace WorldGeneration
             this.walkSpeed = walkSpeed;
             this.itemOnDeath = itemOnDeath;
             this.itemAmountOnDeath = itemAmountOnDeath;
+            this.fertility = fertility;
         }
 
 

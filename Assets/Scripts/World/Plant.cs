@@ -1,5 +1,7 @@
 using UnityEngine;
+using System;
 
+[Serializable]
 public class Plant
 {
 
@@ -14,7 +16,9 @@ public class Plant
 
     public string plantName;
 
-    public Plant(string name, float tempMin, float tempMax, float fert, Item item, int amount)
+    public GameObject plantObject;
+
+    public Plant(string name, float tempMin, float tempMax, float fert, Item item, int amount, GameObject plant = null)
     {
         plantName = name;
         temperatureMax = tempMax;
@@ -22,9 +26,10 @@ public class Plant
         fertilityThreshold = fert;
         itemOnHarvest = item;
         amountOfItemOnDeath = amount;
+        plantObject = plant;
     }
 
-    public Plant(string name, Vector2 temp, float fert, Item item, int amount)
+    public Plant(string name, Vector2 temp, float fert, Item item, int amount, GameObject plant = null)
     {
         plantName = name;
         temperatureMin = temp.x;
@@ -32,6 +37,7 @@ public class Plant
         fertilityThreshold = fert;
         itemOnHarvest = item;
         amountOfItemOnDeath = amount;
+        plantObject = plant;
 
     }
 

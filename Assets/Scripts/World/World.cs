@@ -10,7 +10,9 @@ namespace WorldGeneration
 
         public GameObject floorParent;
         public GameObject hillParent;
-        public GameObject itemsParents;
+        public GameObject itemsParent;
+
+        public GameObject plantParent;
 
         private Plant[,] plants;
         private Tile[,] hills;
@@ -53,7 +55,7 @@ namespace WorldGeneration
                 items[ourTile.position.x, ourTile.position.y] = itemOnDeath;
                 items[ourTile.position.x, ourTile.position.y].currnetAmount = itemAmountOnDeath;
 
-                GameObject itemObject = Instantiate(settings.itemPrefab, ourTile.worldPosition, Quaternion.identity, itemsParents.transform);
+                GameObject itemObject = Instantiate(settings.itemPrefab, ourTile.worldPosition, Quaternion.identity, itemsParent.transform);
                 itemObject.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 0);
                 itemObject.name = $"Item {ourTile.position.x},{ourTile.position.y}";
                 SpriteRenderer spriteRenderer;
@@ -155,6 +157,9 @@ namespace WorldGeneration
             GenerateHills();
             VisualizeHills(settings, hills);
 
+            GeneratePlants();
+
+            VisualizePlants(settings, plants);
 
 
         }
@@ -198,6 +203,7 @@ namespace WorldGeneration
         {
             plants = new Plant[floor.GetLength(0), floor.GetLength(1)];
 
+
             for (int x = 0; x < floor.GetLength(0); x++)
             {
                 for (int y = 0; y < floor.GetLength(1); y++)
@@ -206,11 +212,26 @@ namespace WorldGeneration
                     if (currentTile.fertility > 0)
                     {
                         //Plant a random plant here based on weights from settings
+                        foreach (PlantCutOff plantCutOff in settings.plantCutoffs)
+                        {
 
+                            if (Random.Range(0f, 1f) <= plantCutOff.probability)
+                            {
+                                Plant plant = plantCutOff.plantType;
+                                Plant plantx = new Plant(new(x, y), new(x * settings.tileScale, y * settings.tileScale), plant.plantName, plant.temperatureMin, plant.temperatureMax, plant.fertilityThreshold, plant.itemOnHarvest, plant.amountOfItemOnDeath);
+                                plants[x, y] = plantx;
+                                break;
+                            }
+
+
+
+                        }
                     }
                 }
             }
         }
+
+
         void GenerateHills()
         {
             //Find the centers of the hills aka the clusters of rock tiles.
@@ -233,7 +254,7 @@ namespace WorldGeneration
                             Item itemOnDeath = new Item("Rock", 1, itemSprite, true);
 
                             float fertility = 0;
-
+                            currentTile.fertility = fertility;
                             Tile rock = new Tile(currentTile.position, currentTile.worldPosition, currentTile.tileType, currentTile.rockType, maxHealth, 0, itemOnDeath, 1, fertility);
                             rock.objectBelow = floor[x, y];
                             currentTile.objectAbove = rock;
@@ -253,8 +274,6 @@ namespace WorldGeneration
 
                 //Pick a random direction for the lake to go in.
                 Vector2Int lakeEnd = SelectRandomCorner(settings);
-
-                Debug.Log($"Lake {i} starts at {lakeStart} and ends at {lakeEnd}");
 
                 //Travel from the start to the end with a degree of randomness, and set the tiles to water.
                 Vector2Int currentPos = lakeStart;
@@ -300,6 +319,25 @@ namespace WorldGeneration
             //Move to the next position.
             return currentPos + clampedDirection;
         }
+
+        void StartPlantGrowth()
+        {
+            int growthAmount = 1;
+            for (int i = 0; i < settings.growthIterations; i++)
+            {
+                plants = GrowPlants(plants, floor, seed, growthAmount);
+                growthAmount += settings.growthChange;
+            }
+        }
+
+        private static Plant[,] GrowPlants(Plant[,] plants, Tile[,] floor, int seed, int growthAmount)
+        {
+            Plant[,] grown = new Plant[plants.GetLength(0), plants.GetLength(1)];
+
+            //TODO: Simulate the growth of plants.
+            return grown;
+        }
+
         void StartSmoothFloor()
         {
 
@@ -380,7 +418,7 @@ namespace WorldGeneration
                     int walkSpeed = 1;
 
                     //TODO: Make fertility dynamic to floor type.
-                    float fertility = 1;
+                    float fertility = (mostCommon == TileType.Water || mostCommon == TileType.Rock) ? 0f : 1f;
 
                     smooth[x, y] = new Tile(currentTile.position, currentTile.worldPosition, mostCommon, rockType, -1f, walkSpeed, null, 0, fertility);
 
@@ -394,7 +432,38 @@ namespace WorldGeneration
 
         }
 
+        void VisualizePlants(WorldSettings settings, Plant[,] plants)
+        {
+            for (int x = 0; x < plants.GetLength(0); x++)
+            {
+                for (int y = 0; y < plants.GetLength(1); y++)
+                {
+                    Plant currentPlant = plants[x, y];
 
+                    if (currentPlant != null)
+                    {
+                        ////Debug.Log($"Visualizing plant at {currentPlant.worldPosition}");
+                        GameObject plant = Instantiate(settings.emptyTile, currentPlant.worldPosition, Quaternion.identity, plantParent.transform);
+                        plant.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
+                        plant.name = $"Plant {x},{y}";
+                        currentPlant.plantObject = plant;
+
+                        SpriteRenderer spriteRenderer;
+                        if (!plant.TryGetComponent<SpriteRenderer>(out spriteRenderer))
+                        {
+                            spriteRenderer = plant.AddComponent<SpriteRenderer>();
+
+                        }
+                        spriteRenderer.sprite = Resources.Load<Sprite>($"Plants/{currentPlant.plantName}");
+
+                        if (spriteRenderer.sprite == null)
+                        {
+                            Debug.LogError($"Sprite is null at {x},{y} with a plant name of {currentPlant.plantName}");
+                        }
+                    }
+                }
+            }
+        }
         void VisualizeFloor(WorldSettings settings, Tile[,] tiles)
         {
             for (int x = 0; x < tiles.GetLength(0); x++)
@@ -499,6 +568,92 @@ namespace WorldGeneration
 
             return neighbours;
         }
+
+        public static List<Plant> GetNeighbours(Plant[,] plants, int x, int y, out string mostCommon, out int sameNeighbourCount)
+        {
+            List<Plant> neighbours = new List<Plant>();
+            Dictionary<string, int> tileCounts = new Dictionary<string, int>();
+            sameNeighbourCount = 0;
+            Plant currentTile = plants[x, y];
+            string currentTileType = "";
+            if (currentTile == null)
+            {
+                tileCounts[""] = 1;
+            }
+            else
+            {
+                currentTileType = currentTile.plantName;
+                tileCounts[currentTile.plantName] = 1;
+            }
+
+
+
+
+
+
+            //Find neighbours using bitwise operations.
+            for (int nx = -1; nx <= 1; nx++)
+            {
+                for (int ny = -1; ny <= 1; ny++)
+                {
+                    if (nx == 0 && ny == 0)
+                    {
+                        continue;
+                    }
+
+                    int checkX = x + nx;
+                    int checkY = y + ny;
+
+                    if (checkX >= 0 && checkX < plants.GetLength(0) && checkY >= 0 && checkY < plants.GetLength(1))
+                    {
+                        Plant neighbour = plants[checkX, checkY];
+                        if (neighbour == null)
+                        {
+                            if (tileCounts.ContainsKey(""))
+                            {
+                                tileCounts[""]++;
+                            }
+                            else
+                            {
+                                tileCounts[""] = 1;
+                            }
+                            continue;
+                        }
+                        if (neighbour.plantName == currentTileType)
+                        {
+                            sameNeighbourCount++;
+                        }
+                        if (tileCounts.ContainsKey(neighbour.plantName))
+                        {
+                            tileCounts[neighbour.plantName]++;
+                        }
+                        else
+                        {
+                            tileCounts[neighbour.plantName] = 1;
+                        }
+
+                        neighbours.Add(neighbour);
+                    }
+                }
+            }
+            // Find the TileType with the highest count
+            string mostCommonTileType = "";
+            int highestCount = 0;
+
+            foreach (KeyValuePair<string, int> pair in tileCounts)
+            {
+                if (pair.Value > highestCount)
+                {
+                    mostCommonTileType = pair.Key;
+                    highestCount = pair.Value;
+                }
+            }
+            mostCommon = mostCommonTileType;
+
+
+            return neighbours;
+        }
+
         private static RockType GetRockType(int x, int y, int seed)
         {
             return RockType.Granite;

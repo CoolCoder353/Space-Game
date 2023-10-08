@@ -54,6 +54,15 @@ namespace WorldGeneration
         [Foldout("Item Settings")]
         public GameObject itemPrefab;
 
+        [Foldout("Plant Settings")]
+        public List<PlantCutOff> plantCutoffs = new List<PlantCutOff>();
+
+        [Foldout("Plant Settings")]
+        public int growthIterations = 1;
+
+        [Foldout("Plant Settings")]
+        public int growthChange = 1;
+
     }
 
     [System.Serializable]
@@ -62,6 +71,17 @@ namespace WorldGeneration
         public TileType tileType;
         [Range(0, 1)]
         public float cutOff;
+    }
+
+
+    [System.Serializable]
+    public class PlantCutOff
+    {
+        public Plant plantType;
+        [Range(0, 1)]
+        public float probability;
+
+
     }
 
 }

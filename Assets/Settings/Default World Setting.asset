@@ -34,3 +34,26 @@ MonoBehaviour:
   numOfLakes: 4
   lakeRandomness: 3
   itemPrefab: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
+  plantCutoffs:
+  - plantType:
+      position: {x: 0, y: 0}
+      worldPosition: {x: 0, y: 0}
+      temperatureMin: 0
+      temperatureMax: 999999
+      fertilityThreshold: 0
+      amountOfItemOnDeath: 0
+      plantName: Bush
+      plantObject: {fileID: 0}
+    probability: 0.395
+  - plantType:
+      position: {x: 0, y: 0}
+      worldPosition: {x: 0, y: 0}
+      temperatureMin: 0
+      temperatureMax: 99999
+      fertilityThreshold: 0
+      amountOfItemOnDeath: 0
+      plantName: Shrub
+      plantObject: {fileID: 0}
+    probability: 0.541
+  growthIterations: 5
+  growthChange: 1

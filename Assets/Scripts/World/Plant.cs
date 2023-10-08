@@ -5,7 +5,8 @@ using System;
 public class Plant
 {
 
-
+    public Vector2Int position;
+    public Vector2 worldPosition;
     public float temperatureMin;
     public float temperatureMax;
 
@@ -18,8 +19,10 @@ public class Plant
 
     public GameObject plantObject;
 
-    public Plant(string name, float tempMin, float tempMax, float fert, Item item, int amount, GameObject plant = null)
+    public Plant(Vector2Int position, Vector2 worldPosition, string name, float tempMin, float tempMax, float fert, Item item, int amount, GameObject plant = null)
     {
+        this.position = position;
+        this.worldPosition = worldPosition;
         plantName = name;
         temperatureMax = tempMax;
         temperatureMin = tempMin;
@@ -29,8 +32,10 @@ public class Plant
         plantObject = plant;
     }
 
-    public Plant(string name, Vector2 temp, float fert, Item item, int amount, GameObject plant = null)
+    public Plant(Vector2Int position, Vector2 worldPosition, string name, Vector2 temp, float fert, Item item, int amount, GameObject plant = null)
     {
+        this.position = position;
+        this.worldPosition = worldPosition;
         plantName = name;
         temperatureMin = temp.x;
         temperatureMax = temp.y;

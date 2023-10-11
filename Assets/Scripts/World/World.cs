@@ -14,6 +14,9 @@ namespace WorldGeneration
 
         public GameObject plantParent;
 
+        private float outdoorsTemp = 25f;
+
+        private Temperature[,] temperatures;
         private Plant[,] plants;
         private Tile[,] hills;
 
@@ -138,12 +141,30 @@ namespace WorldGeneration
             return plants[x, y];
         }
 
+        public Temperature GetTemperatureAtPosition(Vector2 position)
+        {
+            if (position.x < 0 || position.y < 0 || position.x > settings.worldSize.x * settings.tileScale || position.y > settings.worldSize.y * settings.tileScale)
+            {
+                return null;
+            }
+
+            int x = Mathf.RoundToInt(position.x / settings.tileScale);
+            int y = Mathf.RoundToInt(position.y / settings.tileScale);
+            if (x < 0 || x >= temperatures.GetLength(0) || y < 0 || y >= temperatures.GetLength(1))
+            {
+                return null;
+            }
+            return temperatures[x, y];
+        }
         public Tile[,] GetFloor()
         {
             return floor;
         }
 
-
+        public Temperature[,] GetTemperature()
+        {
+            return temperatures;
+        }
         private void Awake()
         {
             Random.InitState(seed);
@@ -157,6 +178,10 @@ namespace WorldGeneration
             GenerateHills();
             VisualizeHills(settings, hills);
 
+
+            GenerateTemperature();
+            UpdateTemperature();
+
             GeneratePlants();
 
             VisualizePlants(settings, plants);
@@ -164,6 +189,44 @@ namespace WorldGeneration
 
         }
 
+        private void UpdateTemperature()
+        {
+            Temperature[,] newTemps = new Temperature[temperatures.GetLength(0), temperatures.GetLength(1)];
+            for (int x = 0; x < temperatures.GetLength(0); x++)
+            {
+                for (int y = 0; y < temperatures.GetLength(1); y++)
+                {
+                    Temperature currentTemp = temperatures[x, y];
+                    if (currentTemp.canChange)
+                    {
+                        List<Temperature> neighbours = GetNeighbours(temperatures, x, y);
+                        Temperature newTemp = new Temperature(currentTemp.position, currentTemp.worldPosition, currentTemp.canChange);
+                        newTemp.value = currentTemp.value;
+
+                        newTemp.UpdateTemperature(neighbours);
+                    }
+                    else
+                    {
+                        Temperature newTemp = new Temperature(currentTemp.position, currentTemp.worldPosition, currentTemp.canChange);
+                        newTemp.value = outdoorsTemp;
+                    }
+                }
+            }
+            temperatures = newTemps;
+        }
+
+        private void GenerateTemperature()
+        {
+            temperatures = new Temperature[floor.GetLength(0), floor.GetLength(1)];
+            for (int x = 0; x < temperatures.GetLength(0); x++)
+            {
+                for (int y = 0; y < temperatures.GetLength(1); y++)
+                {
+                    bool isOnEdge = IsOnEdge(x, y, temperatures.GetLength(0), temperatures.GetLength(1));
+                    Temperature temp = new Temperature(new(x, y), new(x * settings.tileScale, y * settings.tileScale), isOnEdge);
+                }
+            }
+        }
         private void VisualizeHills(WorldSettings settings, Tile[,] hills)
         {
             for (int x = 0; x < hills.GetLength(0); x++)
@@ -585,12 +648,6 @@ namespace WorldGeneration
                 currentTileType = currentTile.plantName;
                 tileCounts[currentTile.plantName] = 1;
             }
-
-
-
-
-
-
             //Find neighbours using bitwise operations.
             for (int nx = -1; nx <= 1; nx++)
             {
@@ -652,6 +709,37 @@ namespace WorldGeneration
 
 
             return neighbours;
+        }
+
+        public static List<Temperature> GetNeighbours(Temperature[,] objects, int x, int y)
+        {
+            List<Temperature> result = new List<Temperature>();
+
+            //Find neighbours using bitwise operations.
+            for (int nx = -1; nx <= 1; nx++)
+            {
+                for (int ny = -1; ny <= 1; ny++)
+                {
+                    if (nx == 0 && ny == 0)
+                    {
+                        continue;
+                    }
+
+                    int checkX = x + nx;
+                    int checkY = y + ny;
+
+                    if (checkX >= 0 && checkX < objects.GetLength(0) && checkY >= 0 && checkY < objects.GetLength(1))
+                    {
+                        result.Add(objects[checkX, checkY]);
+                    }
+                }
+
+            }
+            return result;
+        }
+        private static bool IsOnEdge(int x, int y, int width, int height)
+        {
+            return x == 0 || x == width - 1 || y == 0 || y == height - 1;
         }
 
         private static RockType GetRockType(int x, int y, int seed)

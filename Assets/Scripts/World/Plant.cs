@@ -19,6 +19,7 @@ public class Plant
 
     public GameObject plantObject;
 
+    private System.Action<int> OnTickUpdate;
     public Plant(Vector2Int position, Vector2 worldPosition, string name, float tempMin, float tempMax, float fert, Item item, int amount, GameObject plant = null)
     {
         this.position = position;
@@ -30,6 +31,8 @@ public class Plant
         itemOnHarvest = item;
         amountOfItemOnDeath = amount;
         plantObject = plant;
+
+        OnTickUpdate += UpdatePlant;
     }
 
     public Plant(Vector2Int position, Vector2 worldPosition, string name, Vector2 temp, float fert, Item item, int amount, GameObject plant = null)
@@ -44,6 +47,18 @@ public class Plant
         amountOfItemOnDeath = amount;
         plantObject = plant;
 
+        OnTickUpdate += UpdatePlant;
+
+    }
+    public void SetOnTickUpdate(System.Action<int> OnTickUpdate)
+    {
+        this.OnTickUpdate = OnTickUpdate;
+        this.OnTickUpdate += UpdatePlant;
+    }
+
+    public static void UpdatePlant(int tick)
+    {
+        //Do a thing.
     }
 
 }

@@ -24,6 +24,12 @@ namespace WorldGeneration
 
         private Tile[,] floor;
 
+        private int currentTick = 0;
+        private int lastTempTick = 0;
+        private bool running = true;
+
+        public System.Action<int> OnTickUpdate;
+
         public bool DamageTile(Tile tile, float amount)
         {
             if (Contains(tile, hills))
@@ -186,9 +192,30 @@ namespace WorldGeneration
 
             VisualizePlants(settings, plants);
 
+            StartCoroutine(Loop);
+
 
         }
 
+        //World Loop
+        private IEnumerator Loop()
+        {
+            running = true;
+            while (running)
+            {
+                if (currentTick >= lastTempTick + 30)//Every 3 seconds
+                {
+                    UpdateTemperature();
+                    lastTempTick = currentTick;
+                }
+
+
+
+                OnTickUpdate?.Invoke(currentTick);
+                currentTick++;
+                yield return new WaitForSeconds(1 / settings.worldTicksPerSecond);
+            }
+        }
         private void UpdateTemperature()
         {
             Temperature[,] newTemps = new Temperature[temperatures.GetLength(0), temperatures.GetLength(1)];
@@ -282,6 +309,7 @@ namespace WorldGeneration
                             {
                                 Plant plant = plantCutOff.plantType;
                                 Plant plantx = new Plant(new(x, y), new(x * settings.tileScale, y * settings.tileScale), plant.plantName, plant.temperatureMin, plant.temperatureMax, plant.fertilityThreshold, plant.itemOnHarvest, plant.amountOfItemOnDeath);
+                                plantx.SetOnTickUpdate(OnTickUpdate);
                                 plants[x, y] = plantx;
                                 break;
                             }
@@ -381,24 +409,6 @@ namespace WorldGeneration
             Vector2Int clampedDirection = new Vector2Int(Mathf.RoundToInt(Mathf.Clamp(direction.x, -maxDistanceAway, maxDistanceAway)), Mathf.RoundToInt(Mathf.Clamp(direction.y, -maxDistanceAway, maxDistanceAway)));
             //Move to the next position.
             return currentPos + clampedDirection;
-        }
-
-        void StartPlantGrowth()
-        {
-            int growthAmount = 1;
-            for (int i = 0; i < settings.growthIterations; i++)
-            {
-                plants = GrowPlants(plants, floor, seed, growthAmount);
-                growthAmount += settings.growthChange;
-            }
-        }
-
-        private static Plant[,] GrowPlants(Plant[,] plants, Tile[,] floor, int seed, int growthAmount)
-        {
-            Plant[,] grown = new Plant[plants.GetLength(0), plants.GetLength(1)];
-
-            //TODO: Simulate the growth of plants.
-            return grown;
         }
 
         void StartSmoothFloor()

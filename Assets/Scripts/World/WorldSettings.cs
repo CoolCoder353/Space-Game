@@ -9,6 +9,8 @@ namespace WorldGeneration
     {
         public Vector2Int worldSize;
 
+        public int worldTicksPerSecond = 10;
+
         [Foldout("Tile Settings")]
         public float tileScale = 1;
 

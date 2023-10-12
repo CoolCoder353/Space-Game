@@ -1,6 +1,7 @@
 using UnityEngine;
 using NaughtyAttributes;
 using System.Collections.Generic;
+using System.Collections;
 namespace WorldGeneration
 {
     public class World : MonoBehaviour
@@ -192,7 +193,7 @@ namespace WorldGeneration
 
             VisualizePlants(settings, plants);
 
-            StartCoroutine(Loop);
+            StartCoroutine(Loop());
 
 
         }

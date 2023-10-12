@@ -20,6 +20,8 @@ public class Plant
     public GameObject plantObject;
 
     private System.Action<int> OnTickUpdate;
+    private int currentIndex = 0;
+    public List<PlantGrowthIndex> plantGrowIndex = new List<PlantGrowthIndex>();
     public Plant(Vector2Int position, Vector2 worldPosition, string name, float tempMin, float tempMax, float fert, Item item, int amount, GameObject plant = null)
     {
         this.position = position;
@@ -56,9 +58,40 @@ public class Plant
         this.OnTickUpdate += UpdatePlant;
     }
 
+    public void SetPlantGrowthIndex(List<PlantGrowthIndex> list)
+    {
+        plantGrowIndex = list;
+        currentIndex = 0;
+    }
     public static void UpdatePlant(int tick)
     {
-        //Do a thing.
+        PlantGrowthIndex growth = plantGrowthIndex[currentIndex];
+        if (tick >= growth.tickSinceSown)
+        {
+            if (growth.sprite != null)
+            {
+                if (this.plantObject.TryGetComponent<SpriteRenderer>(out SpriteRenderer renderer))
+                {
+                    renderer.sprite = growth.sprite;
+                }
+            }
+            if (growth.size != -1)
+            {
+                this.plantObject.transform.localScale = new(growth.size, growth.size, 1);
+            }
+            if (currentIndex + 1 < plantGrowthIndex.Count)
+            {
+                currentIndex++;
+            }
+        }
     }
 
+}
+
+[System.Serializable]
+public struct PlantGrowthIndex
+{
+    public int tickSinceSown;
+    public Sprite sprite;
+    public int size;
 }

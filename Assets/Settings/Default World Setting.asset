@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Default World Setting
   m_EditorClassIdentifier: 
   worldSize: {x: 100, y: 100}
+  worldTicksPerSecond: 10
   tileScale: 1
   emptyTile: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
   rockTile: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
@@ -38,22 +39,36 @@ MonoBehaviour:
   - plantType:
       position: {x: 0, y: 0}
       worldPosition: {x: 0, y: 0}
-      temperatureMin: 0
-      temperatureMax: 999999
+      temperatureMin: 10
+      temperatureMax: 30
       fertilityThreshold: 0
       amountOfItemOnDeath: 0
       plantName: Bush
       plantObject: {fileID: 0}
+      plantGrowIndex:
+      - tickSinceSown: 0
+        sprite: {fileID: 21300000, guid: 17ee87746f422754fb3367784ccf46eb, type: 3}
+        size: 1
+      - tickSinceSown: 1000
+        sprite: {fileID: 21300000, guid: f9161c6c9e06dc445ada3ee16d991f90, type: 3}
+        size: 1.5
     probability: 0.395
   - plantType:
       position: {x: 0, y: 0}
       worldPosition: {x: 0, y: 0}
-      temperatureMin: 0
-      temperatureMax: 99999
+      temperatureMin: 10
+      temperatureMax: 30
       fertilityThreshold: 0
       amountOfItemOnDeath: 0
       plantName: Shrub
       plantObject: {fileID: 0}
+      plantGrowIndex:
+      - tickSinceSown: 0
+        sprite: {fileID: 21300000, guid: f8df5a6c667145f49b170b6a782c0b93, type: 3}
+        size: 1
+      - tickSinceSown: 1000
+        sprite: {fileID: 21300000, guid: f09eae8c0ea04254b90c5386a034a225, type: 3}
+        size: 2
     probability: 0.541
   growthIterations: 5
   growthChange: 1

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 
 [Serializable]
 public class Plant
@@ -19,7 +20,7 @@ public class Plant
 
     public GameObject plantObject;
 
-    private System.Action<int> OnTickUpdate;
+    private System.Action<int, WorldGeneration.World> OnTickUpdate;
     private int currentIndex = 0;
     public List<PlantGrowthIndex> plantGrowIndex = new List<PlantGrowthIndex>();
     public Plant(Vector2Int position, Vector2 worldPosition, string name, float tempMin, float tempMax, float fert, Item item, int amount, GameObject plant = null)
@@ -52,7 +53,7 @@ public class Plant
         OnTickUpdate += UpdatePlant;
 
     }
-    public void SetOnTickUpdate(System.Action<int> OnTickUpdate)
+    public void SetOnTickUpdate(System.Action<int, WorldGeneration.World> OnTickUpdate)
     {
         this.OnTickUpdate = OnTickUpdate;
         this.OnTickUpdate += UpdatePlant;
@@ -63,27 +64,34 @@ public class Plant
         plantGrowIndex = list;
         currentIndex = 0;
     }
-    public static void UpdatePlant(int tick)
+    public void UpdatePlant(int tick, WorldGeneration.World world)
     {
-        PlantGrowthIndex growth = plantGrowthIndex[currentIndex];
+        Temperature currentTemp = world.GetTemperatureAtPosition(worldPosition);
+        if (currentTemp.value < temperatureMin || currentTemp.value > temperatureMax)
+        {
+            world.RemovePlant(position);
+            return;
+        }
+        PlantGrowthIndex growth = plantGrowIndex[currentIndex];
         if (tick >= growth.tickSinceSown)
         {
             if (growth.sprite != null)
             {
-                if (this.plantObject.TryGetComponent<SpriteRenderer>(out SpriteRenderer renderer))
+                if (plantObject.TryGetComponent<SpriteRenderer>(out SpriteRenderer renderer))
                 {
                     renderer.sprite = growth.sprite;
                 }
             }
             if (growth.size != -1)
             {
-                this.plantObject.transform.localScale = new(growth.size, growth.size, 1);
+                plantObject.transform.localScale = new(growth.size, growth.size, 1);
             }
-            if (currentIndex + 1 < plantGrowthIndex.Count)
+            if (currentIndex + 1 < plantGrowIndex.Count)
             {
                 currentIndex++;
             }
         }
+
     }
 
 }

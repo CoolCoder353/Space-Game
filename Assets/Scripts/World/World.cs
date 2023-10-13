@@ -29,7 +29,7 @@ namespace WorldGeneration
         private int lastTempTick = 0;
         private bool running = true;
 
-        public System.Action<int> OnTickUpdate;
+        public System.Action<int, World> OnTickUpdate;
 
         public bool DamageTile(Tile tile, float amount)
         {
@@ -212,7 +212,7 @@ namespace WorldGeneration
 
 
 
-                OnTickUpdate?.Invoke(currentTick);
+                OnTickUpdate?.Invoke(currentTick, this);
                 currentTick++;
                 yield return new WaitForSeconds(1 / settings.worldTicksPerSecond);
             }
@@ -289,7 +289,15 @@ namespace WorldGeneration
                 }
             }
         }
-
+        public void RemovePlant(Vector2Int position)
+        {
+            Plant plant = plants[position.x, position.y];
+            if (plant != null)
+            {
+                Destroy(plant.plantObject);
+                plants[position.x, position.y] = null;
+            }
+        }
         void GeneratePlants()
         {
             plants = new Plant[floor.GetLength(0), floor.GetLength(1)];

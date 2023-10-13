@@ -213,6 +213,7 @@ namespace WorldGeneration
 
 
                 OnTickUpdate?.Invoke(currentTick, this);
+
                 currentTick++;
                 yield return new WaitForSeconds(1 / settings.worldTicksPerSecond);
             }
@@ -232,11 +233,13 @@ namespace WorldGeneration
                         newTemp.value = currentTemp.value;
 
                         newTemp.UpdateTemperature(neighbours);
+                        newTemps[x, y] = newTemp;
                     }
                     else
                     {
                         Temperature newTemp = new Temperature(currentTemp.position, currentTemp.worldPosition, currentTemp.canChange);
                         newTemp.value = outdoorsTemp;
+                        newTemps[x, y] = newTemp;
                     }
                 }
             }
@@ -252,6 +255,8 @@ namespace WorldGeneration
                 {
                     bool isOnEdge = IsOnEdge(x, y, temperatures.GetLength(0), temperatures.GetLength(1));
                     Temperature temp = new Temperature(new(x, y), new(x * settings.tileScale, y * settings.tileScale), isOnEdge);
+                    temp.value = outdoorsTemp;
+                    temperatures[x, y] = temp;
                 }
             }
         }
@@ -318,7 +323,7 @@ namespace WorldGeneration
                             {
                                 Plant plant = plantCutOff.plantType;
                                 Plant plantx = new Plant(new(x, y), new(x * settings.tileScale, y * settings.tileScale), plant.plantName, plant.temperatureMin, plant.temperatureMax, plant.fertilityThreshold, plant.itemOnHarvest, plant.amountOfItemOnDeath);
-                                plantx.SetOnTickUpdate(OnTickUpdate);
+                                OnTickUpdate += plantx.UpdatePlant;
                                 plants[x, y] = plantx;
                                 break;
                             }

@@ -31,14 +31,60 @@ public class GetTileAtMouse : MonoBehaviour
     {
         //Get mouse pos at this point.
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-        //See if that is on a tile.
-        Tile tile = world.GetHillTileAtPosition(mousePos);
-        if (tile == null)
+        Plant plant = world.GetPlantAtPosition(mousePos);
+        if (plant == null)
         {
-            tile = world.GetFloorTileAtPosition(mousePos);
+            //See if that is on a tile.
+            Tile tile = world.GetHillTileAtPosition(mousePos);
+            if (tile == null)
+            {
+                tile = world.GetFloorTileAtPosition(mousePos);
+            }
+
+            showTileData(tile);
+        }
+        else
+        {
+            showPlantData(plant);
         }
 
+    }
+
+    private void showPlantData(Plant plant)
+    {
+        if (plant != null)
+        {
+            int i = 0;
+            foreach (FieldInfo field in typeof(Plant).GetFields(bindingFlags))
+            {
+
+                if (uiElements.Count <= i)
+                {
+
+                    //foreach field in tile, create a text object and set the text to the field name and value.
+                    GameObject text = Instantiate(Text, parent.transform);
+                    uiElements.Add(text);
+                    text.GetComponent<TextMeshProUGUI>().text = $"{field.Name.FirstCharacterToUpper()}: {field.GetValue(plant)}";
+                }
+                else
+                {
+                    GameObject text = uiElements[i];
+                    text.GetComponent<TextMeshProUGUI>().text = $"{field.Name.FirstCharacterToUpper()}: {field.GetValue(plant)}";
+                }
+
+                i++;
+            }
+
+            for (int x = i; x < uiElements.Count; x++)
+            {
+                GameObject element = uiElements[x];
+                uiElements.Remove(element);
+                Destroy(element);
+            }
+        }
+    }
+    private void showTileData(Tile tile)
+    {
         if (tile != null)
         {
             int i = 0;
@@ -65,10 +111,9 @@ public class GetTileAtMouse : MonoBehaviour
             for (int x = i; x < uiElements.Count; x++)
             {
                 GameObject element = uiElements[x];
+                uiElements.Remove(element);
                 Destroy(element);
             }
-
-
         }
     }
 }

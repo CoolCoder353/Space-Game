@@ -19,8 +19,6 @@ public class Plant
     public string plantName;
 
     public GameObject plantObject;
-
-    private System.Action<int, WorldGeneration.World> OnTickUpdate;
     private int currentIndex = 0;
     public List<PlantGrowthIndex> plantGrowIndex = new List<PlantGrowthIndex>();
     public Plant(Vector2Int position, Vector2 worldPosition, string name, float tempMin, float tempMax, float fert, Item item, int amount, GameObject plant = null)
@@ -35,7 +33,7 @@ public class Plant
         amountOfItemOnDeath = amount;
         plantObject = plant;
 
-        OnTickUpdate += UpdatePlant;
+
     }
 
     public Plant(Vector2Int position, Vector2 worldPosition, string name, Vector2 temp, float fert, Item item, int amount, GameObject plant = null)
@@ -50,13 +48,7 @@ public class Plant
         amountOfItemOnDeath = amount;
         plantObject = plant;
 
-        OnTickUpdate += UpdatePlant;
 
-    }
-    public void SetOnTickUpdate(System.Action<int, WorldGeneration.World> OnTickUpdate)
-    {
-        this.OnTickUpdate = OnTickUpdate;
-        this.OnTickUpdate += UpdatePlant;
     }
 
     public void SetPlantGrowthIndex(List<PlantGrowthIndex> list)
@@ -66,6 +58,8 @@ public class Plant
     }
     public void UpdatePlant(int tick, WorldGeneration.World world)
     {
+        Debug.Log($"Tick {tick}, currentIndex {currentIndex}");
+
         Temperature currentTemp = world.GetTemperatureAtPosition(worldPosition);
         if (currentTemp.value < temperatureMin || currentTemp.value > temperatureMax)
         {
@@ -75,6 +69,7 @@ public class Plant
         PlantGrowthIndex growth = plantGrowIndex[currentIndex];
         if (tick >= growth.tickSinceSown)
         {
+
             if (growth.sprite != null)
             {
                 if (plantObject.TryGetComponent<SpriteRenderer>(out SpriteRenderer renderer))
@@ -88,6 +83,7 @@ public class Plant
             }
             if (currentIndex + 1 < plantGrowIndex.Count)
             {
+                Debug.Log("Updated index");
                 currentIndex++;
             }
         }
@@ -101,5 +97,5 @@ public struct PlantGrowthIndex
 {
     public int tickSinceSown;
     public Sprite sprite;
-    public int size;
+    public float size;
 }

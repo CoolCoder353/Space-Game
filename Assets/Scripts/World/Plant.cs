@@ -19,6 +19,7 @@ public class Plant
     public string plantName;
 
     public GameObject plantObject;
+    private int tickBorn = 0;
     private int currentIndex = 0;
     public List<PlantGrowthIndex> plantGrowIndex = new List<PlantGrowthIndex>();
 
@@ -62,6 +63,10 @@ public class Plant
     // This method updates the plant's growth based on the current tick and world temperature
     public void UpdatePlant(int tick, WorldGeneration.World world)
     {
+        if (tickBorn <= 1)
+        {
+            tickBorn = tick;
+        }
         // Get the temperature at the plant's position
         Temperature currentTemp = world.GetTemperatureAtPosition(worldPosition);
 
@@ -88,7 +93,7 @@ public class Plant
         PlantGrowthIndex growth = plantGrowIndex[currentIndex];
 
         // If enough ticks have passed since the plant was sown, update the plant's appearance and size
-        if (tick >= growth.tickSinceSown)
+        if (tick - tickBorn >= growth.tickSinceSown)
         {
             // Update the plant's sprite if a new sprite is available
             if (growth.sprite != null)

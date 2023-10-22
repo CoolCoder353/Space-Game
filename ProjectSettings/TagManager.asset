@@ -38,6 +38,18 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Floor
+    uniqueID: 4112208731
+    locked: 0
+  - name: Rock
+    uniqueID: 1001389191
+    locked: 0
+  - name: Plant
+    uniqueID: 2938476633
+    locked: 0
+  - name: Item
+    uniqueID: 3131824821
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0

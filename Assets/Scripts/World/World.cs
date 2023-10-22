@@ -298,7 +298,6 @@ namespace WorldGeneration
         }
         public void RemovePlant(Vector2Int position)
         {
-            Debug.Log($"Removing plant at {position}");
             Plant plant = plants[position.x, position.y];
             if (plant != null)
             {
@@ -462,16 +461,19 @@ namespace WorldGeneration
                         }
                     }
                     RockType rockType = RockType.None;
-                    if (currentTileType == TileType.Rock)
-                    {
-                        rockType = GetRockType(x, y, seed);
-                    }
-                    Vector2 worldPosition = new Vector2(x * settings.tileScale, y * settings.tileScale);
                     //TODO: Make walkspeed dynamic to floor type.
                     int walkSpeed = 1;
 
                     //TODO: Make the ferility dynamic to floor type.
                     float fertility = 1f;
+                    if (currentTileType == TileType.Rock)
+                    {
+                        rockType = GetRockType(x, y, seed);
+                        walkSpeed = 1;
+                        fertility = 0f;
+                    }
+                    Vector2 worldPosition = new Vector2(x * settings.tileScale, y * settings.tileScale);
+
 
                     start[x, y] = new Tile(new Vector2Int(x, y), worldPosition, currentTileType, rockType, -1f, walkSpeed, null, 0, fertility);
                 }
@@ -811,11 +813,13 @@ namespace WorldGeneration
                 //if there is no plant at the new position.
                 if (plants[newPos.x, newPos.y] == null)
                 {
-                    Debug.Log($"Spawning plant at {newPos}");
                     Vector2 worldPos = new Vector2(newPos.x * settings.tileScale, newPos.y * settings.tileScale);
                     Plant plantx = new(newPos, worldPos, plant.plantName, plant.temperatureMin, plant.temperatureMax, plant.fertilityThreshold, plant.itemOnHarvest, plant.amountOfItemOnDeath);
+
                     plantx.SetPlantGrowthIndex(plant.plantGrowIndex);
                     OnTickUpdate += plantx.UpdatePlant;
+
+                    plants[newPos.x, newPos.y] = plantx;
 
 
                     GameObject plantGame = Instantiate(settings.emptyTile, worldPos, Quaternion.identity, plantParent.transform);

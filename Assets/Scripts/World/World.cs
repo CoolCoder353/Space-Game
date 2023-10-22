@@ -212,7 +212,7 @@ namespace WorldGeneration
 
 
 
-                OnTickUpdate?.Invoke(currentTick, this);
+                OnTickUpdate.Invoke(currentTick, this);
 
                 currentTick++;
                 yield return new WaitForSeconds(1 / settings.worldTicksPerSecond);
@@ -323,6 +323,7 @@ namespace WorldGeneration
                             {
                                 Plant plant = plantCutOff.plantType;
                                 Plant plantx = new Plant(new(x, y), new(x * settings.tileScale, y * settings.tileScale), plant.plantName, plant.temperatureMin, plant.temperatureMax, plant.fertilityThreshold, plant.itemOnHarvest, plant.amountOfItemOnDeath);
+                                plantx.SetPlantGrowthIndex(plant.plantGrowIndex);
                                 OnTickUpdate += plantx.UpdatePlant;
                                 plants[x, y] = plantx;
                                 break;

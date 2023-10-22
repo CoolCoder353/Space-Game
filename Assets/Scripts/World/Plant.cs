@@ -21,6 +21,8 @@ public class Plant
     public GameObject plantObject;
     private int currentIndex = 0;
     public List<PlantGrowthIndex> plantGrowIndex = new List<PlantGrowthIndex>();
+
+    private bool stopGrowing = false;
     public Plant(Vector2Int position, Vector2 worldPosition, string name, float tempMin, float tempMax, float fert, Item item, int amount, GameObject plant = null)
     {
         this.position = position;
@@ -55,21 +57,32 @@ public class Plant
     {
         plantGrowIndex = list;
         currentIndex = 0;
+        stopGrowing = false;
     }
+    // This method updates the plant's growth based on the current tick and world temperature
     public void UpdatePlant(int tick, WorldGeneration.World world)
     {
-        Debug.Log($"Tick {tick}, currentIndex {currentIndex}");
-
+        // Get the temperature at the plant's position
         Temperature currentTemp = world.GetTemperatureAtPosition(worldPosition);
+
+        // If the temperature is outside the plant's tolerance range, remove the plant and exit the method
         if (currentTemp.value < temperatureMin || currentTemp.value > temperatureMax)
         {
             world.RemovePlant(position);
             return;
         }
+
+        if (stopGrowing)
+        {
+            return;
+        }
+        // Get the current growth stage of the plant
         PlantGrowthIndex growth = plantGrowIndex[currentIndex];
+
+        // If enough ticks have passed since the plant was sown, update the plant's appearance and size
         if (tick >= growth.tickSinceSown)
         {
-
+            // Update the plant's sprite if a new sprite is available
             if (growth.sprite != null)
             {
                 if (plantObject.TryGetComponent<SpriteRenderer>(out SpriteRenderer renderer))
@@ -77,17 +90,26 @@ public class Plant
                     renderer.sprite = growth.sprite;
                 }
             }
+
+            // Update the plant's size if a new size is available
             if (growth.size != -1)
             {
                 plantObject.transform.localScale = new(growth.size, growth.size, 1);
             }
+
+            // Move to the next growth stage if there is one
             if (currentIndex + 1 < plantGrowIndex.Count)
             {
-                Debug.Log("Updated index");
                 currentIndex++;
             }
-        }
+            else
+            {
+                //If there is no more growth stages, stop updating the plant.
+                stopGrowing = true;
 
+                //Also spawn a new plant?
+            }
+        }
     }
 
 }

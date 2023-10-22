@@ -72,6 +72,14 @@ public class Plant
             return;
         }
 
+        //Get the fertility at the plant's position
+        float currentFertility = world.GetFloorTileAtPosition(worldPosition).fertility;
+        if (currentFertility < fertilityThreshold)
+        {
+            world.RemovePlant(position);
+            return;
+        }
+
         if (stopGrowing)
         {
             return;
@@ -107,7 +115,11 @@ public class Plant
                 //If there is no more growth stages, stop updating the plant.
                 stopGrowing = true;
 
-                //Also spawn a new plant?
+                //Also spawn a new plant somewhere around this plant
+
+                Vector2Int newPos = position + new Vector2Int(UnityEngine.Random.Range(-1, 2), UnityEngine.Random.Range(-1, 2));
+                world.SpawnPlant(newPos, this);
+
             }
         }
     }

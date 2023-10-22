@@ -189,6 +189,7 @@ namespace WorldGeneration
             GenerateTemperature();
             UpdateTemperature();
 
+
             GeneratePlants();
 
             VisualizePlants(settings, plants);
@@ -281,6 +282,7 @@ namespace WorldGeneration
 
                         }
                         spriteRenderer.sprite = Resources.Load<Sprite>($"Tiles/{currentTile.tileType}");
+                        spriteRenderer.sortingLayerID = SortingLayer.NameToID("Rock");
                         //TODO: Change the color of the rock based on the rock type.
                         spriteRenderer.color = currentTile.rockType == RockType.Granite ? Color.red : Color.green;
 
@@ -296,6 +298,7 @@ namespace WorldGeneration
         }
         public void RemovePlant(Vector2Int position)
         {
+            Debug.Log($"Removing plant at {position}");
             Plant plant = plants[position.x, position.y];
             if (plant != null)
             {
@@ -543,7 +546,7 @@ namespace WorldGeneration
 
                         }
                         spriteRenderer.sprite = Resources.Load<Sprite>($"Plants/{currentPlant.plantName}");
-
+                        spriteRenderer.sortingLayerID = SortingLayer.NameToID("Plants");
                         if (spriteRenderer.sprite == null)
                         {
                             Debug.LogError($"Sprite is null at {x},{y} with a plant name of {currentPlant.plantName}");
@@ -570,7 +573,7 @@ namespace WorldGeneration
 
                     }
                     spriteRenderer.sprite = Resources.Load<Sprite>($"Tiles/{currentTile.tileType}");
-
+                    spriteRenderer.sortingLayerID = SortingLayer.NameToID("Floor");
                     if (spriteRenderer.sprite == null)
                     {
                         Debug.LogError($"Sprite is null at {x},{y} with a tile type of {currentTile.tileType}");
@@ -798,6 +801,42 @@ namespace WorldGeneration
                     break;
             }
             return corner;
+        }
+
+        public void SpawnPlant(Vector2Int newPos, Plant plant)
+        {
+            //if the new pos is within the bounds of the world.
+            if (newPos.x >= 0 && newPos.x < plants.GetLength(0) && newPos.y >= 0 && newPos.y < plants.GetLength(1))
+            {
+                //if there is no plant at the new position.
+                if (plants[newPos.x, newPos.y] == null)
+                {
+                    Debug.Log($"Spawning plant at {newPos}");
+                    Vector2 worldPos = new Vector2(newPos.x * settings.tileScale, newPos.y * settings.tileScale);
+                    Plant plantx = new(newPos, worldPos, plant.plantName, plant.temperatureMin, plant.temperatureMax, plant.fertilityThreshold, plant.itemOnHarvest, plant.amountOfItemOnDeath);
+                    plantx.SetPlantGrowthIndex(plant.plantGrowIndex);
+                    OnTickUpdate += plantx.UpdatePlant;
+
+
+                    GameObject plantGame = Instantiate(settings.emptyTile, worldPos, Quaternion.identity, plantParent.transform);
+                    plantGame.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
+                    plantGame.name = $"Plant {newPos.x},{newPos.y}";
+                    plantx.plantObject = plantGame;
+
+                    SpriteRenderer spriteRenderer;
+                    if (!plantGame.TryGetComponent<SpriteRenderer>(out spriteRenderer))
+                    {
+                        spriteRenderer = plantGame.AddComponent<SpriteRenderer>();
+
+                    }
+                    spriteRenderer.sprite = Resources.Load<Sprite>($"Plants/{plantx.plantName}");
+                    spriteRenderer.sortingLayerID = SortingLayer.NameToID("Plants");
+                    if (spriteRenderer.sprite == null)
+                    {
+                        Debug.LogError($"Sprite is null at {newPos.x},{newPos.y} with a plant name of {plantx.plantName}");
+                    }
+                }
+            }
         }
     }
 }

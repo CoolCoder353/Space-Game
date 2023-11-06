@@ -35,10 +35,10 @@ public class GetTileAtMouse : MonoBehaviour
         if (plant == null)
         {
             //See if that is on a tile.
-            Tile tile = world.GetHillTileAtPosition(mousePos);
+            Floor tile = world.GetHillAtPosition(mousePos);
             if (tile == null)
             {
-                tile = world.GetFloorTileAtPosition(mousePos);
+                tile = world.GetFloorAtPosition(mousePos);
             }
 
             showTileData(tile);

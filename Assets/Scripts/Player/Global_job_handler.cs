@@ -46,7 +46,7 @@ public class Global_job_handler : MonoBehaviour
         //When the player clicks on a tile, check if that tile is in the hills layer.
         //If it is, then send a job to the pawn to mine that tile.
 
-        Tile tile = world.GetHillTileAtPosition(mousePos);
+        Tile tile = world.GetHillAtPosition(mousePos);
         if (tile != null)
         {
             Debug.Log($"Found tile at {tile.position.x}, {tile.position.y}.");

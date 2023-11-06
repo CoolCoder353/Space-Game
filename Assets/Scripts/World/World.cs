@@ -19,11 +19,11 @@ namespace WorldGeneration
 
         private Temperature[,] temperatures;
         private Plant[,] plants;
-        private Tile[,] hills;
+        private Floor[,] hills;
 
         private Item[,] items;
 
-        private Tile[,] floor;
+        private Floor[,] floor;
 
         private int currentTick = 0;
         private int lastTempTick = 0;
@@ -35,13 +35,13 @@ namespace WorldGeneration
         {
             if (Contains(tile, hills))
             {
-                Tile ourTile = hills[tile.position.x, tile.position.y];
-                ourTile.currentHealth -= amount;
-                if (ourTile.currentHealth <= 0)
+                Floor ourFloor = hills[tile.position.x, tile.position.y];
+                ourFloor.currentHealth -= amount;
+                if (ourFloor.currentHealth <= 0)
                 {
-                    Destroy(ourTile.tileObject);
+                    Destroy(ourFloor.tileObject);
 
-                    VisualizeItem(ourTile.itemOnDeath, ourTile.itemAmountOnDeath, ourTile);
+                    VisualizeItem(ourFloor.itemOnDeath, ourFloor.itemAmountOnDeath, ourFloor);
 
                     tile.tileObject = null;
                     hills[tile.position.x, tile.position.y] = null;
@@ -53,21 +53,21 @@ namespace WorldGeneration
             }
             else
             {
-                Debug.LogError($"Tile at {tile.position} is not a damagable tile.");
+                Debug.LogError($"Floor at {tile.position} is not a damagable tile.");
             }
             return false;
         }
 
-        private void VisualizeItem(Item itemOnDeath, int itemAmountOnDeath, Tile ourTile)
+        private void VisualizeItem(Item itemOnDeath, int itemAmountOnDeath, Floor ourFloor)
         {
             if (itemOnDeath != null)
             {
-                items[ourTile.position.x, ourTile.position.y] = itemOnDeath;
-                items[ourTile.position.x, ourTile.position.y].currnetAmount = itemAmountOnDeath;
+                items[ourFloor.position.x, ourFloor.position.y] = itemOnDeath;
+                items[ourFloor.position.x, ourFloor.position.y].currnetAmount = itemAmountOnDeath;
 
-                GameObject itemObject = Instantiate(settings.itemPrefab, ourTile.worldPosition, Quaternion.identity, itemsParent.transform);
+                GameObject itemObject = Instantiate(settings.itemPrefab, ourFloor.worldPosition, Quaternion.identity, itemsParent.transform);
                 itemObject.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 0);
-                itemObject.name = $"Item {ourTile.position.x},{ourTile.position.y}";
+                itemObject.name = $"Item {ourFloor.position.x},{ourFloor.position.y}";
                 SpriteRenderer spriteRenderer;
                 if (!itemObject.TryGetComponent<SpriteRenderer>(out spriteRenderer))
                 {
@@ -81,7 +81,7 @@ namespace WorldGeneration
                 }
                 if (spriteRenderer.sprite == null)
                 {
-                    Debug.LogError($"Sprite is null at {ourTile.position.x},{ourTile.position.y} for item {itemOnDeath.name}");
+                    Debug.LogError($"Sprite is null at {ourFloor.position.x},{ourFloor.position.y} for item {itemOnDeath.name}");
                 }
             }
         }
@@ -98,7 +98,7 @@ namespace WorldGeneration
             return false;
         }
 
-        public Tile GetFloorTileAtPosition(Vector2 position)
+        public Floor GetFloorAtPosition(Vector2 position)
         {
 
             if (position.x < 0 || position.y < 0 || position.x > settings.worldSize.x * settings.tileScale || position.y > settings.worldSize.y * settings.tileScale)
@@ -115,7 +115,7 @@ namespace WorldGeneration
             return floor[x, y];
         }
 
-        public Tile GetHillTileAtPosition(Vector2 position)
+        public Floor GetHillAtPosition(Vector2 position)
         {
 
             if (position.x < 0 || position.y < 0 || position.x > settings.worldSize.x * settings.tileScale || position.y > settings.worldSize.y * settings.tileScale)
@@ -163,7 +163,7 @@ namespace WorldGeneration
             }
             return temperatures[x, y];
         }
-        public Tile[,] GetFloor()
+        public Floor[,] GetFloor()
         {
             return floor;
         }
@@ -261,19 +261,19 @@ namespace WorldGeneration
                 }
             }
         }
-        private void VisualizeHills(WorldSettings settings, Tile[,] hills)
+        private void VisualizeHills(WorldSettings settings, Floor[,] hills)
         {
             for (int x = 0; x < hills.GetLength(0); x++)
             {
                 for (int y = 0; y < hills.GetLength(1); y++)
                 {
-                    Tile currentTile = hills[x, y];
-                    if (currentTile != null)
+                    Floor currentFloor = hills[x, y];
+                    if (currentFloor != null)
                     {
-                        GameObject hill = Instantiate(settings.rockTile, currentTile.worldPosition, Quaternion.identity, hillParent.transform);
+                        GameObject hill = Instantiate(settings.rockTile, currentFloor.worldPosition, Quaternion.identity, hillParent.transform);
                         hill.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
                         hill.name = $"Hill {x},{y}";
-                        currentTile.tileObject = hill;
+                        currentFloor.tileObject = hill;
 
                         SpriteRenderer spriteRenderer;
                         if (!hill.TryGetComponent<SpriteRenderer>(out spriteRenderer))
@@ -281,16 +281,16 @@ namespace WorldGeneration
                             spriteRenderer = hill.AddComponent<SpriteRenderer>();
 
                         }
-                        spriteRenderer.sprite = Resources.Load<Sprite>($"Tiles/{currentTile.tileType}");
+                        spriteRenderer.sprite = Resources.Load<Sprite>($"Floors/{currentFloor.floorType}");
                         spriteRenderer.sortingLayerID = SortingLayer.NameToID("Rock");
                         //TODO: Change the color of the rock based on the rock type.
-                        spriteRenderer.color = currentTile.rockType == RockType.Granite ? Color.red : Color.green;
+                        spriteRenderer.color = currentFloor.rockType == RockType.Granite ? Color.red : Color.green;
 
-                        currentTile.itemOnDeath.SetColour(spriteRenderer.color);
+                        currentFloor.itemOnDeath.SetColour(spriteRenderer.color);
 
                         if (spriteRenderer.sprite == null)
                         {
-                            Debug.LogError($"Sprite is null at {x},{y} with a tile type of {currentTile.tileType}");
+                            Debug.LogError($"Sprite is null at {x},{y} with a tile type of {currentFloor.floorType}");
                         }
                     }
                 }
@@ -301,7 +301,7 @@ namespace WorldGeneration
             Plant plant = plants[position.x, position.y];
             if (plant != null)
             {
-                Destroy(plant.plantObject);
+                Destroy(plant.tileObject);
                 plants[position.x, position.y] = null;
             }
         }
@@ -314,8 +314,8 @@ namespace WorldGeneration
             {
                 for (int y = 0; y < floor.GetLength(1); y++)
                 {
-                    Tile currentTile = floor[x, y];
-                    if (currentTile.fertility > 0)
+                    Floor currentFloor = floor[x, y];
+                    if (currentFloor.fertility > 0)
                     {
                         //Plant a random plant here based on weights from settings
                         foreach (PlantCutOff plantCutOff in settings.plantCutoffs)
@@ -323,8 +323,11 @@ namespace WorldGeneration
 
                             if (Random.Range(0f, 1f) <= plantCutOff.probability)
                             {
+                                //TODO: Make the health of the plant dynamic to the plant type.
+                                int plantHealth = 25;
+
                                 Plant plant = plantCutOff.plantType;
-                                Plant plantx = new Plant(new(x, y), new(x * settings.tileScale, y * settings.tileScale), plant.plantName, plant.temperatureMin, plant.temperatureMax, plant.fertilityThreshold, plant.itemOnHarvest, plant.amountOfItemOnDeath);
+                                Plant plantx = new Plant(new(x, y), new(x * settings.tileScale, y * settings.tileScale), plant.plantName, plant.temperatureMin, plant.temperatureMax, plantHealth, plant.fertilityThreshold, plant.itemOnHarvest, plant.amountOfItemOnDeath);
                                 plantx.SetPlantGrowthIndex(plant.plantGrowIndex);
                                 OnTickUpdate += plantx.UpdatePlant;
                                 plants[x, y] = plantx;
@@ -343,16 +346,16 @@ namespace WorldGeneration
         void GenerateHills()
         {
             //Find the centers of the hills aka the clusters of rock tiles.
-            hills = new Tile[floor.GetLength(0), floor.GetLength(1)];
+            hills = new Floor[floor.GetLength(0), floor.GetLength(1)];
             for (int x = 0; x < floor.GetLength(0); x++)
             {
                 for (int y = 0; y < floor.GetLength(1); y++)
                 {
-                    Tile currentTile = floor[x, y];
-                    if (currentTile.isRockTile)
+                    Floor currentFloor = floor[x, y];
+                    if (currentFloor.isRockTile)
                     {
                         //Check if the tile is surrounded by rock tiles.
-                        List<Tile> neighbours = GetNeighbours(floor, x, y, out TileType mostCommon, out int sameNeighbourCount);
+                        List<Floor> neighbours = GetNeighbours(floor, x, y, out FloorType mostCommon, out int sameNeighbourCount);
                         if (sameNeighbourCount >= 8)
                         {
                             //TODO: Make the max health of the rock tile based the type of rock.
@@ -362,10 +365,10 @@ namespace WorldGeneration
                             Item itemOnDeath = new Item("Rock", 1, itemSprite, true);
 
                             float fertility = 0;
-                            currentTile.fertility = fertility;
-                            Tile rock = new Tile(currentTile.position, currentTile.worldPosition, currentTile.tileType, currentTile.rockType, maxHealth, 0, itemOnDeath, 1, fertility);
+                            currentFloor.fertility = fertility;
+                            Floor rock = new Floor(currentFloor.position, currentFloor.worldPosition, currentFloor.floorType, currentFloor.rockType, maxHealth, 0, itemOnDeath, 1, fertility);
                             rock.objectBelow = floor[x, y];
-                            currentTile.objectAbove = rock;
+                            currentFloor.objectAbove = rock;
                             hills[x, y] = rock;
 
                         }
@@ -396,13 +399,13 @@ namespace WorldGeneration
                         {
                             if (x >= 0 && x < floor.GetLength(0) && y >= 0 && y < floor.GetLength(1))
                             {
-                                Tile currentTile = floor[x, y];
-                                currentTile.tileType = TileType.Water;
-                                currentTile.rockType = RockType.None;
-                                currentTile.maxHealth = -1f;
-                                currentTile.currentHealth = -1f;
-                                currentTile.walkSpeed = 0;
-                                currentTile.fertility = 0f;
+                                Floor currentFloor = floor[x, y];
+                                currentFloor.floorType = FloorType.Water;
+                                currentFloor.rockType = RockType.None;
+                                currentFloor.maxHealth = -1f;
+                                currentFloor.currentHealth = -1f;
+                                currentFloor.walkSpeed = 0;
+                                currentFloor.fertility = 0f;
 
                             }
                         }
@@ -442,9 +445,9 @@ namespace WorldGeneration
 
 
         }
-        static Tile[,] GenerateFloor(WorldSettings settings, int seed)
+        static Floor[,] GenerateFloor(WorldSettings settings, int seed)
         {
-            Tile[,] start = new Tile[settings.worldSize.x, settings.worldSize.y];
+            Floor[,] start = new Floor[settings.worldSize.x, settings.worldSize.y];
             float[,] noiseMap = Perlin.Noise.GenerateNoiseMap(settings.worldSize.x, settings.worldSize.y, seed, settings.noiseScale, settings.noiseOctaves, settings.noisePersistence, settings.noiseLacunarity, settings.noiseOffset);
 
             for (int y = 0; y < settings.worldSize.y; y++)
@@ -452,12 +455,12 @@ namespace WorldGeneration
                 for (int x = 0; x < settings.worldSize.x; x++)
                 {
                     float currentHeight = noiseMap[x, y];
-                    TileType currentTileType = TileType.None;
-                    foreach (CutOff cutOff in settings.floorTileTypeCutoffs)
+                    FloorType currentFloorType = FloorType.None;
+                    foreach (CutOff cutOff in settings.floorFloorTypeCutoffs)
                     {
                         if (currentHeight >= cutOff.cutOff)
                         {
-                            currentTileType = cutOff.tileType;
+                            currentFloorType = cutOff.tileType;
                         }
                     }
                     RockType rockType = RockType.None;
@@ -466,7 +469,7 @@ namespace WorldGeneration
 
                     //TODO: Make the ferility dynamic to floor type.
                     float fertility = 1f;
-                    if (currentTileType == TileType.Rock)
+                    if (currentFloorType == FloorType.Rock)
                     {
                         rockType = GetRockType(x, y, seed);
                         walkSpeed = 1;
@@ -475,26 +478,26 @@ namespace WorldGeneration
                     Vector2 worldPosition = new Vector2(x * settings.tileScale, y * settings.tileScale);
 
 
-                    start[x, y] = new Tile(new Vector2Int(x, y), worldPosition, currentTileType, rockType, -1f, walkSpeed, null, 0, fertility);
+                    start[x, y] = new Floor(new Vector2Int(x, y), worldPosition, currentFloorType, rockType, -1f, walkSpeed, null, 0, fertility);
                 }
             }
             return start;
         }
 
-        static Tile[,] SmoothFloor(Tile[,] tiles, int seed, int leastAmountOfNeighbours)
+        static Floor[,] SmoothFloor(Floor[,] tiles, int seed, int leastAmountOfNeighbours)
         {
-            Tile[,] smooth = new Tile[tiles.GetLength(0), tiles.GetLength(1)];
+            Floor[,] smooth = new Floor[tiles.GetLength(0), tiles.GetLength(1)];
 
             for (int x = 0; x < tiles.GetLength(0); x++)
             {
                 for (int y = 0; y < tiles.GetLength(1); y++)
                 {
-                    Tile currentTile = tiles[x, y];
-                    TileType mostCommon;
-                    List<Tile> neighbours = GetNeighbours(tiles, x, y, out mostCommon, out int sameNeighbourCount);
-                    if (mostCommon == TileType.None) { Debug.LogError($"Most common tile type is None at {x},{y}"); }
+                    Floor currentFloor = tiles[x, y];
+                    FloorType mostCommon;
+                    List<Floor> neighbours = GetNeighbours(tiles, x, y, out mostCommon, out int sameNeighbourCount);
+                    if (mostCommon == FloorType.None) { Debug.LogError($"Most common tile type is None at {x},{y}"); }
                     RockType rockType = RockType.None;
-                    if (mostCommon == TileType.Rock)
+                    if (mostCommon == FloorType.Rock)
                     {
                         rockType = GetRockType(x, y, seed);
                     }
@@ -505,15 +508,15 @@ namespace WorldGeneration
                     //If there are more than 5 neighbours of the same type, then the tile is unchanged.
                     if (sameNeighbourCount >= leastAmountOfNeighbours)
                     {
-                        mostCommon = currentTile.tileType;
+                        mostCommon = currentFloor.floorType;
                     }
                     //TODO: Make walkspeed dynamic to floor type.
                     int walkSpeed = 1;
 
                     //TODO: Make fertility dynamic to floor type.
-                    float fertility = (mostCommon == TileType.Water || mostCommon == TileType.Rock) ? 0f : 1f;
+                    float fertility = (mostCommon == FloorType.Water || mostCommon == FloorType.Rock) ? 0f : 1f;
 
-                    smooth[x, y] = new Tile(currentTile.position, currentTile.worldPosition, mostCommon, rockType, -1f, walkSpeed, null, 0, fertility);
+                    smooth[x, y] = new Floor(currentFloor.position, currentFloor.worldPosition, mostCommon, rockType, -1f, walkSpeed, null, 0, fertility);
 
 
                 }
@@ -539,7 +542,7 @@ namespace WorldGeneration
                         GameObject plant = Instantiate(settings.emptyTile, currentPlant.worldPosition, Quaternion.identity, plantParent.transform);
                         plant.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
                         plant.name = $"Plant {x},{y}";
-                        currentPlant.plantObject = plant;
+                        currentPlant.tileObject = plant;
 
                         SpriteRenderer spriteRenderer;
                         if (!plant.TryGetComponent<SpriteRenderer>(out spriteRenderer))
@@ -557,40 +560,40 @@ namespace WorldGeneration
                 }
             }
         }
-        void VisualizeFloor(WorldSettings settings, Tile[,] tiles)
+        void VisualizeFloor(WorldSettings settings, Floor[,] tiles)
         {
             for (int x = 0; x < tiles.GetLength(0); x++)
             {
                 for (int y = 0; y < tiles.GetLength(1); y++)
                 {
-                    Tile currentTile = tiles[x, y];
-                    GameObject tileObject = Instantiate(settings.emptyTile, currentTile.worldPosition, Quaternion.identity, floorParent.transform);
+                    Floor currentFloor = tiles[x, y];
+                    GameObject tileObject = Instantiate(settings.emptyTile, currentFloor.worldPosition, Quaternion.identity, floorParent.transform);
                     tileObject.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
-                    tileObject.name = $"Tile {x},{y}";
-                    currentTile.tileObject = tileObject;
+                    tileObject.name = $"Floor {x},{y}";
+                    currentFloor.tileObject = tileObject;
                     SpriteRenderer spriteRenderer;
                     if (!tileObject.TryGetComponent<SpriteRenderer>(out spriteRenderer))
                     {
                         spriteRenderer = tileObject.AddComponent<SpriteRenderer>();
 
                     }
-                    spriteRenderer.sprite = Resources.Load<Sprite>($"Tiles/{currentTile.tileType}");
+                    spriteRenderer.sprite = Resources.Load<Sprite>($"Floors/{currentFloor.floorType}");
                     spriteRenderer.sortingLayerID = SortingLayer.NameToID("Floor");
                     if (spriteRenderer.sprite == null)
                     {
-                        Debug.LogError($"Sprite is null at {x},{y} with a tile type of {currentTile.tileType}");
+                        Debug.LogError($"Sprite is null at {x},{y} with a tile type of {currentFloor.floorType}");
                     }
 
 
 
-                    currentTile.tileObject = tileObject;
+                    currentFloor.tileObject = tileObject;
                 }
             }
         }
 
-        void ClearFloor(Tile[,] tiles)
+        void ClearFloor(Floor[,] tiles)
         {
-            foreach (Tile tile in tiles)
+            foreach (Floor tile in tiles)
             {
                 if (tile.tileObject != null)
                 {
@@ -599,15 +602,15 @@ namespace WorldGeneration
             }
 
         }
-        public static List<Tile> GetNeighbours(Tile[,] tiles, int x, int y, out TileType mostCommon, out int sameNeighbourCount)
+        public static List<Floor> GetNeighbours(Floor[,] tiles, int x, int y, out FloorType mostCommon, out int sameNeighbourCount)
         {
-            List<Tile> neighbours = new List<Tile>();
-            Dictionary<TileType, int> tileCounts = new Dictionary<TileType, int>();
+            List<Floor> neighbours = new List<Floor>();
+            Dictionary<FloorType, int> tileCounts = new Dictionary<FloorType, int>();
             sameNeighbourCount = 0;
-            Tile currentTile = tiles[x, y];
-            TileType currentTileType = currentTile.tileType;
+            Floor currentFloor = tiles[x, y];
+            FloorType currentFloorType = currentFloor.floorType;
 
-            tileCounts[tiles[x, y].tileType] = 1;
+            tileCounts[tiles[x, y].floorType] = 1;
 
 
 
@@ -626,37 +629,37 @@ namespace WorldGeneration
 
                     if (checkX >= 0 && checkX < tiles.GetLength(0) && checkY >= 0 && checkY < tiles.GetLength(1))
                     {
-                        Tile neighbour = tiles[checkX, checkY];
-                        if (neighbour.tileType == currentTileType)
+                        Floor neighbour = tiles[checkX, checkY];
+                        if (neighbour.floorType == currentFloorType)
                         {
                             sameNeighbourCount++;
                         }
-                        if (tileCounts.ContainsKey(neighbour.tileType))
+                        if (tileCounts.ContainsKey(neighbour.floorType))
                         {
-                            tileCounts[neighbour.tileType]++;
+                            tileCounts[neighbour.floorType]++;
                         }
                         else
                         {
-                            tileCounts[neighbour.tileType] = 1;
+                            tileCounts[neighbour.floorType] = 1;
                         }
 
                         neighbours.Add(neighbour);
                     }
                 }
             }
-            // Find the TileType with the highest count
-            TileType mostCommonTileType = TileType.None;
+            // Find the FloorType with the highest count
+            FloorType mostCommonFloorType = FloorType.None;
             int highestCount = 0;
 
-            foreach (KeyValuePair<TileType, int> pair in tileCounts)
+            foreach (KeyValuePair<FloorType, int> pair in tileCounts)
             {
                 if (pair.Value > highestCount)
                 {
-                    mostCommonTileType = pair.Key;
+                    mostCommonFloorType = pair.Key;
                     highestCount = pair.Value;
                 }
             }
-            mostCommon = mostCommonTileType;
+            mostCommon = mostCommonFloorType;
 
 
             return neighbours;
@@ -667,16 +670,16 @@ namespace WorldGeneration
             List<Plant> neighbours = new List<Plant>();
             Dictionary<string, int> tileCounts = new Dictionary<string, int>();
             sameNeighbourCount = 0;
-            Plant currentTile = plants[x, y];
-            string currentTileType = "";
-            if (currentTile == null)
+            Plant currentFloor = plants[x, y];
+            string currentFloorType = "";
+            if (currentFloor == null)
             {
                 tileCounts[""] = 1;
             }
             else
             {
-                currentTileType = currentTile.plantName;
-                tileCounts[currentTile.plantName] = 1;
+                currentFloorType = currentFloor.plantName;
+                tileCounts[currentFloor.plantName] = 1;
             }
             //Find neighbours using bitwise operations.
             for (int nx = -1; nx <= 1; nx++)
@@ -706,7 +709,7 @@ namespace WorldGeneration
                             }
                             continue;
                         }
-                        if (neighbour.plantName == currentTileType)
+                        if (neighbour.plantName == currentFloorType)
                         {
                             sameNeighbourCount++;
                         }
@@ -723,19 +726,19 @@ namespace WorldGeneration
                     }
                 }
             }
-            // Find the TileType with the highest count
-            string mostCommonTileType = "";
+            // Find the FloorType with the highest count
+            string mostCommonFloorType = "";
             int highestCount = 0;
 
             foreach (KeyValuePair<string, int> pair in tileCounts)
             {
                 if (pair.Value > highestCount)
                 {
-                    mostCommonTileType = pair.Key;
+                    mostCommonFloorType = pair.Key;
                     highestCount = pair.Value;
                 }
             }
-            mostCommon = mostCommonTileType;
+            mostCommon = mostCommonFloorType;
 
 
             return neighbours;
@@ -813,8 +816,10 @@ namespace WorldGeneration
                 //if there is no plant at the new position.
                 if (plants[newPos.x, newPos.y] == null)
                 {
+                    //TODO: Make the health of the plant dynamic to the plant type.
+                    int plantHealth = 25;
                     Vector2 worldPos = new Vector2(newPos.x * settings.tileScale, newPos.y * settings.tileScale);
-                    Plant plantx = new(newPos, worldPos, plant.plantName, plant.temperatureMin, plant.temperatureMax, plant.fertilityThreshold, plant.itemOnHarvest, plant.amountOfItemOnDeath);
+                    Plant plantx = new(newPos, worldPos, plant.plantName, plant.temperatureMin, plant.temperatureMax, plantHealth, plant.fertilityThreshold, plant.itemOnHarvest, plant.amountOfItemOnDeath);
 
                     plantx.SetPlantGrowthIndex(plant.plantGrowIndex);
                     OnTickUpdate += plantx.UpdatePlant;
@@ -825,7 +830,7 @@ namespace WorldGeneration
                     GameObject plantGame = Instantiate(settings.emptyTile, worldPos, Quaternion.identity, plantParent.transform);
                     plantGame.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
                     plantGame.name = $"Plant {newPos.x},{newPos.y}";
-                    plantx.plantObject = plantGame;
+                    plantx.tileObject = plantGame;
 
                     SpriteRenderer spriteRenderer;
                     if (!plantGame.TryGetComponent<SpriteRenderer>(out spriteRenderer))

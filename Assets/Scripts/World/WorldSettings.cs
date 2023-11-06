@@ -70,7 +70,7 @@ namespace WorldGeneration
     [System.Serializable]
     public class CutOff
     {
-        public TileType tileType;
+        public FloorType tileType;
         [Range(0, 1)]
         public float cutOff;
     }

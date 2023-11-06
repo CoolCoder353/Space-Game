@@ -29,7 +29,7 @@ public abstract class I_Moveable : MonoBehaviour
             OnMoveCancelled();
             return;
         }
-        List<Tile> tiles = Pathfinder.FindPath(world.GetFloorTileAtPosition(transform.position), tile, world.GetFloor());
+        List<Tile> tiles = Pathfinder.FindPath(world.GetFloorAtPosition(transform.position), tile, world.GetFloor());
         StartMove(tiles, moveSpeed, OnMoveFinishedCallback, OnMoveCancelledCallback);
     }
     public void StartMove(Tile tile, World world, Action OnMoveFinishedCallback = null, Action OnMoveCancelledCallback = null)
@@ -41,7 +41,7 @@ public abstract class I_Moveable : MonoBehaviour
             OnMoveCancelled();
             return;
         }
-        List<Tile> tiles = Pathfinder.FindPath(world.GetFloorTileAtPosition(transform.position), tile, world.GetFloor());
+        List<Tile> tiles = Pathfinder.FindPath(world.GetFloorAtPosition(transform.position), tile, world.GetFloor());
         StartMove(tiles, this.moveSpeed, OnMoveFinishedCallback, OnMoveCancelledCallback);
     }
     public void StartMove(List<Tile> tiles, float moveSpeed, Action OnMoveFinishedCallback = null, Action OnMoveCancelledCallback = null)

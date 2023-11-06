@@ -1,7 +1,6 @@
 # Space Game
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ## Description
 
 Space Game is an in-depth colony management game that combines elements of popular titles like RimWorld with the ability to explore space, build spaceships, and discover new worlds. The game offers players the opportunity to establish and manage their own colonies on various planets, while also venturing into space to construct advanced spacecraft and embark on interstellar journeys.
@@ -64,7 +63,7 @@ For major changes, please open an issue first to discuss the proposed improvemen
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [Apache License 2.0](LICENSE). The Apache License 2.0 allows you to use, modify, and distribute the codebase, but it includes certain restrictions on distribution. Please review the license file for more details.
 
 ## Contact
 

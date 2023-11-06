@@ -281,7 +281,7 @@ namespace WorldGeneration
                             spriteRenderer = hill.AddComponent<SpriteRenderer>();
 
                         }
-                        spriteRenderer.sprite = Resources.Load<Sprite>($"Floors/{currentFloor.floorType}");
+                        spriteRenderer.sprite = Resources.Load<Sprite>($"Tiles/{currentFloor.floorType}");
                         spriteRenderer.sortingLayerID = SortingLayer.NameToID("Rock");
                         //TODO: Change the color of the rock based on the rock type.
                         spriteRenderer.color = currentFloor.rockType == RockType.Granite ? Color.red : Color.green;
@@ -456,7 +456,7 @@ namespace WorldGeneration
                 {
                     float currentHeight = noiseMap[x, y];
                     FloorType currentFloorType = FloorType.None;
-                    foreach (CutOff cutOff in settings.floorFloorTypeCutoffs)
+                    foreach (CutOff cutOff in settings.floorTileTypeCutoffs)
                     {
                         if (currentHeight >= cutOff.cutOff)
                         {
@@ -554,7 +554,7 @@ namespace WorldGeneration
                         spriteRenderer.sortingLayerID = SortingLayer.NameToID("Plants");
                         if (spriteRenderer.sprite == null)
                         {
-                            Debug.LogError($"Sprite is null at {x},{y} with a plant name of {currentPlant.plantName}");
+                            Debug.LogError($"Sprite is null at {x},{y} with a plant name of {currentPlant.plantName} at 'Plants/{currentPlant.plantName}'");
                         }
                     }
                 }
@@ -577,7 +577,7 @@ namespace WorldGeneration
                         spriteRenderer = tileObject.AddComponent<SpriteRenderer>();
 
                     }
-                    spriteRenderer.sprite = Resources.Load<Sprite>($"Floors/{currentFloor.floorType}");
+                    spriteRenderer.sprite = Resources.Load<Sprite>($"Tiles/{currentFloor.floorType}");
                     spriteRenderer.sortingLayerID = SortingLayer.NameToID("Floor");
                     if (spriteRenderer.sprite == null)
                     {

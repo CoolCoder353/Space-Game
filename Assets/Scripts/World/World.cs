@@ -13,6 +13,8 @@ namespace WorldGeneration
         public GameObject hillParent;
         public GameObject itemsParent;
 
+        public GameObject temperatureParent;
+
         public GameObject plantParent;
 
         private float outdoorsTemp = 25f;
@@ -187,7 +189,7 @@ namespace WorldGeneration
 
 
             GenerateTemperature();
-            UpdateTemperature();
+            UpdateTemperature(outdoorsTemp);
 
 
             GeneratePlants();
@@ -199,6 +201,8 @@ namespace WorldGeneration
 
         }
 
+
+
         //World Loop
         private IEnumerator Loop()
         {
@@ -207,7 +211,7 @@ namespace WorldGeneration
             {
                 if (currentTick >= lastTempTick + 30)//Every 3 seconds
                 {
-                    UpdateTemperature();
+                    UpdateTemperature(currentTick * 0.0001f + outdoorsTemp);
                     lastTempTick = currentTick;
                 }
 
@@ -219,29 +223,31 @@ namespace WorldGeneration
                 yield return new WaitForSeconds(1 / settings.worldTicksPerSecond);
             }
         }
-        private void UpdateTemperature()
+        private void UpdateTemperature(float backgroundTemp)
         {
+            Debug.Log($"Background temp is now at {backgroundTemp}.");
             Temperature[,] newTemps = new Temperature[temperatures.GetLength(0), temperatures.GetLength(1)];
             for (int x = 0; x < temperatures.GetLength(0); x++)
             {
                 for (int y = 0; y < temperatures.GetLength(1); y++)
                 {
                     Temperature currentTemp = temperatures[x, y];
+                    Temperature newTemp = new Temperature(currentTemp.position, currentTemp.worldPosition, currentTemp.canChange);
+                    newTemp.value = currentTemp.value;
                     if (currentTemp.canChange)
                     {
                         List<Temperature> neighbours = GetNeighbours(temperatures, x, y);
-                        Temperature newTemp = new Temperature(currentTemp.position, currentTemp.worldPosition, currentTemp.canChange);
-                        newTemp.value = currentTemp.value;
 
                         newTemp.UpdateTemperature(neighbours);
-                        newTemps[x, y] = newTemp;
                     }
                     else
                     {
-                        Temperature newTemp = new Temperature(currentTemp.position, currentTemp.worldPosition, currentTemp.canChange);
-                        newTemp.value = outdoorsTemp;
-                        newTemps[x, y] = newTemp;
+                        newTemp.value = backgroundTemp;
                     }
+
+                    currentTemp.tempObject.GetComponent<SpriteRenderer>().color = settings.temperatureColourGradient.Evaluate(newTemp.value);
+                    newTemp.tempObject = currentTemp.tempObject;
+
                 }
             }
             temperatures = newTemps;
@@ -257,7 +263,19 @@ namespace WorldGeneration
                     bool isOnEdge = IsOnEdge(x, y, temperatures.GetLength(0), temperatures.GetLength(1));
                     Temperature temp = new Temperature(new(x, y), new(x * settings.tileScale, y * settings.tileScale), isOnEdge);
                     temp.value = outdoorsTemp;
+
                     temperatures[x, y] = temp;
+
+                    GameObject tempObject = Instantiate(settings.emptyTile, temp.worldPosition, Quaternion.identity, temperatureParent.transform);
+                    tempObject.transform.localScale = new Vector3(settings.tileScale, settings.tileScale, 1);
+                    tempObject.name = $"Temp {x},{y}";
+                    temp.tempObject = tempObject;
+                    SpriteRenderer spriteRenderer;
+                    if (!tempObject.TryGetComponent<SpriteRenderer>(out spriteRenderer))
+                    {
+                        spriteRenderer = tempObject.AddComponent<SpriteRenderer>();
+                    }
+                    spriteRenderer.sprite = settings.tempDefaultSprite;
                 }
             }
         }

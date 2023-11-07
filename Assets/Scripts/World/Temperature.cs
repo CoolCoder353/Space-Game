@@ -5,7 +5,7 @@ public class Temperature
     public Vector2 worldPosition;
     public Vector2Int position;
 
-
+    public GameObject tempObject;
     public float value;
     public bool canChange;
 

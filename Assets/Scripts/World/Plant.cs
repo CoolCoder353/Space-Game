@@ -1,11 +1,10 @@
 using UnityEngine;
-using System;
 using System.Collections.Generic;
 namespace WorldGeneration
 {
 
 
-    [Serializable]
+    [System.Serializable]
     public class Plant : Tile
     {
 
@@ -24,6 +23,9 @@ namespace WorldGeneration
         private int tickBorn = 0;
         private int currentIndex = 0;
         public List<PlantGrowthIndex> plantGrowIndex = new List<PlantGrowthIndex>();
+
+        private int randomValue = Random.Range(0, 10000);
+        private int stopedAt;
 
         private bool stopGrowing = false;
         public Plant(Vector2Int position, Vector2 worldPosition, string name, float tempMin, float tempMax, float maxHealth, float fert, Item item, int amount, GameObject plant = null) : base(position, worldPosition, maxHealth, 0, plant)
@@ -87,6 +89,12 @@ namespace WorldGeneration
 
             if (stopGrowing)
             {
+                if (stopedAt + randomValue <= tick)
+                {
+                    //Spawn a new plant somewhere around this plant
+                    Vector2Int newPos = position + new Vector2Int(UnityEngine.Random.Range(-1, 2), UnityEngine.Random.Range(-1, 2));
+                    world.SpawnPlant(newPos, this);
+                }
                 return;
             }
             // Get the current growth stage of the plant
@@ -119,12 +127,7 @@ namespace WorldGeneration
                 {
                     //If there is no more growth stages, stop updating the plant.
                     stopGrowing = true;
-
-                    //Also spawn a new plant somewhere around this plant
-
-                    Vector2Int newPos = position + new Vector2Int(UnityEngine.Random.Range(-1, 2), UnityEngine.Random.Range(-1, 2));
-                    world.SpawnPlant(newPos, this);
-
+                    stopedAt = tick;
                 }
             }
         }

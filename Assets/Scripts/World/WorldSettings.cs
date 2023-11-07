@@ -65,6 +65,11 @@ namespace WorldGeneration
         [Foldout("Plant Settings")]
         public int growthChange = 1;
 
+        [Foldout("Temperature Settings")]
+        public Gradient temperatureColourGradient;
+
+        [Foldout("Temperature Settings")]
+        public Sprite tempDefaultSprite;
     }
 
     [System.Serializable]

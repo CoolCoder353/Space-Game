@@ -1,61 +1,81 @@
-using System;
-using Unity.VisualScripting;
 using UnityEngine;
+using System.Collections.Generic;
+
 namespace WorldGeneration
 {
 
-    public abstract class Tile
+
+    public class Tile
     {
-        public Vector2Int position;
-        public Vector2 worldPosition;
+        public Dictionary<string, object> data = new Dictionary<string, object>();
+        public Dictionary<string, object> modifiers = new Dictionary<string, object>();
 
-        public GameObject tileObject;
-
-        public Tile objectAbove;
-        public Tile objectBelow;
-
-        public bool walkable => isWalkable();
-
-        public int walkSpeed;
-
-        public float maxHealth;
-        public float currentHealth;
-
-
-
-        public Tile(Vector2Int position, Vector2 worldPosition, float maxHealth, int walkSpeed, GameObject tileObject = null)
+        public Vector2 worldPos
         {
-            this.position = position;
-            this.worldPosition = worldPosition;
-
-            this.tileObject = tileObject;
-            this.maxHealth = maxHealth;
-            currentHealth = maxHealth;
-            this.walkSpeed = walkSpeed;
-
+            get
+            {
+                return (Vector2)data["worldPos"];
+            }
+            set
+            {
+                data["worldPos"] = value;
+            }
         }
-        public bool isWalkable()
+        public Vector2Int pos
         {
-            if (objectAbove != null)
+            get
             {
-                return false;
+                return (Vector2Int)data["gridPos"];
             }
-            if (walkSpeed == 0)
+            set
             {
-                return false;
+                data["gridPos"] = value;
             }
-            return true;
         }
-        public int DamageTile(int damage)
+        public Vector2Int gridPos
         {
-            currentHealth -= damage;
-            if (currentHealth <= 0)
+            get
             {
-                return 1;
+                return (Vector2Int)data["gridPos"];
             }
-            return 0;
+            set
+            {
+                data["gridPos"] = value;
+            }
         }
+
+        public float maxHealth
+        {
+            get
+            {
+                return (float)data["maxHealth"];
+            }
+            set
+            {
+                data["maxHealth"] = value;
+            }
+        }
+        public float currentHealth
+        {
+            get
+            {
+                return (float)data["currentHealth"];
+            }
+            set
+            {
+                data["currnetHealth"] = value;
+            }
+        }
+        public float health => currentHealth;
+        public Tile(Vector2 worldPos, Vector2Int gridPos, float health, float fertility)
+        {
+            data["worldPos"] = worldPos;
+            data["gridPos"] = gridPos;
+            data["maxHealth"] = health;
+            data["currentHealth"] = health;
+            data["fertility"] = fertility;
+        }
+
 
     }
-
 }

@@ -50,39 +50,7 @@ public class GetTileAtMouse : MonoBehaviour
 
     }
 
-    private void showPlantData(Plant plant)
-    {
-        if (plant != null)
-        {
-            int i = 0;
-            foreach (FieldInfo field in typeof(Plant).GetFields(bindingFlags))
-            {
 
-                if (uiElements.Count <= i)
-                {
-
-                    //foreach field in tile, create a text object and set the text to the field name and value.
-                    GameObject text = Instantiate(Text, parent.transform);
-                    uiElements.Add(text);
-                    text.GetComponent<TextMeshProUGUI>().text = $"{field.Name.FirstCharacterToUpper()}: {field.GetValue(plant)}";
-                }
-                else
-                {
-                    GameObject text = uiElements[i];
-                    text.GetComponent<TextMeshProUGUI>().text = $"{field.Name.FirstCharacterToUpper()}: {field.GetValue(plant)}";
-                }
-
-                i++;
-            }
-
-            for (int x = i; x < uiElements.Count; x++)
-            {
-                GameObject element = uiElements[x];
-                uiElements.Remove(element);
-                Destroy(element);
-            }
-        }
-    }
     private void showTileData(Tile tile)
     {
         if (tile != null)

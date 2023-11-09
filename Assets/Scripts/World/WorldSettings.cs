@@ -57,9 +57,6 @@ namespace WorldGeneration
         public GameObject itemPrefab;
 
         [Foldout("Plant Settings")]
-        public List<PlantCutOff> plantCutoffs = new List<PlantCutOff>();
-
-        [Foldout("Plant Settings")]
         public int growthIterations = 1;
 
         [Foldout("Plant Settings")]
@@ -80,15 +77,12 @@ namespace WorldGeneration
         public float cutOff;
     }
 
-
-    [System.Serializable]
-    public class PlantCutOff
+    public enum FloorType
     {
-        public Plant plantType;
-        [Range(0, 1)]
-        public float probability;
-
-
+        grass,
+        rock,
+        crap
     }
+
 
 }

@@ -1,0 +1,7 @@
+tile:
+    stability: Can you put heavy objects on it: IE: light, med, heavy => rimworld ground types
+    world location
+    grid location
+    fertility
+    type of materiel
+    temp dispersion : how well does it disperse heat

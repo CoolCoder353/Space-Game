@@ -3,14 +3,14 @@ using UnityEngine;
 
 public struct TileData
 {
-    string tileType;
+    public string tileType;
 
-    string spritePath;
+    public string spritePath;
 
-    bool isWalkable;
-    float health;
+    public bool isWalkable;
+    public float health;
 
-    float fertilty;
+    public float fertilty;
 
     public TileData(string tileType, string spritePath, bool isWalkable, float health, float fertility)
     {

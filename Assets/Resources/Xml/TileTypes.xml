@@ -1,20 +1,37 @@
 <TileTypes>
-  <TileType>
-    <Name>Grass</Name>
-    <Sprite>grass.psd</Sprite>
-    <IsWalkable>true</IsWalkable>
-    <Health>10</Health>
-    <Fertility>1</Fertility>
-
-  </TileType>
-  <TileType>
-    <Name>Rock</Name>
-    <Sprite>rock.psd</Sprite>
-    <IsWalkable>true</IsWalkable>
-    <Health>25</Health>
-    <Fertility>0</Fertility>
-
-
-  </TileType>
-  <!-- Add more tile types as needed -->
+	<TileType>
+		<Name>
+			Grass
+		</Name>
+		<Sprite>
+			Grass
+		</Sprite>
+		<IsWalkable>
+			true
+		</IsWalkable>
+		<Health>
+			10
+		</Health>
+		<Fertility>
+			1
+		</Fertility>
+	</TileType>
+	<TileType>
+		<Name>
+			Rock
+		</Name>
+		<Sprite>
+			Rock
+		</Sprite>
+		<IsWalkable>
+			true
+		</IsWalkable>
+		<Health>
+			25
+		</Health>
+		<Fertility>
+			0
+		</Fertility>
+	</TileType>
+	<!-- Add more tile types as needed -->
 </TileTypes>

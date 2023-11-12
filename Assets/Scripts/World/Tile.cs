@@ -7,8 +7,8 @@ namespace WorldGeneration
 
     public class Tile
     {
-        public Dictionary<string, object> data = new Dictionary<string, object>();
-        public Dictionary<string, object> modifiers = new Dictionary<string, object>();
+        private Dictionary<string, object> data = new Dictionary<string, object>();
+        private Dictionary<string, object> modifiers = new Dictionary<string, object>();
 
         public Vector2 worldPos
         {
@@ -67,6 +67,52 @@ namespace WorldGeneration
             }
         }
         public float health => currentHealth;
+
+        public bool HasData(string varName)
+        {
+            return data.ContainsKey(varName);
+        }
+
+        public bool HasModifier(string varName)
+        {
+            return modifiers.ContainsKey(varName);
+        }
+
+        public object GetData(string varName)
+        {
+            if (HasData(varName))
+            {
+                return data[varName];
+            }
+            else
+            {
+                Debug.LogError($"Variable '{varName}' does not exist in the data dictionary.");
+                return null;
+            }
+        }
+
+        public void SetData(string varName, object value)
+        {
+            data[varName] = value;
+        }
+
+        public object GetModifier(string varName)
+        {
+            if (HasModifier(varName))
+            {
+                return modifiers[varName];
+            }
+            else
+            {
+                Debug.LogError($"Variable '{varName}' does not exist in the modifiers dictionary.");
+                return null;
+            }
+        }
+        public void SetModifier(string varName, object value)
+        {
+            modifiers[varName] = value;
+        }
+
         public Tile(Vector2 worldPos, Vector2Int gridPos, float health, float fertility)
         {
             data["worldPos"] = worldPos;

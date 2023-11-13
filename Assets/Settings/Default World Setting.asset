@@ -17,9 +17,9 @@ MonoBehaviour:
   tileScale: 1
   emptyTile: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
   rockTile: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
-  noiseScale: 0.5
-  numPoints: 8
-  distanceMultiplier: 1
+  noiseScale: 40
+  numPoints: 24
+  distanceMultiplier: 1.916
   floorTileTypeCutoffs:
   - tileType: 1
     cutOff: 0

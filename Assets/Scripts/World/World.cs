@@ -21,14 +21,21 @@ namespace WorldGeneration
         private void Awake()
         {
             //TODO: Make this dynamic or smarter in some way.
-            tileIdIndex["Grass"] = 0f;
-            tileIdIndex["Rock"] = 0.5f;
+            //tileIdIndex["Grass"] = 0f;
+            //tileIdIndex["Rock"] = 0.55f;
+
+            tileIdIndex["Rock"] = 0f;
+            tileIdIndex["Grass"] = 0.3f;
+
 
 
             Random.InitState(seed);
             Debug.Log($"Set world seed to {seed}.");
-            noise = Noise.Worley.GenerateNoiseMap(settings.worldSize.x, settings.worldSize.y, seed, settings.numPoints, settings.noiseScale, settings.distanceMultiplier);
+            float[,] WorleyNoise = Noise.Worley.GenerateNoiseMap(settings.worldSize.x, settings.worldSize.y, seed, settings.numPoints, settings.noiseScale, settings.distanceMultiplier);
 
+            float[,] PerlinNoise = Noise.Perlin.GenerateNoiseMap(settings.worldSize.x, settings.worldSize.y, seed, settings.noiseScale, settings.octaves, settings.persistance, settings.lacunarity, Vector2.zero);
+
+            noise = Noise.Combination.CombineTwo(WorleyNoise, PerlinNoise, settings.blendFactor);
             tileBase = Xml.LoadTileData(xmlFileLocation);
 
             Logger.LogDictionary(tileBase);

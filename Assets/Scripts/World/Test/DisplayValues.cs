@@ -16,7 +16,12 @@ public class DisplayValues : MonoBehaviour
     public void Generate()
     {
         texture = new Texture2D(settings.worldSize.x, settings.worldSize.y);
-        Display(Noise.Worley.GenerateNoiseMap(settings.worldSize.x, settings.worldSize.y, seed, settings.numPoints, settings.noiseScale, settings.distanceMultiplier));
+        float[,] WorleyNoise = Noise.Worley.GenerateNoiseMap(settings.worldSize.x, settings.worldSize.y, seed, settings.numPoints, settings.noiseScale, settings.distanceMultiplier);
+
+        float[,] PerlinNoise = Noise.Perlin.GenerateNoiseMap(settings.worldSize.x, settings.worldSize.y, seed, settings.noiseScale, settings.octaves, settings.persistance, settings.lacunarity, Vector2.zero);
+
+        float[,] noise = Noise.Combination.CombineTwo(WorleyNoise, PerlinNoise, settings.blendFactor);
+        Display(noise);
 
     }
     public void Display(float[,] values)

@@ -24,7 +24,7 @@ namespace WorldGeneration
 
 
         [Foldout("Noise Settings")]
-        [Range(0.1f, 100f)]
+        [Range(0.1f, 1000f)]
         public float noiseScale = 1;
         [Foldout("Noise Settings")]
         [Range(2, 32)]
@@ -32,6 +32,20 @@ namespace WorldGeneration
         [Foldout("Noise Settings")]
         [Range(0.5f, 2f)]
         public float distanceMultiplier = 1;
+
+        [Foldout("Noise Settings")]
+        [Range(1, 8)]
+        public int octaves = 4;
+        [Foldout("Noise Settings")]
+        [Range(0f, 1f)]
+        public float persistance = 0.5f;
+
+        [Foldout("Noise Settings")]
+        [Range(1, 4)]
+        public float lacunarity = 2;
+        [Foldout("Noise Settings")]
+        [Range(0f, 1f)]
+        public float blendFactor = 0.5f;
 
 
         [Foldout("Floor Generation Settings")]

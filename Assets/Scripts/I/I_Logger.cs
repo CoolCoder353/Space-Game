@@ -12,6 +12,14 @@ public static class Logger
             Debug.Log($"Key: {kvp.Key.ToString()} ({kvp.Key.GetType().Name}), Value: {kvp.Value.ToString()} ({kvp.Value.GetType().Name}) ");
         }
     }
+    public static void LogTileData(WorldGeneration.Tile tile)
+    {
+        foreach (KeyValuePair<string, object> entry in tile.GetAllData())
+        {
+            Debug.Log($"Tile data: {entry.Key} = {entry.Value}");
+        }
+    }
+
 }
 
 

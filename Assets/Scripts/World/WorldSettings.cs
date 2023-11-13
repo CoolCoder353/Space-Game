@@ -24,16 +24,15 @@ namespace WorldGeneration
 
 
         [Foldout("Noise Settings")]
+        [Range(0.1f, 100f)]
         public float noiseScale = 1;
         [Foldout("Noise Settings")]
-        public int noiseOctaves = 1;
+        [Range(2, 32)]
+        public int numPoints = 8;
         [Foldout("Noise Settings")]
-        [Range(0, 1)]
-        public float noisePersistence = 1;
-        [Foldout("Noise Settings")]
-        public float noiseLacunarity = 1;
-        [Foldout("Noise Settings")]
-        public Vector2 noiseOffset;
+        [Range(0.5f, 2f)]
+        public float distanceMultiplier = 1;
+
 
         [Foldout("Floor Generation Settings")]
         public List<CutOff> floorTileTypeCutoffs = new List<CutOff>();

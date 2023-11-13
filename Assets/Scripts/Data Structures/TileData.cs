@@ -7,6 +7,7 @@ public struct TileData
 
     public string spritePath;
 
+
     public bool isWalkable;
     public float health;
 

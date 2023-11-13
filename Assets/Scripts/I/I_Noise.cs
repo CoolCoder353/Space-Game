@@ -1,7 +1,7 @@
 using UnityEngine;
-namespace Perlin
+namespace Noise
 {
-    public static class Noise
+    public static class Perlin
     {
         public static float[,] GenerateNoiseMap(int width, int height, int seed, float scale, int octaves, float persistence, float lacunarity, Vector2 offset)
         {
@@ -69,5 +69,47 @@ namespace Perlin
 
             return noiseMap;
         }
+    }
+    public static class Worley
+    {
+
+        public static float[,] GenerateNoiseMap(int width, int height, int seed, int numPoints, float scale, float distanceMultiplier)
+        {
+            float[,] noiseMap = new float[width, height];
+
+            float halfWidth = width / 2f;
+            float halfHeight = height / 2f;
+
+            Random.InitState(seed); // Set the random seed
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    float sampleX = (x - halfWidth) / scale;
+                    float sampleY = (y - halfHeight) / scale;
+
+                    float minDistance = float.MaxValue;
+
+                    for (int i = 0; i < numPoints; i++)
+                    {
+                        float randomX = Random.Range(0f, 1f);
+                        float randomY = Random.Range(0f, 1f);
+
+                        float distance = Vector2.Distance(new Vector2(randomX, randomY), new Vector2(sampleX, sampleY));
+
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                        }
+                    }
+
+                    noiseMap[x, y] = minDistance * distanceMultiplier;
+                }
+            }
+
+            return noiseMap;
+        }
+
     }
 }

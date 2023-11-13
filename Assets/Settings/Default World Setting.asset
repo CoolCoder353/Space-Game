@@ -17,11 +17,9 @@ MonoBehaviour:
   tileScale: 1
   emptyTile: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
   rockTile: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
-  noiseScale: 1
-  noiseOctaves: 8
-  noisePersistence: 0.5
-  noiseLacunarity: 3.5
-  noiseOffset: {x: 0, y: 0}
+  noiseScale: 0.5
+  numPoints: 8
+  distanceMultiplier: 1
   floorTileTypeCutoffs:
   - tileType: 1
     cutOff: 0
@@ -29,59 +27,12 @@ MonoBehaviour:
     cutOff: 0.346
   - tileType: 4
     cutOff: 0.646
-  smoothIterations: 20
+  smoothIterations: 0
   smoothChange: 3
   lakeSize: 2
   numOfLakes: 4
   lakeRandomness: 3
   itemPrefab: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
-  plantCutoffs:
-  - plantType:
-      position: {x: 0, y: 0}
-      worldPosition: {x: 0, y: 0}
-      tileObject: {fileID: 0}
-      walkSpeed: 0
-      maxHealth: 0
-      currentHealth: 0
-      temperatureMin: 10
-      temperatureMax: 30
-      fertilityThreshold: 1
-      amountOfItemOnDeath: 0
-      plantName: Bush
-      plantGrowIndex:
-      - tickSinceSown: 0
-        sprite: {fileID: 21300000, guid: 17ee87746f422754fb3367784ccf46eb, type: 3}
-        size: 0.5
-      - tickSinceSown: 1000
-        sprite: {fileID: 21300000, guid: 17ee87746f422754fb3367784ccf46eb, type: 3}
-        size: 2
-      - tickSinceSown: 2000
-        sprite: {fileID: 21300000, guid: 17ee87746f422754fb3367784ccf46eb, type: 3}
-        size: 1
-    probability: 0.395
-  - plantType:
-      position: {x: 0, y: 0}
-      worldPosition: {x: 0, y: 0}
-      tileObject: {fileID: 0}
-      walkSpeed: 0
-      maxHealth: 0
-      currentHealth: 0
-      temperatureMin: 10
-      temperatureMax: 30
-      fertilityThreshold: 1
-      amountOfItemOnDeath: 0
-      plantName: Shrub
-      plantGrowIndex:
-      - tickSinceSown: 0
-        sprite: {fileID: 21300000, guid: f8df5a6c667145f49b170b6a782c0b93, type: 3}
-        size: 0.5
-      - tickSinceSown: 1000
-        sprite: {fileID: 21300000, guid: f8df5a6c667145f49b170b6a782c0b93, type: 3}
-        size: 1.5
-      - tickSinceSown: 2000
-        sprite: {fileID: 21300000, guid: f8df5a6c667145f49b170b6a782c0b93, type: 3}
-        size: 1
-    probability: 0.541
   growthIterations: 5
   growthChange: 1
   temperatureColourGradient:

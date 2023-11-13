@@ -90,6 +90,10 @@ namespace WorldGeneration
                 return null;
             }
         }
+        public Dictionary<string, object> GetAllData()
+        {
+            return data;
+        }
 
         public void SetData(string varName, object value)
         {

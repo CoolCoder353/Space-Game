@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using NaughtyAttributes;
+using System.Collections;
 namespace WorldGeneration
 {
     public class World : MonoBehaviour
@@ -9,6 +10,10 @@ namespace WorldGeneration
 
         public int seed;
         public GameObject tileParent;
+
+        public GameObject temperatureParent;
+
+        private float outdoorTemperature = 25f;
         private string xmlFileLocation = "Assets/Resources/Xml/";
 
         private string tileFileLocation = "Tiles/";
@@ -17,20 +22,32 @@ namespace WorldGeneration
 
         public Dictionary<string, float> tileIdIndex = new Dictionary<string, float>();
         private Dictionary<string, TileData> tileBase = new Dictionary<string, TileData>();
+        private static readonly int[,] Directions = new int[,]
+        {
+            { -1, 0 },
+            { 1, 0 },
+            { 0, -1 },
+            { 0, 1 },
+            { -1, -1 },
+            { -1, 1 },
+            { 1, -1 },
+            { 1, 1 }
+        };
+
+
+        private bool isTemperatureVisualizationOn = false;
+        private Gradient temperatureGradient;
 
         private void Awake()
         {
             //TODO: Make this dynamic or smarter in some way.
-            //tileIdIndex["Grass"] = 0f;
-            //tileIdIndex["Rock"] = 0.55f;
 
             tileIdIndex["Rock"] = 0f;
             tileIdIndex["Grass"] = 0.3f;
 
-
-
             Random.InitState(seed);
             Debug.Log($"Set world seed to {seed}.");
+
             float[,] WorleyNoise = Noise.Worley.GenerateNoiseMap(settings.worldSize.x, settings.worldSize.y, seed, settings.numPoints, settings.noiseScale, settings.distanceMultiplier);
 
             float[,] PerlinNoise = Noise.Perlin.GenerateNoiseMap(settings.worldSize.x, settings.worldSize.y, seed, settings.noiseScale, settings.octaves, settings.persistance, settings.lacunarity, Vector2.zero);
@@ -38,11 +55,167 @@ namespace WorldGeneration
             noise = Noise.Combination.CombineTwo(WorleyNoise, PerlinNoise, settings.blendFactor);
             tileBase = Xml.LoadTileData(xmlFileLocation);
 
-            Logger.LogDictionary(tileBase);
-            Logger.LogDictionary(tileIdIndex);
+
+
             GenerateTiles();
             SmoothTiles(settings.smoothIterations);
+
+
+            StartCoroutine(Tick());
         }
+
+        private IEnumerator Tick()
+        {
+            WaitForSecondsRealtime wait = new WaitForSecondsRealtime(1f / settings.worldTicksPerSecond);
+            int tick = 0;
+            int day = 0;
+            int year = 0;
+            float timeOfDay = 0;
+            float timeOfYear = 0;
+            int updateTemperatureEveryNTicks = 1; // Adjust this value as needed
+
+            while (true)
+            {
+                tick++;
+
+                timeOfDay += Mathf.Abs(1f / (settings.worldTicksPerSecond * settings.secondsPerDay));
+                if (timeOfDay > 1) { Debug.LogWarning($"New day! Now at day {day}"); timeOfDay -= 1; day++; }
+
+                timeOfYear += Mathf.Abs(1f / (settings.worldTicksPerSecond * settings.secondsPerYear));
+                if (timeOfYear > 1) { Debug.LogWarning($"New year! Now at year {year}"); timeOfYear -= 1; year++; }
+
+                if (tick % updateTemperatureEveryNTicks == 0)
+                {
+                    UpdateTemperature(timeOfDay, timeOfYear);
+                }
+
+                yield return wait;
+            }
+        }
+
+        private void UpdateTemperature(float timeOfDay, float timeOfYear)
+        {
+            float time = Time.time;
+            float dailyTemperature = settings.dailyTemperatureCurve.Evaluate(timeOfDay);
+            float yearlyTemperature = settings.yearlyTemperatureCurve.Evaluate(timeOfYear);
+            float outdoorTemperature = dailyTemperature + yearlyTemperature;
+            //Debug.Log($"Outdoor temperature: {outdoorTemperature}");
+
+            float[,] averageNeighborTemperatures = new float[settings.worldSize.x, settings.worldSize.y];
+
+            for (int x = 0; x < settings.worldSize.x; x++)
+            {
+                for (int y = 0; y < settings.worldSize.y; y++)
+                {
+                    averageNeighborTemperatures[x, y] = GetAverageNeighborTemperature(x, y);
+                }
+            }
+
+            for (int x = 0; x < settings.worldSize.x; x++)
+            {
+                for (int y = 0; y < settings.worldSize.y; y++)
+                {
+                    float newTemperature;
+
+                    if (x == 0 || y == 0 || x == settings.worldSize.x - 1 || y == settings.worldSize.y - 1)
+                    {
+                        newTemperature = outdoorTemperature;
+                    }
+                    else
+                    {
+                        newTemperature = averageNeighborTemperatures[x, y];
+                    }
+
+                    if ((float)map[x, y].GetData("temperature") != newTemperature)
+                    {
+                        map[x, y].SetData("temperature", newTemperature);
+
+                        GameObject overlay = map[x, y].GetData("temperatureOverlay") as GameObject;
+
+                        float normalizedTemperature = (newTemperature + 100) / 200; // Normalize temperature to the range [0, 1]
+                        Color color = settings.temperatureColourGradient.Evaluate(normalizedTemperature);
+                        overlay.GetComponent<SpriteRenderer>().color = color;
+                    }
+                }
+            }
+        }
+
+
+
+        private void UpdateNeighborTemperatures(int x, int y)
+        {
+            // Loop over the directions
+            for (int i = 0; i < 4; i++)
+            {
+                int newX = x + Directions[i, 0];
+                int newY = y + Directions[i, 1];
+
+                // Check if the new coordinates are within the map boundaries
+                if (newX >= 0 && newX < settings.worldSize.x && newY >= 0 && newY < settings.worldSize.y)
+                {
+                    float averageNeighborTemperature = GetAverageNeighborTemperature(newX, newY);
+                    Tile tile = map[newX, newY];
+                    float currentTemperature = (float)tile.GetData("temperature");
+
+                    if (currentTemperature != averageNeighborTemperature)
+                    {
+                        tile.SetData("temperature", averageNeighborTemperature);
+                    }
+                }
+            }
+        }
+        private float GetAverageNeighborTemperature(int x, int y)
+        {
+            float totalTemperature = 0f;
+            int count = 0;
+
+            // Loop over the directions
+            for (int i = 0; i < 4; i++)
+            {
+                int newX = x + Directions[i, 0];
+                int newY = y + Directions[i, 1];
+
+                // Check if the new coordinates are within the map boundaries
+                if (newX >= 0 && newX < settings.worldSize.x && newY >= 0 && newY < settings.worldSize.y)
+                {
+                    totalTemperature += (float)map[newX, newY].GetData("temperature");
+                    count++;
+                }
+            }
+
+            return totalTemperature / count;
+        }
+
+
+
+
+
+        public void ToggleTemperatureVisualization()
+        {
+            isTemperatureVisualizationOn = !isTemperatureVisualizationOn;
+
+            for (int x = 0; x < settings.worldSize.x; x++)
+            {
+                for (int y = 0; y < settings.worldSize.y; y++)
+                {
+                    Tile tile = map[x, y];
+                    GameObject overlay = tile.GetData("temperatureOverlay") as GameObject;
+
+                    if (isTemperatureVisualizationOn)
+                    {
+
+                        overlay.SetActive(true);
+                    }
+                    else
+                    {
+                        overlay.SetActive(false);
+                    }
+                }
+            }
+        }
+
+
+
 
         private void GenerateTiles()
         {
@@ -53,19 +226,28 @@ namespace WorldGeneration
                 {
                     Vector2 worldPos = new Vector2(x * settings.tileScale, y * settings.tileScale);
                     Vector2Int pos = new Vector2Int(x, y);
+
                     TileData data = IdentifyTile(noise[x, y]);
                     Tile currentTile = new Tile(worldPos, pos, data.health, data.fertilty);
+
                     Sprite sprite = LoadSprite(data);
-                    GameObject floorObject = CreateTileObject(sprite, data, worldPos);
+                    GameObject floorObject = CreateTileObject(sprite, data.tileType, worldPos);
+
+                    //Load the a square sprite for the overlay
+                    Sprite overlaySprite = LoadSprite(tileFileLocation + "Overlay/temperature");
+                    GameObject temperatureOverlay = CreateTileObject(overlaySprite, "TemperatureOverlay", worldPos, -0.1f, temperatureParent);
+
                     currentTile.SetData("tileType", data.tileType);
                     currentTile.SetData("floorObject", floorObject);
+                    currentTile.SetData("temperature", outdoorTemperature);
+                    currentTile.SetData("temperatureOverlay", temperatureOverlay);
 
                     map[x, y] = currentTile;
 
                 }
             }
         }
-        public void SmoothTiles(int smoothingIterations)
+        private void SmoothTiles(int smoothingIterations)
         {
             if (smoothingIterations <= 0) { return; }
             Tile[,] smoothedMap = new Tile[settings.worldSize.x, settings.worldSize.y];
@@ -111,7 +293,7 @@ namespace WorldGeneration
 
             map = currentMap;
         }
-        public string GetRandomNeighborTileType(Tile[,] map, int x, int y)
+        private string GetRandomNeighborTileType(Tile[,] map, int x, int y)
         {
             List<string> neighborTileTypes = new List<string>();
 
@@ -202,19 +384,24 @@ namespace WorldGeneration
                 }
             }
         }
-
-
         private Sprite LoadSprite(TileData data)
         {
             Sprite result = Resources.Load<Sprite>(tileFileLocation + data.spritePath);
             if (result == null) { Debug.LogWarning($"Could not find the sprite for {data.tileType} at {tileFileLocation + data.spritePath}"); }
             return result;
         }
-        private GameObject CreateTileObject(Sprite sprite, TileData data, Vector2 position, float zOffset = 0)
+
+        private static Sprite LoadSprite(string path)
+        {
+            Sprite result = Resources.Load<Sprite>(path);
+            if (result == null) { Debug.LogWarning($"Could not find the sprite at {path}"); }
+            return result;
+        }
+        private GameObject CreateTileObject(Sprite sprite, string name, Vector2 position, float zOffset = 0, GameObject parent = null)
         {
             Vector3 objectPos = new(position.x, position.y, zOffset);
-            GameObject tile = Instantiate(settings.emptyTile, objectPos, Quaternion.identity, tileParent.transform);
-            tile.name = $"{data.tileType} ({position.x},{position.y})";
+            GameObject tile = Instantiate(settings.emptyTile, objectPos, Quaternion.identity, parent == null ? tileParent.transform : parent.transform);
+            tile.name = $"{name} ({position.x},{position.y})";
             SpriteRenderer spriteRenderer;
             if (!tile.TryGetComponent<SpriteRenderer>(out spriteRenderer))
             {

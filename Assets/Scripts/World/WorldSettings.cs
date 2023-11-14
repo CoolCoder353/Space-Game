@@ -11,6 +11,16 @@ namespace WorldGeneration
 
         public int worldTicksPerSecond = 10;
 
+        public int secondsPerDay = 100;
+
+        public int ticksPerDay => worldTicksPerSecond * ticksPerDay;
+
+        public int daysPerYear = 100;
+
+        public int secondsPerYear => secondsPerDay * daysPerYear;
+
+        public int ticksPerYear => secondsPerYear * worldTicksPerSecond;
+
         [Foldout("Tile Settings")]
         public float tileScale = 1;
 
@@ -77,9 +87,13 @@ namespace WorldGeneration
 
         [Foldout("Temperature Settings")]
         public Gradient temperatureColourGradient;
+        [Foldout("Temperature Settings")]
+        public AnimationCurve yearlyTemperatureCurve;
 
         [Foldout("Temperature Settings")]
-        public Sprite tempDefaultSprite;
+        public AnimationCurve dailyTemperatureCurve;
+
+
     }
 
     [System.Serializable]

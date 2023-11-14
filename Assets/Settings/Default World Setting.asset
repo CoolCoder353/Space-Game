@@ -17,9 +17,13 @@ MonoBehaviour:
   tileScale: 1
   emptyTile: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
   rockTile: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
-  noiseScale: 40
-  numPoints: 24
-  distanceMultiplier: 1.916
+  noiseScale: 45
+  numPoints: 22
+  distanceMultiplier: 1
+  octaves: 4
+  persistance: 0.5
+  lacunarity: 2
+  blendFactor: 0.384
   floorTileTypeCutoffs:
   - tileType: 1
     cutOff: 0
@@ -27,7 +31,7 @@ MonoBehaviour:
     cutOff: 0.346
   - tileType: 4
     cutOff: 0.646
-  smoothIterations: 0
+  smoothIterations: 3
   smoothChange: 3
   lakeSize: 2
   numOfLakes: 4

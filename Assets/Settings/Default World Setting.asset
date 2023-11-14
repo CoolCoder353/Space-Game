@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   worldSize: {x: 100, y: 100}
   worldTicksPerSecond: 10
+  secondsPerDay: 5
+  daysPerYear: 100
   tileScale: 1
   emptyTile: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
   rockTile: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
@@ -68,4 +70,69 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 5
     m_NumAlphaKeys: 2
-  tempDefaultSprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  yearlyTemperatureCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: -40
+      inSlope: -0.009150999
+      outSlope: -0.009150999
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.21100493
+    - serializedVersion: 3
+      time: 0.5
+      value: 40
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: -40
+      inSlope: 0.010486548
+      outSlope: 0.010486548
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.30424583
+      outWeight: 0
+    m_PreInfinity: 1
+    m_PostInfinity: 1
+    m_RotationOrder: 4
+  dailyTemperatureCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: -5
+      inSlope: -0.009150999
+      outSlope: -0.009150999
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.21100493
+    - serializedVersion: 3
+      time: 0.5
+      value: 5
+      inSlope: -0.001704845
+      outSlope: -0.001704845
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.30424583
+      outWeight: 0.22294106
+    - serializedVersion: 3
+      time: 1
+      value: -5
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 1
+    m_PostInfinity: 1
+    m_RotationOrder: 4

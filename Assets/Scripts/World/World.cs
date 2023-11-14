@@ -13,6 +13,8 @@ namespace WorldGeneration
 
         public GameObject temperatureParent;
 
+        public GameObject rockParent;
+
         private float outdoorTemperature = 25f;
         private string xmlFileLocation = "Assets/Resources/Xml/";
 
@@ -214,7 +216,17 @@ namespace WorldGeneration
             }
         }
 
-
+        private bool IsSurroundedByRockTiles(int x, int y)
+        {
+            if (x > 0 && x < noise.GetLength(0) - 1 && y > 0 && y < noise.GetLength(1) - 1)
+            {
+                return IdentifyTile(noise[x + 1, y]).tileType == "Rock" &&
+                       IdentifyTile(noise[x - 1, y]).tileType == "Rock" &&
+                       IdentifyTile(noise[x, y + 1]).tileType == "Rock" &&
+                       IdentifyTile(noise[x, y - 1]).tileType == "Rock";
+            }
+            return false;
+        }
 
 
         private void GenerateTiles()
@@ -235,7 +247,7 @@ namespace WorldGeneration
 
                     //Load the a square sprite for the overlay
                     Sprite overlaySprite = LoadSprite(tileFileLocation + "Overlay/temperature");
-                    GameObject temperatureOverlay = CreateTileObject(overlaySprite, "TemperatureOverlay", worldPos, -0.1f, temperatureParent);
+                    GameObject temperatureOverlay = CreateTileObject(overlaySprite, "TemperatureOverlay", worldPos, -1f, temperatureParent);
 
                     currentTile.SetData("tileType", data.tileType);
                     currentTile.SetData("floorObject", floorObject);
@@ -243,6 +255,17 @@ namespace WorldGeneration
                     currentTile.SetData("temperatureOverlay", temperatureOverlay);
 
                     map[x, y] = currentTile;
+
+
+                    // Check if the current tile is a rock tile and if it's surrounded by rock tiles
+                    if (data.tileType == "Rock" && IsSurroundedByRockTiles(x, y))
+                    {
+                        Sprite rockSprite = LoadSprite(tileFileLocation + "Rock/rock");
+                        GameObject rockObject = CreateTileObject(rockSprite, "Rock", worldPos, -0.1f, rockParent);
+                        currentTile.SetData("rockObject", rockObject);
+                    }
+
+
 
                 }
             }

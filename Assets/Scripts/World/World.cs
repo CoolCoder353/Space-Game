@@ -60,6 +60,7 @@ namespace WorldGeneration
 
 
             GenerateTiles();
+            GenerateLakes();
             SmoothTiles(settings.smoothIterations);
 
 
@@ -95,6 +96,97 @@ namespace WorldGeneration
             }
         }
 
+        private void GenerateLakes()
+        {
+            if (settings.numOfLakes <= 0) { return; }
+            Vector2Int start = SelectRandomCorner(settings.width, settings.height);
+            Vector2Int end = SelectRandomCorner(settings.width, settings.height, start);
+
+            Vector2Int current = start;
+            while (current != end)
+            {
+                current = MoveTowards(current, end, settings.randomness);
+
+                //Change everything in an x radius from this position to water
+                //Change a tile to water by going
+                //tile.SetData("tileType", "water");
+            }
+
+            //Change the end tile + x radius to water by going
+            //tile.SetData("tileType", "water");;
+        }
+
+        private static Vector2Int MoveTowards(Vector2Int current, Vector2Int target, float randomness)
+        {
+            int dx = target.x - current.x;
+            int dy = target.y - current.y;
+
+            if (Random.value < randomness)
+            {
+                if (dx != 0)
+                {
+                    current.x += Mathf.Sign(dx);
+                }
+                else
+                {
+                    current.y += Mathf.Sign(dy);
+                }
+            }
+            else
+            {
+                if (dy != 0)
+                {
+                    current.y += Mathf.Sign(dy);
+                }
+                else
+                {
+                    current.x += Mathf.Sign(dx);
+                }
+            }
+
+            return current;
+        }
+
+        public static Vector2Int SelectRandomCorner(int mapWidth, int mapHeight, Vector2Int excludedSide = null)
+        {
+            int randomSide = Random.Range(0, 4);
+
+            Vector2Int randomPoint = Vector2Int.zero;
+
+            switch (randomSide)
+            {
+                case 0: // Top
+                    randomPoint = new Vector2Int(Random.Range(0, mapWidth), mapHeight);
+                    if (randomPoint == excludedSide)
+                    {
+                        randomPoint = SelectRandomCorner(mapWidth, mapHeight, excludedSide);
+                    }
+                    break;
+                case 1: // Right
+                    randomPoint = new Vector2Int(mapWidth, Random.Range(0, mapHeight));
+                    if (randomPoint == excludedSide)
+                    {
+                        randomPoint = SelectRandomCorner(mapWidth, mapHeight, excludedSide);
+                    }
+                    break;
+                case 2: // Bottom
+                    randomPoint = new Vector2Int(Random.Range(0, mapWidth), 0);
+                    if (randomPoint == excludedSide)
+                    {
+                        randomPoint = SelectRandomCorner(mapWidth, mapHeight, excludedSide);
+                    }
+                    break;
+                case 3: // Left
+                    randomPoint = new Vector2Int(0, Random.Range(0, mapHeight));
+                    if (randomPoint == excludedSide)
+                    {
+                        randomPoint = SelectRandomCorner(mapWidth, mapHeight, excludedSide);
+                    }
+                    break;
+            }
+
+            return randomPoint;
+        }
         private void UpdateTemperature(float timeOfDay, float timeOfYear)
         {
             float time = Time.time;

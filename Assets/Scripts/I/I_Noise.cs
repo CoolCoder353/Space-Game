@@ -1,7 +1,9 @@
 using UnityEngine;
-namespace Perlin
+using System.Collections.Generic;
+using System;
+namespace Noise
 {
-    public static class Noise
+    public static class Perlin
     {
         public static float[,] GenerateNoiseMap(int width, int height, int seed, float scale, int octaves, float persistence, float lacunarity, Vector2 offset)
         {
@@ -70,4 +72,68 @@ namespace Perlin
             return noiseMap;
         }
     }
+    public static class Worley
+    {
+
+        public static float[,] GenerateNoiseMap(int width, int height, int seed, int numPoints, float scale, float distanceMultiplier)
+        {
+            float[,] noiseMap = new float[width, height];
+
+            System.Random rand = new System.Random(seed); // Set the random seed
+
+            // Generate random points
+            Vector2[] points = new Vector2[numPoints];
+            for (int i = 0; i < numPoints; i++)
+            {
+                points[i] = new Vector2((rand.Next(width) - width / 2f) / scale, (rand.Next(height) - height / 2f) / scale);
+            }
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    float sampleX = (x - width / 2f) / scale;
+                    float sampleY = (y - height / 2f) / scale;
+
+                    float minDistance = float.MaxValue;
+
+                    foreach (Vector2 point in points)
+                    {
+                        float distance = Vector2.Distance(point, new Vector2(sampleX, sampleY));
+
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                        }
+                    }
+
+                    noiseMap[x, y] = minDistance * distanceMultiplier;
+                }
+            }
+
+            return noiseMap;
+        }
+    }
+
+    public static class Combination
+    {
+        public static float[,] CombineTwo(float[,] mapOne, float[,] mapTwo, float blendFactor)
+        {
+            int width = mapOne.GetLength(0);
+            int height = mapOne.GetLength(1);
+
+            float[,] combinedNoiseMap = new float[width, height];
+
+            // Blend the two noise maps together
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++) { combinedNoiseMap[x, y] = mapOne[x, y] * (1 - blendFactor) + mapTwo[x, y] * blendFactor; }
+            }
+
+            return combinedNoiseMap;
+        }
+
+    }
+
+
 }

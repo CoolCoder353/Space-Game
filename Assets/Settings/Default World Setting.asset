@@ -14,14 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   worldSize: {x: 100, y: 100}
   worldTicksPerSecond: 10
+  secondsPerDay: 5
+  daysPerYear: 100
   tileScale: 1
   emptyTile: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
   rockTile: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
-  noiseScale: 1
-  noiseOctaves: 8
-  noisePersistence: 0.5
-  noiseLacunarity: 3.5
-  noiseOffset: {x: 0, y: 0}
+  noiseScale: 45
+  numPoints: 22
+  distanceMultiplier: 1
+  octaves: 4
+  persistance: 0.5
+  lacunarity: 2
+  blendFactor: 0.384
   floorTileTypeCutoffs:
   - tileType: 1
     cutOff: 0
@@ -29,52 +33,106 @@ MonoBehaviour:
     cutOff: 0.346
   - tileType: 4
     cutOff: 0.646
-  smoothIterations: 20
+  smoothIterations: 3
   smoothChange: 3
   lakeSize: 2
   numOfLakes: 4
   lakeRandomness: 3
   itemPrefab: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
-  plantCutoffs:
-  - plantType:
-      position: {x: 0, y: 0}
-      worldPosition: {x: 0, y: 0}
-      temperatureMin: 10
-      temperatureMax: 30
-      fertilityThreshold: 1
-      amountOfItemOnDeath: 0
-      plantName: Bush
-      plantObject: {fileID: 0}
-      plantGrowIndex:
-      - tickSinceSown: 0
-        sprite: {fileID: 21300000, guid: 17ee87746f422754fb3367784ccf46eb, type: 3}
-        size: 0.5
-      - tickSinceSown: 1000
-        sprite: {fileID: 21300000, guid: 17ee87746f422754fb3367784ccf46eb, type: 3}
-        size: 2
-      - tickSinceSown: 2000
-        sprite: {fileID: 21300000, guid: 17ee87746f422754fb3367784ccf46eb, type: 3}
-        size: 1
-    probability: 0.395
-  - plantType:
-      position: {x: 0, y: 0}
-      worldPosition: {x: 0, y: 0}
-      temperatureMin: 10
-      temperatureMax: 30
-      fertilityThreshold: 1
-      amountOfItemOnDeath: 0
-      plantName: Shrub
-      plantObject: {fileID: 0}
-      plantGrowIndex:
-      - tickSinceSown: 0
-        sprite: {fileID: 21300000, guid: f8df5a6c667145f49b170b6a782c0b93, type: 3}
-        size: 0.5
-      - tickSinceSown: 1000
-        sprite: {fileID: 21300000, guid: f8df5a6c667145f49b170b6a782c0b93, type: 3}
-        size: 1.5
-      - tickSinceSown: 2000
-        sprite: {fileID: 21300000, guid: f8df5a6c667145f49b170b6a782c0b93, type: 3}
-        size: 1
-    probability: 0.541
   growthIterations: 5
   growthChange: 1
+  temperatureColourGradient:
+    serializedVersion: 2
+    key0: {r: 0.7163538, g: 0.06289297, b: 1, a: 0.39215687}
+    key1: {r: 0, g: 0.5559192, b: 1, a: 0.39215687}
+    key2: {r: 0.3336084, g: 1, b: 0, a: 0}
+    key3: {r: 1, g: 0.98766965, b: 0, a: 0}
+    key4: {r: 1, g: 0.10886885, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 16384
+    ctime2: 32768
+    ctime3: 49151
+    ctime4: 65535
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_NumColorKeys: 5
+    m_NumAlphaKeys: 2
+  yearlyTemperatureCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: -40
+      inSlope: -0.009150999
+      outSlope: -0.009150999
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.21100493
+    - serializedVersion: 3
+      time: 0.5
+      value: 40
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: -40
+      inSlope: 0.010486548
+      outSlope: 0.010486548
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.30424583
+      outWeight: 0
+    m_PreInfinity: 1
+    m_PostInfinity: 1
+    m_RotationOrder: 4
+  dailyTemperatureCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: -5
+      inSlope: -0.009150999
+      outSlope: -0.009150999
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.21100493
+    - serializedVersion: 3
+      time: 0.5
+      value: 5
+      inSlope: -0.001704845
+      outSlope: -0.001704845
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.30424583
+      outWeight: 0.22294106
+    - serializedVersion: 3
+      time: 1
+      value: -5
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 1
+    m_PostInfinity: 1
+    m_RotationOrder: 4

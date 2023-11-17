@@ -126,6 +126,22 @@ namespace WorldGeneration
             data["fertility"] = fertility;
         }
 
+        public void UpdateTileData(World world, TileData data)
+        {
+
+            maxHealth = data.health;
+            currentHealth = data.health;
+            SetData("fertility", data.fertilty);
+            SetData("isWalkable", data.isWalkable);
+            SetData("spritePath", data.spritePath);
+
+            SpriteRenderer renderer = ((GameObject)GetData("floorObject")).GetComponent<SpriteRenderer>();
+            renderer.sprite = world.LoadSprite(data);
+
+            // Update other properties as needed...
+
+        }
+
 
     }
 }

@@ -44,8 +44,8 @@ namespace WorldGeneration
         {
             //TODO: Make this dynamic or smarter in some way.
 
-            tileIdIndex["Rock"] = 0f;
-            tileIdIndex["Grass"] = 0.3f;
+            tileIdIndex["rock"] = 0f;
+            tileIdIndex["grass"] = 0.3f;
 
             Random.InitState(seed);
             Debug.Log($"Set world seed to {seed}.");
@@ -99,55 +99,60 @@ namespace WorldGeneration
         private void GenerateLakes()
         {
             if (settings.numOfLakes <= 0) { return; }
-            Vector2Int start = SelectRandomCorner(settings.width, settings.height);
-            Vector2Int end = SelectRandomCorner(settings.width, settings.height, start);
-
-            Vector2Int current = start;
-            while (current != end)
+            for (int i = 0; i < settings.numOfLakes; i++)
             {
-                current = MoveTowards(current, end, settings.randomness);
 
-                //Change everything in an x radius from this position to water
-                //Change a tile to water by going
-                //tile.SetData("tileType", "water");
+                Vector2Int start = SelectRandomCorner(settings.worldSize.x, settings.worldSize.y);
+                Vector2Int end = SelectRandomCorner(settings.worldSize.x, settings.worldSize.y, start);
+
+                Debug.Log($"Generating lake from {start} to {end}.");
+
+                Vector2Int current = start;
+                while (current != end)
+                {
+                    current = MoveTowards(current, end, settings.lakeRandomness);
+
+                    // Change everything in an x radius from this position to water
+                    ChangeTilesToWater(current, settings.lakeSize);
+                }
+
+                // Change the end tile + x radius to water
+                ChangeTilesToWater(end, settings.lakeSize);
             }
+        }
 
-            //Change the end tile + x radius to water by going
-            //tile.SetData("tileType", "water");;
+        private void ChangeTilesToWater(Vector2Int center, int radius)
+        {
+            for (int x = Mathf.Max(0, center.x - radius); x <= Mathf.Min(settings.worldSize.x - 1, center.x + radius); x++)
+            {
+                for (int y = Mathf.Max(0, center.y - radius); y <= Mathf.Min(settings.worldSize.y - 1, center.y + radius); y++)
+                {
+                    if (Vector2Int.Distance(new Vector2Int(x, y), center) <= radius)
+                    {
+                        map[x, y].SetData("tileType", "water");
+                        map[x, y].SetData("temperature", outdoorTemperature);
+
+                        map[x, y].UpdateTileData(this, tileBase["water"]);
+                    }
+                }
+            }
         }
 
         private static Vector2Int MoveTowards(Vector2Int current, Vector2Int target, float randomness)
         {
-            int dx = target.x - current.x;
-            int dy = target.y - current.y;
+            Vector2 direction = ((Vector2)target - current).normalized;
 
-            if (Random.value < randomness)
-            {
-                if (dx != 0)
-                {
-                    current.x += Mathf.Sign(dx);
-                }
-                else
-                {
-                    current.y += Mathf.Sign(dy);
-                }
-            }
-            else
-            {
-                if (dy != 0)
-                {
-                    current.y += Mathf.Sign(dy);
-                }
-                else
-                {
-                    current.x += Mathf.Sign(dx);
-                }
-            }
+            // Add randomness to the direction
+            direction += new Vector2(UnityEngine.Random.Range(-randomness, randomness), UnityEngine.Random.Range(-randomness, randomness));
 
-            return current;
+            // Calculate the new position
+            Vector2 newPosition = current + direction;
+
+            // Return the new position as a Vector2Int
+            return Vector2Int.RoundToInt(newPosition);
         }
 
-        public static Vector2Int SelectRandomCorner(int mapWidth, int mapHeight, Vector2Int excludedSide = null)
+        public static Vector2Int SelectRandomCorner(int mapWidth, int mapHeight, Vector2Int excludedSide = default)
         {
             int randomSide = Random.Range(0, 4);
 
@@ -233,9 +238,6 @@ namespace WorldGeneration
                 }
             }
         }
-
-
-
         private void UpdateNeighborTemperatures(int x, int y)
         {
             // Loop over the directions
@@ -279,11 +281,6 @@ namespace WorldGeneration
 
             return totalTemperature / count;
         }
-
-
-
-
-
         public void ToggleTemperatureVisualization()
         {
             isTemperatureVisualizationOn = !isTemperatureVisualizationOn;
@@ -307,7 +304,6 @@ namespace WorldGeneration
                 }
             }
         }
-
         private bool IsSurroundedByRockTiles(int x, int y)
         {
             if (x > 0 && x < noise.GetLength(0) - 1 && y > 0 && y < noise.GetLength(1) - 1)
@@ -319,8 +315,6 @@ namespace WorldGeneration
             }
             return false;
         }
-
-
         private void GenerateTiles()
         {
             map = new Tile[settings.worldSize.x, settings.worldSize.y];
@@ -384,7 +378,8 @@ namespace WorldGeneration
                         string tileType = (string)currentTile.GetData("tileType");
                         if (neighborCount <= 3)
                         {
-                            tileType = GetRandomNeighborTileType(currentMap, x, y);
+                            //tileType = GetRandomNeighborTileType(currentMap, x, y);
+                            tileType = mostCommonTileType;
                         }
 
                         // Update the tile's data and GameObject in smoothedMap
@@ -499,14 +494,14 @@ namespace WorldGeneration
                 }
             }
         }
-        private Sprite LoadSprite(TileData data)
+        public Sprite LoadSprite(TileData data)
         {
             Sprite result = Resources.Load<Sprite>(tileFileLocation + data.spritePath);
             if (result == null) { Debug.LogWarning($"Could not find the sprite for {data.tileType} at {tileFileLocation + data.spritePath}"); }
             return result;
         }
 
-        private static Sprite LoadSprite(string path)
+        public static Sprite LoadSprite(string path)
         {
             Sprite result = Resources.Load<Sprite>(path);
             if (result == null) { Debug.LogWarning($"Could not find the sprite at {path}"); }

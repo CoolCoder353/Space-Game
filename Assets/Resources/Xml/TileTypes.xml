@@ -1,7 +1,7 @@
 <TileTypes>
 	<TileType>
 		<Name>
-			Grass
+			grass
 		</Name>
 		<Sprite>
 			Grass
@@ -18,7 +18,7 @@
 	</TileType>
 	<TileType>
 		<Name>
-			Rock
+			rock
 		</Name>
 		<Sprite>
 			Rock
@@ -28,6 +28,23 @@
 		</IsWalkable>
 		<Health>
 			25
+		</Health>
+		<Fertility>
+			0
+		</Fertility>
+	</TileType>
+	<TileType>
+		<Name>
+			water
+		</Name>
+		<Sprite>
+			Water
+		</Sprite>
+		<IsWalkable>
+			true
+		</IsWalkable>
+		<Health>
+			0
 		</Health>
 		<Fertility>
 			0

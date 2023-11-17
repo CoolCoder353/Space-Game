@@ -33,11 +33,11 @@ MonoBehaviour:
     cutOff: 0.346
   - tileType: 4
     cutOff: 0.646
-  smoothIterations: 3
+  smoothIterations: 10
   smoothChange: 3
-  lakeSize: 2
+  lakeSize: 3
   numOfLakes: 4
-  lakeRandomness: 3
+  lakeRandomness: 1
   itemPrefab: {fileID: 8866037523625125937, guid: 44d0a6d31f3b8ea4295f94ff2e04660b, type: 3}
   growthIterations: 5
   growthChange: 1

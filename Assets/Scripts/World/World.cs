@@ -133,59 +133,6 @@ namespace WorldGeneration
                 }
             }
         }
-        private static Vector2Int MoveTowards(Vector2Int current, Vector2Int target, float randomness)
-        {
-            Vector2 direction = ((Vector2)target - current).normalized;
-
-            // Add randomness to the direction
-            direction += new Vector2(UnityEngine.Random.Range(-randomness, randomness), UnityEngine.Random.Range(-randomness, randomness));
-
-            // Calculate the new position
-            Vector2 newPosition = current + direction;
-
-            // Return the new position as a Vector2Int
-            return Vector2Int.RoundToInt(newPosition);
-        }
-        public static Vector2Int SelectRandomCorner(int mapWidth, int mapHeight, Vector2Int excludedSide = default)
-        {
-            int randomSide = Random.Range(0, 4);
-
-            Vector2Int randomPoint = Vector2Int.zero;
-
-            switch (randomSide)
-            {
-                case 0: // Top
-                    randomPoint = new Vector2Int(Random.Range(0, mapWidth), mapHeight);
-                    if (randomPoint == excludedSide)
-                    {
-                        randomPoint = SelectRandomCorner(mapWidth, mapHeight, excludedSide);
-                    }
-                    break;
-                case 1: // Right
-                    randomPoint = new Vector2Int(mapWidth, Random.Range(0, mapHeight));
-                    if (randomPoint == excludedSide)
-                    {
-                        randomPoint = SelectRandomCorner(mapWidth, mapHeight, excludedSide);
-                    }
-                    break;
-                case 2: // Bottom
-                    randomPoint = new Vector2Int(Random.Range(0, mapWidth), 0);
-                    if (randomPoint == excludedSide)
-                    {
-                        randomPoint = SelectRandomCorner(mapWidth, mapHeight, excludedSide);
-                    }
-                    break;
-                case 3: // Left
-                    randomPoint = new Vector2Int(0, Random.Range(0, mapHeight));
-                    if (randomPoint == excludedSide)
-                    {
-                        randomPoint = SelectRandomCorner(mapWidth, mapHeight, excludedSide);
-                    }
-                    break;
-            }
-
-            return randomPoint;
-        }
         private void UpdateTemperature(float timeOfDay, float timeOfYear)
         {
             float time = Time.time;
@@ -466,18 +413,6 @@ namespace WorldGeneration
                 }
             }
         }
-        public Sprite LoadSprite(TileData data)
-        {
-            Sprite result = Resources.Load<Sprite>(tileFileLocation + data.spritePath);
-            if (result == null) { Debug.LogWarning($"Could not find the sprite for {data.tileType} at {tileFileLocation + data.spritePath}"); }
-            return result;
-        }
-        public static Sprite LoadSprite(string path)
-        {
-            Sprite result = Resources.Load<Sprite>(path);
-            if (result == null) { Debug.LogWarning($"Could not find the sprite at {path}"); }
-            return result;
-        }
         private GameObject CreateTileObject(Sprite sprite, string name, Vector2 position, float zOffset = 0, GameObject parent = null)
         {
             Vector3 objectPos = new(position.x, position.y, zOffset);
@@ -524,5 +459,74 @@ namespace WorldGeneration
             }
             return selectedTile;
         }
+
+        //________STATIC METHODS________\\
+        public Sprite LoadSprite(TileData data)
+        {
+            Sprite result = Resources.Load<Sprite>(tileFileLocation + data.spritePath);
+            if (result == null) { Debug.LogWarning($"Could not find the sprite for {data.tileType} at {tileFileLocation + data.spritePath}"); }
+            return result;
+        }
+        public static Sprite LoadSprite(string path)
+        {
+            Sprite result = Resources.Load<Sprite>(path);
+            if (result == null) { Debug.LogWarning($"Could not find the sprite at {path}"); }
+            return result;
+        }
+        private static Vector2Int MoveTowards(Vector2Int current, Vector2Int target, float randomness)
+        {
+            Vector2 direction = ((Vector2)target - current).normalized;
+
+            // Add randomness to the direction
+            direction += new Vector2(UnityEngine.Random.Range(-randomness, randomness), UnityEngine.Random.Range(-randomness, randomness));
+
+            // Calculate the new position
+            Vector2 newPosition = current + direction;
+
+            // Return the new position as a Vector2Int
+            return Vector2Int.RoundToInt(newPosition);
+        }
+        public static Vector2Int SelectRandomCorner(int mapWidth, int mapHeight, Vector2Int excludedSide = default)
+        {
+            int randomSide = Random.Range(0, 4);
+
+            Vector2Int randomPoint = Vector2Int.zero;
+
+            switch (randomSide)
+            {
+                case 0: // Top
+                    randomPoint = new Vector2Int(Random.Range(0, mapWidth), mapHeight);
+                    if (randomPoint == excludedSide)
+                    {
+                        randomPoint = SelectRandomCorner(mapWidth, mapHeight, excludedSide);
+                    }
+                    break;
+                case 1: // Right
+                    randomPoint = new Vector2Int(mapWidth, Random.Range(0, mapHeight));
+                    if (randomPoint == excludedSide)
+                    {
+                        randomPoint = SelectRandomCorner(mapWidth, mapHeight, excludedSide);
+                    }
+                    break;
+                case 2: // Bottom
+                    randomPoint = new Vector2Int(Random.Range(0, mapWidth), 0);
+                    if (randomPoint == excludedSide)
+                    {
+                        randomPoint = SelectRandomCorner(mapWidth, mapHeight, excludedSide);
+                    }
+                    break;
+                case 3: // Left
+                    randomPoint = new Vector2Int(0, Random.Range(0, mapHeight));
+                    if (randomPoint == excludedSide)
+                    {
+                        randomPoint = SelectRandomCorner(mapWidth, mapHeight, excludedSide);
+                    }
+                    break;
+            }
+
+            return randomPoint;
+        }
+
+
     }
 }

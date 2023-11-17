@@ -140,9 +140,8 @@ public struct PriorityQueue<T>
             // If there is a child with higher priority than the element, swap them
             if (maxChildIndex != -1 && comparer(elements[maxChildIndex], elements[index]) > 0)
             {
-                T temp = elements[index];
-                elements[index] = elements[maxChildIndex];
-                elements[maxChildIndex] = temp;
+                // Swap elements using tuple assignment
+                (elements[index], elements[maxChildIndex]) = (elements[maxChildIndex], elements[index]);
 
                 // Update the index to the child's index
                 index = maxChildIndex;
@@ -157,4 +156,27 @@ public struct PriorityQueue<T>
         // Return the highest priority element
         return element;
     }
+
+    /// <summary>
+    /// Checks if the priority queue contains a specific element or an element of a specific type.
+    /// </summary>
+    /// <typeparam name="ElementType">The type to check for in the priority queue.</typeparam>
+    /// <param name="element">The element to check for in the priority queue.</param>
+    /// <returns>True if the element or an element of type ElementType is found in the queue, false otherwise.</returns>
+    public bool Contains<ElementType>(ElementType element = default) where ElementType : T
+    {
+        // Iterate over all elements in the queue
+        for (int i = 0; i < count; i++)
+        {
+            // If the current element is equal to the input element or is of type ElementType
+            if (elements[i].Equals(element) || elements[i] is ElementType)
+            {
+                // The element or an element of type ElementType is found in the queue, return true
+                return true;
+            }
+        }
+        // If the loop completes without finding the element or an element of type ElementType, return false
+        return false;
+    }
 }
+

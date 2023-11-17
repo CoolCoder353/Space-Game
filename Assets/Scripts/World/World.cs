@@ -95,7 +95,6 @@ namespace WorldGeneration
                 yield return wait;
             }
         }
-
         private void GenerateLakes()
         {
             if (settings.numOfLakes <= 0) { return; }
@@ -104,8 +103,6 @@ namespace WorldGeneration
 
                 Vector2Int start = SelectRandomCorner(settings.worldSize.x, settings.worldSize.y);
                 Vector2Int end = SelectRandomCorner(settings.worldSize.x, settings.worldSize.y, start);
-
-                Debug.Log($"Generating lake from {start} to {end}.");
 
                 Vector2Int current = start;
                 while (current != end)
@@ -120,7 +117,6 @@ namespace WorldGeneration
                 ChangeTilesToWater(end, settings.lakeSize);
             }
         }
-
         private void ChangeTilesToWater(Vector2Int center, int radius)
         {
             for (int x = Mathf.Max(0, center.x - radius); x <= Mathf.Min(settings.worldSize.x - 1, center.x + radius); x++)
@@ -137,7 +133,6 @@ namespace WorldGeneration
                 }
             }
         }
-
         private static Vector2Int MoveTowards(Vector2Int current, Vector2Int target, float randomness)
         {
             Vector2 direction = ((Vector2)target - current).normalized;
@@ -151,7 +146,6 @@ namespace WorldGeneration
             // Return the new position as a Vector2Int
             return Vector2Int.RoundToInt(newPosition);
         }
-
         public static Vector2Int SelectRandomCorner(int mapWidth, int mapHeight, Vector2Int excludedSide = default)
         {
             int randomSide = Random.Range(0, 4);
@@ -234,28 +228,6 @@ namespace WorldGeneration
                         float normalizedTemperature = (newTemperature + 100) / 200; // Normalize temperature to the range [0, 1]
                         Color color = settings.temperatureColourGradient.Evaluate(normalizedTemperature);
                         overlay.GetComponent<SpriteRenderer>().color = color;
-                    }
-                }
-            }
-        }
-        private void UpdateNeighborTemperatures(int x, int y)
-        {
-            // Loop over the directions
-            for (int i = 0; i < 4; i++)
-            {
-                int newX = x + Directions[i, 0];
-                int newY = y + Directions[i, 1];
-
-                // Check if the new coordinates are within the map boundaries
-                if (newX >= 0 && newX < settings.worldSize.x && newY >= 0 && newY < settings.worldSize.y)
-                {
-                    float averageNeighborTemperature = GetAverageNeighborTemperature(newX, newY);
-                    Tile tile = map[newX, newY];
-                    float currentTemperature = (float)tile.GetData("temperature");
-
-                    if (currentTemperature != averageNeighborTemperature)
-                    {
-                        tile.SetData("temperature", averageNeighborTemperature);
                     }
                 }
             }
@@ -500,7 +472,6 @@ namespace WorldGeneration
             if (result == null) { Debug.LogWarning($"Could not find the sprite for {data.tileType} at {tileFileLocation + data.spritePath}"); }
             return result;
         }
-
         public static Sprite LoadSprite(string path)
         {
             Sprite result = Resources.Load<Sprite>(path);

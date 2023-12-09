@@ -26,10 +26,60 @@ public class Pawn : MonoBehaviour
     //TODO: Incorperate this into some sort of skills or attribute management system.
     public float speed = 1f;
 
+    public Inventory Inventory { get; private set; } = new Inventory();
+    public Item EquippedItem { get; private set; }
+    #region Items and Inventory
+    public void Equip(Item item)
+    {
+        if (Inventory.Contains(item))
+        {
+            EquippedItem = item;
+        }
+    }
 
+    public void PickupItem(Item item, int quantity = 1)
+    {
+        // Implement logic to pick up item from the world and add it to the inventory
+        Inventory.AddItem(item, quantity);
+        UpdateMovementSpeed();
+    }
 
+    public void DropItem(Item item, int quantity = 1)
+    {
+        if (Inventory.RemoveItem(item, quantity))
+        {
+            // Implement logic to drop item into the world
+            UpdateMovementSpeed();
+        }
+    }
+
+    public void UseItem(Item item)
+    {
+        if (Inventory.Contains(item))
+        {
+            item.Use(this);
+            Inventory.RemoveItem(item);
+        }
+    }
+
+    public void UpdateMovementSpeed()
+    {
+        // Implement logic to adjust movement speed based on Inventory.TotalWeight
+    }
+    #endregion
     private void Update()
     {
+        // Check for expired items
+        foreach (var item in Inventory.GetItems())
+        {
+            if (item is Food food && food.ExpiryDate.HasValue && DateTime.Now > food.ExpiryDate.Value)
+            {
+                // remove the expired food
+                Inventory.RemoveItem(food);
+
+            }
+        }
+
         if (VitalityTasks.Count > 0)
         {
             currentTask = VitalityTasks.Dequeue();

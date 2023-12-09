@@ -24,6 +24,8 @@ namespace WorldGeneration
 
         public Dictionary<string, float> tileIdIndex = new Dictionary<string, float>();
         private Dictionary<string, TileData> tileBase = new Dictionary<string, TileData>();
+
+
         private static readonly int[,] Directions = new int[,]
         {
             { -1, 0 },
@@ -548,6 +550,36 @@ namespace WorldGeneration
 
             return randomPoint;
         }
+
+        public Tile FindNearestTileOfType(Vector3 checkPosition, string tileType)
+        {
+            Vector2 position = new Vector2(checkPosition.x, checkPosition.y);
+            Tile nearestTile = null;
+            float nearestSqrDistance = float.MaxValue;
+
+            for (int x = 0; x < settings.worldSize.x; x++)
+            {
+                for (int y = 0; y < settings.worldSize.y; y++)
+                {
+                    Tile tile = map[x, y];
+                    string tileTypeAtPosition = (string)tile.GetData("tileType");
+
+                    if (tileTypeAtPosition == tileType)
+                    {
+                        float sqrDistance = (position - tile.worldPos).sqrMagnitude;
+
+                        if (sqrDistance < nearestSqrDistance)
+                        {
+                            nearestSqrDistance = sqrDistance;
+                            nearestTile = tile;
+                        }
+                    }
+                }
+            }
+
+            return nearestTile;
+        }
+
 
 
         #endregion

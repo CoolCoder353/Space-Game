@@ -21,6 +21,7 @@ namespace Tasks
 
         public TimeSpan Timeout { get; set; }
 
+
         public async void Execute(Pawn pawn)
         {
             if (Prerequisites.Any(t => t.TaskStatus != Status.Completed))
@@ -70,10 +71,16 @@ namespace Tasks
             OnCancel?.Invoke(this);
         }
 
-        public Task(int priority, TimeSpan timeout)
+
+        public Task(int priority, TimeSpan timeout, List<Task> prerequisites = null)
         {
             Priority = priority;
             Timeout = timeout;
+            if (prerequisites != null)
+            {
+                Prerequisites.AddRange(prerequisites);
+            }
         }
+
     }
 }

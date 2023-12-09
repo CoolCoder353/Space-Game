@@ -14,5 +14,6 @@ public class GatherResourceTask : Task
     {
         // Code to gather the resource...
         Debug.Log($"{pawn.Name} is gathering {Resource}");
+        pawn.moveTo(Resource)
     }
 }

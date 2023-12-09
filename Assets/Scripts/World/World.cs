@@ -40,6 +40,14 @@ namespace WorldGeneration
         private bool isTemperatureVisualizationOn = false;
         private Gradient temperatureGradient;
 
+        #region Getters and Setters
+        public Tile[,] GetMap()
+        {
+            return map;
+        }
+        #endregion
+
+
         private void Awake()
         {
             //TODO: Make this dynamic or smarter in some way.
@@ -460,7 +468,21 @@ namespace WorldGeneration
             return selectedTile;
         }
 
-        //________STATIC METHODS________\\
+        #region Utility Methods
+        public Tile GetTileAtPosition(Vector2 position)
+        {
+            Vector2Int pos = new Vector2Int(Mathf.FloorToInt(position.x / settings.tileScale), Mathf.FloorToInt(position.y / settings.tileScale));
+            return map[pos.x, pos.y];
+        }
+        public Tile GetTileAtPosition(Vector3 position)
+        {
+            return GetTileAtPosition(new Vector2(position.x, position.y));
+        }
+        #endregion
+
+
+
+        #region 'Static Methods'
         public Sprite LoadSprite(TileData data)
         {
             Sprite result = Resources.Load<Sprite>(tileFileLocation + data.spritePath);
@@ -526,6 +548,9 @@ namespace WorldGeneration
 
             return randomPoint;
         }
+
+
+        #endregion
 
 
     }
